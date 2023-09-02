@@ -1,0 +1,6 @@
+[workspace]
+members = [
+    "crates/esp32-s3",
+    "crates/core"
+]
+resolver = "2"

@@ -1,0 +1,9 @@
+/.vscode
+/target
+/Cargo.lock
+/.embuild
+
+crates/esp32-s3/.embuild
+crates/esp32-s3/.github
+crates/esp32-s3/target
+crates/esp32-s3/Cargo.lock
