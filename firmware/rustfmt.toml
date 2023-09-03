@@ -1,0 +1,13 @@
+hard_tabs = true
+match_block_trailing_comma = true
+fn_params_layout = "Compressed"
+attr_fn_like_width = 120
+max_width = 120
+
+# The following lines should be uncommented on nightly Rust.
+# unstable_features = true
+# brace_style = "AlwaysNextLine"
+# control_brace_style = "AlwaysNextLine"
+# imports_granularity = "Crate"
+# group_imports = "StdExternalCrate"
+# where_single_line = true
