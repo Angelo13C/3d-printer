@@ -35,6 +35,7 @@ pub struct Config
     pub hotend_fan_min_duty_cycle_to_move: Percentage,
 }
 
+#[derive(Debug)]
 pub enum CreationError
 {
     PeripheralMissing {
