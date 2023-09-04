@@ -1,6 +1,7 @@
 pub mod drivers;
 pub mod hal;
 mod peripherals;
+pub mod temperature;
 
 pub use peripherals::*;
 
