@@ -2,16 +2,19 @@ pub mod drivers;
 pub mod hal;
 mod peripherals;
 pub mod temperature;
+pub mod time;
 
 pub use peripherals::*;
 
-use self::drivers::fan::Fan;
+use self::{drivers::fan::Fan, time::Clock};
 use crate::utils::math::Percentage;
 
 pub struct Printer3DComponents<P: Peripherals>
 {
 	pub layer_fan: Fan<P::FanPin>,
 	pub hotend_fan: Fan<P::FanPin>,
+
+	pub clock: Clock<P::SystemTime>,
 }
 
 impl<P: Peripherals> Printer3DComponents<P>
@@ -31,11 +34,18 @@ impl<P: Peripherals> Printer3DComponents<P>
 					.ok_or(CreationError::PeripheralMissing { name: "Hotend fan" })?,
 				config.hotend_fan_min_duty_cycle_to_move,
 			),
+			clock: Clock::new(
+				peripherals
+					.take_system_time()
+					.ok_or(CreationError::PeripheralMissing { name: "System time" })?,
+			),
 		})
 	}
 
 	pub fn tick(&mut self)
 	{
+		self.clock.tick();
+		
 		todo!()
 	}
 }
