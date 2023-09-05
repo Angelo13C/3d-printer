@@ -74,6 +74,12 @@ impl<T: SystemTime> Clock<T>
 	{
 		self.get_elapsed_time() - self.last_tick_time
 	}
+
+	/// Blocks this core of the microcontroller for the provided `duration`.
+	pub fn delay(&self, duration: Duration)
+	{
+		self.system_time.delay(duration)
+	}
 }
 
 /// A clock in the microcontroller that can keep time.
@@ -81,6 +87,9 @@ pub trait SystemTime
 {
 	/// Returns the amount of time this microcontroller has been running for.
 	fn now(&self) -> Duration;
+
+	/// Blocks this core of the microcontroller for the provided `duration`.
+	fn delay(&self, duration: Duration);
 }
 
 impl<T: SystemTime> Debug for Clock<T>
