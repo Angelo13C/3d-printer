@@ -1,4 +1,4 @@
-use crate::utils::math::Percentage;
+use crate::utils::{math::Percentage, measurement::frequency::Frequency};
 
 pub trait PwmPin
 {
@@ -6,4 +6,6 @@ pub trait PwmPin
 
 	fn get_duty_cycle(&self) -> Percentage;
 	fn set_duty_cycle(&mut self, percentage: Percentage) -> Result<(), Self::Error>;
+
+	fn set_frequency(&mut self, frequency: Frequency) -> Result<(), Self::Error>;
 }
