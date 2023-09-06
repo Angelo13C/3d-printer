@@ -45,7 +45,7 @@ impl<P: Peripherals> Printer3DComponents<P>
 	pub fn tick(&mut self)
 	{
 		self.clock.tick();
-		
+
 		todo!()
 	}
 }
@@ -57,8 +57,11 @@ pub struct Config
 }
 
 #[derive(Debug)]
+/// An error that can occur when you instatiate a [`Printer3DComponents`] struct.
 pub enum CreationError
 {
+	/// A peripheral from the provided ones is missing (`name` is the name of the peripheral that's missing).
+	/// This means that `peripherals.take_...()` returned `None` instead of `Some`.
 	PeripheralMissing
 	{
 		name: &'static str
