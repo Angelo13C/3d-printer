@@ -100,19 +100,43 @@ impl SmallDuration
 		self.tens_nano_seconds
 	}
 
-	/// Returns the number of microseconds (`10^-6 seconds`) this duration represents.
+	/// Returns the number of microseconds (`10^-6 seconds`) this duration represents (the nanoseconds part is trunked).
+	///
+	/// # Examples
+	/// ```
+	/// # use firmware_core::utils::measurement::duration::SmallDuration;
+	/// #
+	/// // The .9 is trunked
+	/// assert_eq!(SmallDuration::from_tens_of_nanos(590).as_micros(), 5);
+	/// ```
 	pub const fn as_micros(&self) -> u32
 	{
 		self.as_tens_of_nanos() / 100
 	}
 
-	/// Returns the number of milliseconds (`10^-3 seconds`) this duration represents.
+	/// Returns the number of milliseconds (`10^-3 seconds`) this duration represents (the microseconds part is trunked).
+	///
+	/// # Examples
+	/// ```
+	/// # use firmware_core::utils::measurement::duration::SmallDuration;
+	/// #
+	/// // The .8 is trunked
+	/// assert_eq!(SmallDuration::from_micros(5800).as_millis(), 5);
+	/// ```
 	pub const fn as_millis(&self) -> u32
 	{
 		self.as_micros() / 1_000
 	}
 
-	/// Returns the number of seconds this duration represents.
+	/// Returns the number of seconds this duration represents (the milliseconds part is trunked).
+	///
+	/// # Examples
+	/// ```
+	/// # use firmware_core::utils::measurement::duration::SmallDuration;
+	/// #
+	/// // The .9 is trunked
+	/// assert_eq!(SmallDuration::from_millis(5900).as_seconds(), 5);
+	/// ```
 	pub const fn as_seconds(&self) -> u32
 	{
 		self.as_millis() / 1_000
