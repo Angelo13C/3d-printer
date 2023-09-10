@@ -40,7 +40,7 @@ impl Percentage
 	/// ```
 	pub fn from_0_to_1(value: f32) -> Result<Self, ()>
 	{
-		if value >= 0. && value <= 1.
+		if (0_f32..=1_f32).contains(&value)
 		{
 			Ok(Self(value))
 		}
