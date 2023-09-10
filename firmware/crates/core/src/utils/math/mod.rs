@@ -11,6 +11,24 @@ where T: Clone + Copy + Sub<T, Output = T> + Mul<T, Output = T> + Add<T, Output 
 	(value - *from.start()) * (*to.end() - *to.start()) / (*from.end() - *from.start()) + *to.start()
 }
 
+/// [`Linearly interpolates`] between `range.start()` and `range.end()`.
+///
+/// # Examples
+/// ```
+/// # use firmware_core::utils::math;
+/// #
+/// assert_eq!(math::lerp(0.0, 0_f32..=100.), 0.);
+/// assert_eq!(math::lerp(0.5, 0_f32..=100.), 50.);
+/// assert_eq!(math::lerp(1.0, 0_f32..=100.), 100.);
+/// ```
+/// 
+/// [`Linearly interpolates`]: <https://en.wikipedia.org/wiki/Linear_interpolation>
+pub fn lerp<T>(t: f32, range: RangeInclusive<T>) -> T
+where T: Clone + Copy + Sub<T, Output = T> + Mul<f32, Output = T> + Add<T, Output = T>
+{
+	*range.start() + (*range.end() - *range.start()) * t
+}
+
 /// Returns `value` if `value` is contained in the provided `range`, `range.start()` if `value` is smaller
 /// than `range.start()` and `range.end()` if `value` is greater than `range.end()`.
 ///
