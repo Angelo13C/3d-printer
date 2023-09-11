@@ -1,7 +1,7 @@
 use crate::utils::measurement::duration::SmallDuration;
 
 /// A type that can be used to communicate using the [`UART protocol`].
-/// 
+///
 /// [`UART protocol`]: <https://it.wikipedia.org/wiki/UART>
 pub trait Uart
 {

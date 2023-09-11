@@ -22,7 +22,7 @@ where T: Clone + Copy + Sub<T, Output = T> + Mul<T, Output = T> + Add<T, Output 
 /// assert_eq!(math::lerp(0.5, 0_f32..=100.), 50.);
 /// assert_eq!(math::lerp(1.0, 0_f32..=100.), 100.);
 /// ```
-/// 
+///
 /// [`Linearly interpolates`]: <https://en.wikipedia.org/wiki/Linear_interpolation>
 pub fn lerp<T>(t: f32, range: RangeInclusive<T>) -> T
 where T: Clone + Copy + Sub<T, Output = T> + Mul<f32, Output = T> + Add<T, Output = T>
