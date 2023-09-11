@@ -1,4 +1,5 @@
 mod percentage;
+pub mod vectors;
 
 use std::ops::{Add, Div, Mul, RangeInclusive, Sub};
 
