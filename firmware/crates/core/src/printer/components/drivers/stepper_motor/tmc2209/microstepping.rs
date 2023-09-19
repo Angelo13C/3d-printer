@@ -1,5 +1,5 @@
 #[repr(u8)]
-#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+#[derive(Clone, Copy, PartialEq, Eq, Debug, PartialOrd, Ord)]
 /// Amount of [`microsteps`] the motor will require to do a full single step.
 ///
 /// [`microsteps`]: <https://www.trinamic.com/technology/motor-control-technology/microstepping/>
@@ -35,7 +35,7 @@ impl MicrostepsPerStep
 	/// ```
 	pub const MAX_RESOLUTION: Self = Self::M256;
 
-	const fn as_exponent_of_2(&self) -> u8
+	pub const fn as_exponent_of_2(&self) -> u8
 	{
 		*self as u8
 	}
