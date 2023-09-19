@@ -21,8 +21,7 @@ use crate::{
 
 /// A driver to communicate with the [`TMC2209`] chip (to control a stepper motor).
 ///
-/// Only UART communication with the use of STEP and DIR pin to make the motor move
-/// is supported.
+/// Only UART communication is supported.
 ///
 /// This struct contains various methods to change the settings of the TMC2209 chip
 /// writing to its internal registers. Keep in mind that talking to the TMC2209 chip will
@@ -33,23 +32,19 @@ use crate::{
 ///
 /// [`TMC2209's datasheet`]: <https://www.trinamic.com/fileadmin/assets/Products/ICs_Documents/TMC2209_datasheet_rev1.09.pdf>
 /// [`TMC2209`]: <https://www.trinamic.com/products/integrated-circuits/details/tmc2209-la/>
-pub struct TMC2209<DP: OutputPin, SP: OutputPin>
+pub struct TMC2209
 {
-	dir_pin: DP,
-	step_pin: SP,
-
 	address: UARTAddress,
 
 	registers: Registers,
 }
 
-impl<DP: OutputPin, SP: OutputPin> TMC2209<DP, SP>
+impl TMC2209
 {
 	pub const STEP_MIN_LOW_TIME: SmallDuration = SmallDuration::from_tens_of_nanos(10);
 	pub const STEP_MIN_HIGH_TIME: SmallDuration = SmallDuration::from_tens_of_nanos(10);
 
-	/// Returns a [`TMC2209`] driver that is connected to the microcontroller with the
-	/// `dir_pin` on `DIR`, `step_pin` on `STEP` and controlled using `UART`.
+	/// Returns a [`TMC2209`] driver that is connected controlled by the microcontroller using `UART`.
 	///
 	/// This will also set some default settings on the TMC2209 that should be good
 	/// for a 3D printer.
@@ -58,12 +53,10 @@ impl<DP: OutputPin, SP: OutputPin> TMC2209<DP, SP>
 	///
 	/// [`disabled`]: `Self::disable`
 	pub fn new_using_uart<Uart: UartTrait>(
-		dir_pin: DP, step_pin: SP, uart_address: UARTAddress, uart_driver: &mut Uart,
+		uart_address: UARTAddress, uart_driver: &mut Uart,
 	) -> Result<Self, Uart::Error>
 	{
 		let mut self_ = Self {
-			dir_pin,
-			step_pin,
 			address: uart_address,
 			registers: Registers::default(),
 		};
@@ -107,35 +100,6 @@ impl<DP: OutputPin, SP: OutputPin> TMC2209<DP, SP>
 		write_field_of_register(CHOPCONF::TOFF, &mut self.registers.chopconf, 0);
 
 		self.send_register::<CHOPCONF, Uart>(self.registers.chopconf, uart_driver)
-	}
-
-	/// Make the motor take a microstep. The size of the microstep depends on the value you
-	/// [`previously set`].
-	///
-	/// Returns `Ok(())` if the microstep was successfully taken, otherwise returns
-	/// `TakeStepError(...)`.
-	///
-	/// # Blocking
-	/// This function will block the microcontroller for a [`Self::STEP_MIN_HIGH_TIME`]
-	/// duration.
-	///
-	/// [`previously set`]: `Self::set_microsteps_per_step`
-	pub fn take_microstep<T: SystemTime>(
-		&mut self, direction: Direction, clock: &mut Clock<T>,
-	) -> Result<(), TakeStepError<DP, SP>>
-	{
-		match direction
-		{
-			Direction::CW => self.dir_pin.set_high().map_err(|err| TakeStepError::DirPin(err))?,
-			Direction::CCW => self.dir_pin.set_low().map_err(|err| TakeStepError::DirPin(err))?,
-		};
-
-		self.step_pin.set_high().map_err(|err| TakeStepError::StepPin(err))?;
-		clock.delay(Duration::from_nanos(Self::STEP_MIN_HIGH_TIME.as_nanos()));
-
-		self.step_pin.set_low().map_err(|err| TakeStepError::StepPin(err))?;
-
-		Ok(())
 	}
 
 	/// Enable `StealthChop` on the driver, disabling `SpreadCycle`.
@@ -432,15 +396,6 @@ impl<DP: OutputPin, SP: OutputPin> TMC2209<DP, SP>
 
 		Ok(read_reply_datagram.data())
 	}
-}
-
-/// Error that occurred while trying to use [`TMC2209::take_microstep`].
-pub enum TakeStepError<DP: OutputPin, SP: OutputPin>
-{
-	/// Couldn't control the DIR pin.
-	DirPin(DP::Error),
-	/// Couldn't control the STEP pin.
-	StepPin(SP::Error),
 }
 
 /// Error that occurred while trying to read a register of the [`TMC2209`] chip.
