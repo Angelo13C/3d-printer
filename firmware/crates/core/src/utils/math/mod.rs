@@ -1,8 +1,10 @@
+mod number_ext;
 mod percentage;
 pub mod vectors;
 
 use std::ops::{Add, Div, Mul, RangeInclusive, Sub};
 
+pub use number_ext::*;
 pub use percentage::*;
 
 /// Map a value from a range to another.
