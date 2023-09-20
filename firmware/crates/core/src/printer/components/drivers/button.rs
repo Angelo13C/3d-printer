@@ -32,6 +32,33 @@ impl<P: InputPin + InterruptPin> Button<P>
 	/// Check [`P::subscribe`](InterruptPin).
 	pub unsafe fn on_pressed(&mut self, callback: impl FnMut() + 'static) -> Result<(), <P as InterruptPin>::Error>
 	{
-		self.pin.subscribe_to_interrupt(Trigger::PositiveEdge, callback)
+		self.subscribe_to_interrupt(Trigger::PositiveEdge, callback)
+	}
+}
+
+impl<P: InputPin> InputPin for Button<P>
+{
+	type Error = P::Error;
+
+	fn is_high(&self) -> Result<bool, Self::Error>
+	{
+		self.pin.is_high()
+	}
+
+	fn is_low(&self) -> Result<bool, Self::Error>
+	{
+		self.pin.is_low()
+	}
+}
+
+unsafe impl<P: InputPin + InterruptPin> InterruptPin for Button<P>
+{
+	type Error = <P as InterruptPin>::Error;
+
+	unsafe fn subscribe_to_interrupt(
+		&mut self, when_to_trigger: Trigger, callback: impl FnMut() + 'static,
+	) -> Result<(), Self::Error>
+	{
+		self.pin.subscribe_to_interrupt(when_to_trigger, callback)
 	}
 }
