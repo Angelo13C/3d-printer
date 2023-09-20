@@ -10,7 +10,6 @@ pub use microstepping::MicrostepsPerStep;
 pub use slave_address::UARTAddress;
 
 use self::{datagram::*, registers::*};
-use super::Direction;
 use crate::{
 	printer::components::{
 		hal::uart::Uart as UartTrait,
