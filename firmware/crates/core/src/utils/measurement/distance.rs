@@ -1,28 +1,15 @@
 use std::{
 	default::Default,
 	num::ParseIntError,
-	ops::{Add, Div, Mul, Neg, Sub},
+	ops::{Add, AddAssign, Div, Mul, MulAssign, Neg, Sub},
 };
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
-/// A distance with a `1 femtometer` sensitivity (10^-15 meters) and a range of values that goes from `-2^63 m`
-/// to `2^63-1 m` (which is from -9223 to 9223 meters).
-///
-/// The reason the sensitivity is so high is because in the case of a [`LinearStepperMotor`] connected to a lead
-/// screw with an `8mm` lead, with `200` steps per revolution and with the support for `256` microstepping (thanks to the [`TMC2209`])
-/// each microstep will take `8mm / (200 * 256) = 156.25nm`. If the sensitivity was only `1 nanometer` it would mean that for each
-/// microstep there would be an error of `0.25nm`, and in the case of large distances (i.e. `>30cm`) this would adds up and create
-/// errors of almost a millimeter. And also another problem is that using an `i32` to store the
-/// distance in nanometers instead of an `i64` to store it femtometers (which is what I'm doing) would mean that the range
-/// of values storable in this struct would be from `-2 to 2 meters`, which is too tight for measuring the distance
-/// of the filament extruded by the extruder's stepper motor (a 1Kg 1.75mm PLA filament is around 333 meters long, and while
-/// you would never use a whole filament to do a single print, it's possible that you would overshoot the 2 meters limit).
-///
-/// [`LinearStepperMotor`]: `crate::printer::components::motion::LinearStepperMotor`
-/// [`TMC2209`]: `crate::printer::components::drivers::tmc2209::TMC2209`
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Default)]
+/// A distance with a `10 nanometer` sensitivity (10^-8 meters) and a range of values that goes from `10 * (-2^31) nm`
+/// to `10 * (2^31-1) nm` (which is from -21 to 21 meters).
 pub struct Distance
 {
-	femtometers: i64,
+	tens_of_nanometers: i32,
 }
 
 impl Distance
@@ -47,9 +34,9 @@ impl Distance
 
 	/// ```
 	/// # use firmware_core::utils::measurement::distance::Distance;
-	/// assert_eq!(Distance::NANOMETER, Distance::from_nanometers(1));
+	/// assert_eq!(Distance::TENS_OF_NANOMETERS, Distance::from_tens_of_nanometers(1));
 	/// ```
-	pub const NANOMETER: Self = Self::from_nanometers(1);
+	pub const TENS_OF_NANOMETERS: Self = Self::from_tens_of_nanometers(1);
 
 	/// ```
 	/// # use firmware_core::utils::measurement::distance::Distance;
@@ -59,53 +46,23 @@ impl Distance
 
 	/// ```
 	/// # use firmware_core::utils::measurement::distance::Distance;
-	/// assert_eq!(Distance::ZERO, Distance::from_femtometers(0));
+	/// assert_eq!(Distance::ZERO, Distance::from_tens_of_nanometers(0));
 	/// ```
-	pub const ZERO: Self = Self::from_femtometers(0);
+	pub const ZERO: Self = Self::from_tens_of_nanometers(0);
 
-	/// Returns a [`Distance`] from the provided femtometers (`10^-15 meters`).
+	/// Returns a [`Distance`] from the provided tens of nanometers (`10^-8 meters`).
 	///
 	/// # Examples
 	/// ```
 	/// # use firmware_core::utils::measurement::distance::Distance;
 	/// #
-	/// assert_eq!(Distance::from_femtometers(30).as_femtometers(), 30);
-	/// assert_eq!(Distance::from_femtometers(1_400).as_femtometers(), 1_400);
-	/// assert_eq!(Distance::from_femtometers(5_100).as_picometers(), 5);
+	/// assert_eq!(Distance::from_tens_of_nanometers(30).as_tens_of_nanometers(), 30);
+	/// assert_eq!(Distance::from_tens_of_nanometers(1_400).as_tens_of_nanometers(), 1_400);
+	/// assert_eq!(Distance::from_tens_of_nanometers(510).as_micrometers(), 5);
 	/// ```
-	pub const fn from_femtometers(femtometers: i64) -> Self
+	pub const fn from_tens_of_nanometers(tens_of_nanometers: i32) -> Self
 	{
-		Self { femtometers }
-	}
-
-	/// Returns a [`Distance`] from the provided picometers (`10^-12 meters`).
-	///
-	/// # Examples
-	/// ```
-	/// # use firmware_core::utils::measurement::distance::Distance;
-	/// #
-	/// assert_eq!(Distance::from_picometers(30).as_picometers(), 30);
-	/// assert_eq!(Distance::from_picometers(1_400).as_picometers(), 1_400);
-	/// assert_eq!(Distance::from_picometers(5_100).as_nanometers(), 5);
-	/// ```
-	pub const fn from_picometers(picometers: i64) -> Self
-	{
-		Self::from_femtometers(picometers * 1_000)
-	}
-
-	/// Returns a [`Distance`] from the provided nanometers (`10^-9 meters`).
-	///
-	/// # Examples
-	/// ```
-	/// # use firmware_core::utils::measurement::distance::Distance;
-	/// #
-	/// assert_eq!(Distance::from_nanometers(30).as_nanometers(), 30);
-	/// assert_eq!(Distance::from_nanometers(1_400).as_nanometers(), 1_400);
-	/// assert_eq!(Distance::from_nanometers(5_100).as_micrometers(), 5);
-	/// ```
-	pub const fn from_nanometers(nanometers: i64) -> Self
-	{
-		Self::from_picometers(nanometers * 1_000)
+		Self { tens_of_nanometers }
 	}
 
 	/// Returns a [`Distance`] from the provided micrometers (`10^-6 meters`).
@@ -118,9 +75,9 @@ impl Distance
 	/// assert_eq!(Distance::from_micrometers(1_400).as_micrometers(), 1_400);
 	/// assert_eq!(Distance::from_micrometers(5_100).as_millimeters(), 5);
 	/// ```
-	pub const fn from_micrometers(micrometers: i64) -> Self
+	pub const fn from_micrometers(micrometers: i32) -> Self
 	{
-		Self::from_nanometers(micrometers * 1_000)
+		Self::from_tens_of_nanometers(micrometers * 100)
 	}
 
 	/// Returns a [`Distance`] from the provided millimeters (`10^-3 meters`).
@@ -135,7 +92,7 @@ impl Distance
 	/// ```
 	pub const fn from_millimeters(millimeters: i32) -> Self
 	{
-		Self::from_micrometers(millimeters as i64 * 1_000)
+		Self::from_micrometers(millimeters * 1_000)
 	}
 
 	/// Returns a [`Distance`] from the provided centimeters (`10^-2 meters`).
@@ -168,49 +125,23 @@ impl Distance
 		// This conversion of inches to nanometers is separated in two parts
 		// (one which applies the whole part of the number and the other one only for the decimal part)
 		// because of precision errors with float numbers.
-		let inches_to_femtometers = Distance::INCH.as_femtometers();
-		let mut femtometers = (inches.trunc() as i64) * inches_to_femtometers;
-		femtometers += (inches.fract() * inches_to_femtometers as f32) as i64;
-		Self::from_femtometers(femtometers)
+		let inches_to_tens_of_nanometers = Distance::INCH.as_tens_of_nanometers();
+		let mut tens_of_nanometers = (inches.trunc() as i32) * inches_to_tens_of_nanometers;
+		tens_of_nanometers += (inches.fract() * inches_to_tens_of_nanometers as f32) as i32;
+		Self::from_tens_of_nanometers(tens_of_nanometers)
 	}
 
-	/// Returns the number of femtometers (`10^-15 meters`) this distance represents.
+	/// Returns the number of tens of nanometers (`10^-8 meters`) this distance represents.
 	///
 	/// # Examples
 	/// ```
 	/// # use firmware_core::utils::measurement::distance::Distance;
 	/// #
-	/// assert_eq!(Distance::from_femtometers(5_900).as_femtometers(), 5_900);
+	/// assert_eq!(Distance::from_tens_of_nanometers(5_900).as_tens_of_nanometers(), 5_900);
 	/// ```
-	pub const fn as_femtometers(&self) -> i64
+	pub const fn as_tens_of_nanometers(&self) -> i32
 	{
-		self.femtometers
-	}
-
-	/// Returns the number of femtometers (`10^-15 meters`) this distance represents.
-	///
-	/// # Examples
-	/// ```
-	/// # use firmware_core::utils::measurement::distance::Distance;
-	/// #
-	/// assert_eq!(Distance::from_femtometers(5_900).as_femtometers(), 5_900);
-	/// ```
-	pub const fn as_picometers(&self) -> i64
-	{
-		self.as_femtometers() / 1_000
-	}
-
-	/// Returns the number of nanometers (`10^-9 meters`) this distance represents.
-	///
-	/// # Examples
-	/// ```
-	/// # use firmware_core::utils::measurement::distance::Distance;
-	/// #
-	/// assert_eq!(Distance::from_nanometers(5_900).as_nanometers(), 5_900);
-	/// ```
-	pub const fn as_nanometers(&self) -> i64
-	{
-		self.as_picometers() / 1_000
+		self.tens_of_nanometers
 	}
 
 	/// Returns the number of micrometers (`10^-6 meters`) this distance represents (the nanometers part is trunked).
@@ -220,11 +151,11 @@ impl Distance
 	/// # use firmware_core::utils::measurement::distance::Distance;
 	/// #
 	/// // The .9 is trunked
-	/// assert_eq!(Distance::from_nanometers(5_900).as_micrometers(), 5);
+	/// assert_eq!(Distance::from_tens_of_nanometers(590).as_micrometers(), 5);
 	/// ```
-	pub const fn as_micrometers(&self) -> i64
+	pub const fn as_micrometers(&self) -> i32
 	{
-		self.as_nanometers() / 1_000
+		self.as_tens_of_nanometers() / 100
 	}
 
 	/// Returns the number of millimeters (`10^-3 meters`) this distance represents (the micrometers part is trunked).
@@ -276,7 +207,7 @@ impl Mul<i32> for Distance
 
 	fn mul(self, rhs: i32) -> Self::Output
 	{
-		Self::from_femtometers(self.femtometers * rhs as i64)
+		Self::from_tens_of_nanometers(self.tens_of_nanometers * rhs)
 	}
 }
 impl Mul<f32> for Distance
@@ -285,7 +216,14 @@ impl Mul<f32> for Distance
 
 	fn mul(self, rhs: f32) -> Self::Output
 	{
-		Self::from_femtometers((self.femtometers as f64 * rhs as f64) as i64)
+		Self::from_tens_of_nanometers((self.tens_of_nanometers as f64 * rhs as f64) as i32)
+	}
+}
+impl MulAssign<f32> for Distance
+{
+	fn mul_assign(&mut self, rhs: f32)
+	{
+		*self = *self * rhs;
 	}
 }
 impl Div<i32> for Distance
@@ -294,7 +232,7 @@ impl Div<i32> for Distance
 
 	fn div(self, rhs: i32) -> Self::Output
 	{
-		Self::from_femtometers(self.femtometers / rhs as i64)
+		Self::from_tens_of_nanometers(self.tens_of_nanometers / rhs)
 	}
 }
 impl Div<Self> for Distance
@@ -303,7 +241,7 @@ impl Div<Self> for Distance
 
 	fn div(self, rhs: Self) -> Self::Output
 	{
-		(self.as_nanometers() as f64 / rhs.as_nanometers() as f64) as f32
+		(self.as_tens_of_nanometers() as f64 / rhs.as_tens_of_nanometers() as f64) as f32
 	}
 }
 impl Add<Distance> for Distance
@@ -312,7 +250,14 @@ impl Add<Distance> for Distance
 
 	fn add(self, rhs: Self) -> Self::Output
 	{
-		Self::from_femtometers(self.femtometers + rhs.femtometers)
+		Self::from_tens_of_nanometers(self.tens_of_nanometers + rhs.tens_of_nanometers)
+	}
+}
+impl AddAssign for Distance
+{
+	fn add_assign(&mut self, rhs: Self)
+	{
+		*self = *self + rhs;
 	}
 }
 impl Sub<Distance> for Distance
@@ -321,7 +266,7 @@ impl Sub<Distance> for Distance
 
 	fn sub(self, rhs: Self) -> Self::Output
 	{
-		Self::from_femtometers(self.femtometers - rhs.femtometers)
+		Self::from_tens_of_nanometers(self.tens_of_nanometers - rhs.tens_of_nanometers)
 	}
 }
 
@@ -331,7 +276,7 @@ impl Neg for Distance
 
 	fn neg(self) -> Self::Output
 	{
-		Self::from_femtometers(-self.as_femtometers())
+		Self::from_tens_of_nanometers(-self.as_tens_of_nanometers())
 	}
 }
 
@@ -354,11 +299,11 @@ impl Units
 	/// ```
 	/// # use firmware_core::utils::measurement::distance::Units;
 	/// #
-	/// assert_eq!(Units::Millimeters.create_distance("123.569402").unwrap().as_millimeters(), 123);
-	/// assert_eq!(Units::Millimeters.create_distance("123.569402").unwrap().as_nanometers(), 123_569_402);
+	/// assert_eq!(Units::Millimeters.create_distance("123.56940").unwrap().as_millimeters(), 123);
+	/// assert_eq!(Units::Millimeters.create_distance("123.56940").unwrap().as_tens_of_nanometers(), 12_356_940);
 	/// // 5.5 inches are 139.7 millimeters
 	/// assert_eq!(Units::Inches.create_distance("-5.5").unwrap().as_millimeters(), -139);
-	/// assert_eq!(Units::Inches.create_distance("-5.5").unwrap().as_nanometers(), -139_700_000);
+	/// assert_eq!(Units::Inches.create_distance("-5.5").unwrap().as_tens_of_nanometers(), -13_970_000);
 	///
 	/// assert_eq!(Units::Inches.create_distance("-.1").unwrap().as_micrometers(), -2_540);
 	/// ```
@@ -372,18 +317,18 @@ impl Units
 	/// ```
 	pub fn create_distance(&self, value: &str) -> Result<Distance, ParseIntError>
 	{
-		let value_to_femtometers = match self
+		let value_to_tens_of_nanometers = match self
 		{
 			Units::Millimeters => Distance::MILLIMETER,
 			Units::Inches => Distance::INCH,
 		}
-		.as_femtometers();
+		.as_tens_of_nanometers();
 
-		// This conversion of the value to femtometers is separated in two parts
+		// This conversion of the value to tens of nanometers is separated in two parts
 		// (one which applies the whole part of the number and the other one only for the decimal part)
 		// because of precision errors with float numbers.
 		const DECIMAL_SEPARATOR: char = '.';
-		let femtometers = if let Some(decimal_separator_index) = value.find(DECIMAL_SEPARATOR)
+		let tens_of_nanometers = if let Some(decimal_separator_index) = value.find(DECIMAL_SEPARATOR)
 		{
 			let signum = match value.starts_with('-')
 			{
@@ -397,22 +342,22 @@ impl Units
 			}
 			else
 			{
-				value[..decimal_separator_index].parse::<i64>()?
+				value[..decimal_separator_index].parse::<i32>()?
 			};
-			integer_part_of_value *= value_to_femtometers;
+			integer_part_of_value *= value_to_tens_of_nanometers;
 
 			let mut fractional_part_of_value = value[(1 + decimal_separator_index)..].parse::<i64>()?;
 			fractional_part_of_value *= signum;
-			fractional_part_of_value *= value_to_femtometers;
+			fractional_part_of_value *= value_to_tens_of_nanometers as i64;
 			fractional_part_of_value /= 10_i64.pow((value.len() - decimal_separator_index - 1) as u32);
 
-			integer_part_of_value + fractional_part_of_value
+			integer_part_of_value + fractional_part_of_value as i32
 		}
 		else
 		{
-			value_to_femtometers * value.parse::<i64>()?
+			value_to_tens_of_nanometers * value.parse::<i32>()?
 		};
 
-		Ok(Distance::from_femtometers(femtometers))
+		Ok(Distance::from_tens_of_nanometers(tens_of_nanometers))
 	}
 }
