@@ -172,6 +172,23 @@ impl Distance
 		self.as_micrometers() as i32 / 1_000
 	}
 
+	/// Returns the number of millimeters (`10^-3 meters`) this distance represents as a f32.
+	///
+	/// It differs from [`Self::as_millimeters`] due to the fact that the millimeters are of type `f32` (the
+	/// micrometers part is not trunked).
+	///
+	/// # Examples
+	/// ```
+	/// # use firmware_core::utils::measurement::distance::Distance;
+	/// #
+	/// assert_eq!(Distance::from_micrometers(5_900).as_millimeters_f32(), 5.9);
+	/// assert_eq!(Distance::from_micrometers(3_210).as_millimeters_f32(), 3.21);
+	/// ```
+	pub fn as_millimeters_f32(&self) -> f32
+	{
+		self.as_tens_of_nanometers() as f32 / Self::MILLIMETER.as_tens_of_nanometers() as f32
+	}
+
 	/// Returns the number of centimeters (`10^-2 meters`) this distance represents (the millimeters part is trunked).
 	///
 	/// # Examples
