@@ -88,6 +88,28 @@ impl SmallDuration
 		Self::from_millis(seconds as u16 * 1_000)
 	}
 
+	/// Returns a [`SmallDuration`] with a duration of the provided seconds.
+	///
+	/// It differs from [`Self::from_seconds`] due to the fact that the seconds are of type `f32` (the
+	/// subsecond part is not trunked).
+	///
+	/// Keep in mind the [`max value`] this struct can represent.
+	///
+	/// # Examples
+	/// ```
+	/// # use firmware_core::utils::measurement::duration::SmallDuration;
+	/// #
+	/// assert_eq!(SmallDuration::from_seconds_f32(1.41).as_nanos(), 1_410_000_000);
+	/// assert_eq!(SmallDuration::from_seconds_f32(30.2).as_millis(), 30_200);
+	/// assert_eq!(SmallDuration::from_seconds_f32(20.202).as_seconds_f32(), 20.202);
+	/// ```
+	///
+	/// [`max value`]: `Self::MAX_VALUE`
+	pub fn from_seconds_f32(seconds: f32) -> Self
+	{
+		Self::from_tens_of_nanos((seconds * SmallDuration::SECOND.as_tens_of_nanos() as f32) as u32)
+	}
+
 	/// Returns the number of nanoseconds (`10^-9 seconds`) this duration represents.
 	pub const fn as_nanos(&self) -> u64
 	{
@@ -140,6 +162,23 @@ impl SmallDuration
 	pub const fn as_seconds(&self) -> u32
 	{
 		self.as_millis() / 1_000
+	}
+
+	/// Returns the number of seconds this duration represents.
+	///
+	/// It differs from [`Self::as_seconds`] due to the fact that the seconds are of type `f32` (the
+	/// subsecond part is not trunked).
+	///
+	/// # Examples
+	/// ```
+	/// # use firmware_core::utils::measurement::duration::SmallDuration;
+	/// #
+	/// assert_eq!(SmallDuration::from_millis(5_902).as_seconds_f32(), 5.902);
+	/// assert_eq!(SmallDuration::from_millis(3_141).as_seconds_f32(), 3.141);
+	/// ```
+	pub fn as_seconds_f32(&self) -> f32
+	{
+		self.as_tens_of_nanos() as f32 / Self::SECOND.as_tens_of_nanos() as f32
 	}
 }
 
