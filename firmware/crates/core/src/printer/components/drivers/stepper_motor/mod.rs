@@ -1,19 +1,8 @@
 mod direction;
 pub mod tmc2209;
 
-use std::time::Duration;
-
 pub use direction::*;
 use embedded_hal::digital::v2::OutputPin;
-
-use crate::{
-	printer::components::time::{Clock, SystemTime},
-	utils::{
-		bresenham::Bresenham,
-		math,
-		measurement::{duration::SmallDuration, frequency::Frequency},
-	},
-};
 
 /// A [`stepper motor`] connected to a [`stepper driver`] (like the [`TMC2209`]) which is then connected to the microcontroller through
 /// the `DIR` pin and the `STEP` pin.

@@ -3,18 +3,12 @@ mod microstepping;
 mod registers;
 mod slave_address;
 
-use std::time::Duration;
-
-use embedded_hal::digital::v2::OutputPin;
 pub use microstepping::MicrostepsPerStep;
 pub use slave_address::UARTAddress;
 
 use self::{datagram::*, registers::*};
 use crate::{
-	printer::components::{
-		hal::uart::Uart as UartTrait,
-		time::{Clock, SystemTime},
-	},
+	printer::components::hal::uart::Uart as UartTrait,
 	utils::{math::Percentage, measurement::duration::SmallDuration},
 };
 
