@@ -1,6 +1,9 @@
 use embedded_hal::digital::v2::InputPin;
 
-use crate::printer::components::hal::interrupt::{InterruptPin, Trigger};
+use crate::printer::components::{
+	hal::interrupt::{InterruptPin, Trigger},
+	motion::homing::endstop::Endstop,
+};
 
 /// A button connected to the microcontroller that can read if it's pressed through the `P` pin.
 pub struct Button<P: InputPin>
@@ -60,5 +63,23 @@ impl<P: InputPin + InterruptPin> InterruptPin for Button<P>
 	) -> Result<(), Self::Error>
 	{
 		self.pin.subscribe_to_interrupt(when_to_trigger, callback)
+	}
+}
+
+impl<P: InputPin + InterruptPin> Endstop for Button<P>
+{
+	type IsEndReachedError = <P as InputPin>::Error;
+	type OnEndReachedError = <P as InterruptPin>::Error;
+	type HomingError = ();
+
+	fn is_end_reached(&self) -> Result<bool, Self::IsEndReachedError>
+	{
+		self.is_pressed()
+	}
+
+	/// Equivalent to [`Button::on_pressed`], even for safety rules.
+	unsafe fn on_end_reached(&mut self, callback: impl FnMut() + 'static) -> Result<(), Self::OnEndReachedError>
+	{
+		self.on_pressed(callback)
 	}
 }
