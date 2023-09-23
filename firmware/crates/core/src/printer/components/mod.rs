@@ -1,5 +1,6 @@
 pub mod drivers;
 pub mod hal;
+pub mod motion;
 mod peripherals;
 pub mod temperature;
 pub mod time;
