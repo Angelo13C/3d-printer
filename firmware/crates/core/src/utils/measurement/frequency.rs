@@ -1,3 +1,5 @@
+use std::ops::Div;
+
 use super::duration::SmallDuration;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -44,5 +46,15 @@ impl From<SmallDuration> for Frequency
 	fn from(value: SmallDuration) -> Self
 	{
 		Self::from_hertz(SmallDuration::SECOND.as_tens_of_nanos() / value.as_tens_of_nanos())
+	}
+}
+
+impl Div<u32> for Frequency
+{
+	type Output = Self;
+
+	fn div(self, rhs: u32) -> Self::Output
+	{
+		Self::from_hertz(self.as_hertz() / rhs)
 	}
 }
