@@ -1,3 +1,7 @@
+mod cartesian;
+
+pub use cartesian::*;
+
 use crate::utils::measurement::distance::Distance;
 
 /// Type that represents the kinematics of the machine (i.e. how the motion of the `a` and `b` motors effects
