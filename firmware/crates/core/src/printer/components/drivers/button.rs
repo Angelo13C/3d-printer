@@ -51,7 +51,7 @@ impl<P: InputPin> InputPin for Button<P>
 	}
 }
 
-unsafe impl<P: InputPin + InterruptPin> InterruptPin for Button<P>
+impl<P: InputPin + InterruptPin> InterruptPin for Button<P>
 {
 	type Error = <P as InterruptPin>::Error;
 

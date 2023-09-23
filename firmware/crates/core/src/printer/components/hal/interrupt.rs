@@ -1,4 +1,4 @@
-pub unsafe trait InterruptPin
+pub trait InterruptPin
 {
 	type Error;
 
