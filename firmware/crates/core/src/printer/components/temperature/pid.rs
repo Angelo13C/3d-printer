@@ -125,7 +125,7 @@ impl<CHP: PwmPin, TADC: Adc, TP: AdcPin<TADC>> PidController<CHP, TADC, TP>
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-/// An error that occurred when calling [`tick`] on a PID.
+/// An error that occurred when calling [`tick`] on a PID controller.
 ///
 /// [`tick`]: PidController::tick
 pub enum TickError
