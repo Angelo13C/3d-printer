@@ -1,5 +1,7 @@
 use std::{fmt::Debug, time::Duration};
 
+use crate::utils::measurement::frequency::Frequency;
+
 /// A timer that can be used to get the current time it is keeping and also to [`call some callback you provide when a certain
 /// time is reached`].
 ///
@@ -17,6 +19,9 @@ pub trait Timer
 	/// This would be impossible if they were part of the same trait (calling this method borrows mutably, so
 	/// you can't borrow it anymore in the `callback`).
 	fn get_additional_functionality(&self) -> Self::AdditionalFunctionality;
+
+	/// Returns the frequency at which the clock of the timer is running.
+	fn get_clock_frequency(&self) -> Frequency;
 
 	/// Calls the provided `callback` every time the alarm time set using [`TimerAdditionalFunctionality::set_alarm`] is reached.
 	///
