@@ -105,7 +105,7 @@ impl<CHP: PwmPin, TADC: Adc, TP: AdcPin<TADC>> PidController<CHP, TADC, TP>
 		let current_temperature = self
 			.thermistor
 			.read_temperature(adc)
-			.map_err(|_| TickError::ReadTemperature)?;
+			.map_err(|_| TickError::CantReadTemperature)?;
 
 		let mut pwm_value = self
 			.pid_control
@@ -133,7 +133,8 @@ pub enum TickError
 	/// It has been impossible to [`read`] the thermistor's temperature.
 	///
 	/// [`read`]: `Thermistor::read_temperature`
-	ReadTemperature,
+	CantReadTemperature,
+
 	/// It has been impossible to [`set`] the cartridge heater's heat percentage.
 	///
 	/// [`set`]: `CartridgeHeater::set_heat_percentage`
