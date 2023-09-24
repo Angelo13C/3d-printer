@@ -9,4 +9,6 @@ description = "Platform-indipendent code for the 3D printer's firmware"
 [dependencies]
 embedded-hal = { version = "0.2.7", features = ["unproven"] }
 
+enumset = "1.1.2"
+
 pid_control = "0.7.2"
