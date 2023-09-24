@@ -1,5 +1,7 @@
+use enumset::EnumSet;
 use pid_control::Controller;
 
+use super::safety::{self, TemperatureSafety};
 use crate::{
 	printer::components::{
 		drivers::{cartridge_heater::CartridgeHeater, thermistor::Thermistor},
@@ -28,6 +30,7 @@ pub struct PidController<CHP: PwmPin, TADC: Adc, TP: AdcPin<TADC>>
 	thermistor: Thermistor<TADC, TP>,
 	cartridge_heater: CartridgeHeater<CHP>,
 	pid_control: pid_control::PIDController,
+	safety: TemperatureSafety
 }
 
 impl<CHP: PwmPin, TADC: Adc, TP: AdcPin<TADC>> PidController<CHP, TADC, TP>
@@ -42,7 +45,7 @@ impl<CHP: PwmPin, TADC: Adc, TP: AdcPin<TADC>> PidController<CHP, TADC, TP>
 	///
 	/// [`set target temperature`]: `Self::set_target_temperature`
 	/// [`current temperature`]: `Self::get_current_temperature`
-	pub fn new(thermistor: Thermistor<TADC, TP>, cartridge_heater: CartridgeHeater<CHP>, pid_gains: PidGains) -> Self
+	pub fn new(thermistor: Thermistor<TADC, TP>, cartridge_heater: CartridgeHeater<CHP>, pid_gains: PidGains, safety: TemperatureSafety) -> Self
 	{
 		let mut pid_control =
 			pid_control::PIDController::new(pid_gains.p as f64, pid_gains.i as f64, pid_gains.d as f64);
@@ -52,6 +55,7 @@ impl<CHP: PwmPin, TADC: Adc, TP: AdcPin<TADC>> PidController<CHP, TADC, TP>
 			thermistor,
 			cartridge_heater,
 			pid_control,
+    		safety,
 		}
 	}
 
@@ -107,6 +111,12 @@ impl<CHP: PwmPin, TADC: Adc, TP: AdcPin<TADC>> PidController<CHP, TADC, TP>
 			.read_temperature(adc)
 			.map_err(|_| TickError::CantReadTemperature)?;
 
+		let safety_errors = self.safety.is_temperature_safe(current_temperature, self.get_target_temperature(), delta_time as f32);
+		if !safety_errors.is_empty()
+		{
+			return Err(TickError::ReadTemperatureIsWrong(safety_errors))
+		}
+
 		let mut pwm_value = self
 			.pid_control
 			.update(current_temperature.as_kelvin() as f64, delta_time);
@@ -134,6 +144,17 @@ pub enum TickError
 	///
 	/// [`read`]: `Thermistor::read_temperature`
 	CantReadTemperature,
+
+	/// The thermistor's `temperature` has been [`read`], but it's an irregular value.
+	///
+	/// **It could be that the thermistor is damaged, or its connection to the microcontroller is damaged...**
+	/// It could also be a false positive: but it's always better to abort the print and turn off the heaters
+	/// to prevent fire hazards. Then if it was a false positive, it means that the parameters passed
+	/// to [`Safety::new`] are too strict.
+	///
+	/// [`read`]: `Thermistor::read_temperature`
+	/// [`Safety::new`]: `safety::Safety::new`
+	ReadTemperatureIsWrong(EnumSet<safety::TemperatureError>),
 
 	/// It has been impossible to [`set`] the cartridge heater's heat percentage.
 	///
