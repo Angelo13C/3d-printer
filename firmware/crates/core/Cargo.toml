@@ -7,7 +7,7 @@ description = "Platform-indipendent code for the 3D printer's firmware"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-embedded-hal = { version = "0.2.7", features = ["unproven"] }
+embedded-hal = "1.0.0-alpha.10"
 
 pid_control = "0.7.2"
 

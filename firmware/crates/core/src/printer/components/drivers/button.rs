@@ -1,4 +1,4 @@
-use embedded_hal::digital::v2::InputPin;
+use embedded_hal::digital::{ErrorType, InputPin};
 
 use crate::printer::components::{
 	hal::interrupt::{InterruptPin, Trigger},
@@ -21,7 +21,7 @@ impl<P: InputPin> Button<P>
 
 	/// Returns `Ok(true)` if the button is pressed, `Ok(false)` if it isn't pressed and
 	/// `Err(<P as InputPin>::Error)` if there has been an error while reading the button's state.
-	pub fn is_pressed(&self) -> Result<bool, <P as InputPin>::Error>
+	pub fn is_pressed(&self) -> Result<bool, <P as ErrorType>::Error>
 	{
 		self.pin.is_high()
 	}
@@ -39,16 +39,19 @@ impl<P: InputPin + InterruptPin> Button<P>
 	}
 }
 
-impl<P: InputPin> InputPin for Button<P>
+impl<P: InputPin> ErrorType for Button<P>
 {
 	type Error = P::Error;
+}
 
-	fn is_high(&self) -> Result<bool, Self::Error>
+impl<P: InputPin> InputPin for Button<P>
+{
+	fn is_high(&self) -> Result<bool, <Self as ErrorType>::Error>
 	{
 		self.pin.is_high()
 	}
 
-	fn is_low(&self) -> Result<bool, Self::Error>
+	fn is_low(&self) -> Result<bool, <Self as ErrorType>::Error>
 	{
 		self.pin.is_low()
 	}
@@ -68,7 +71,7 @@ impl<P: InputPin + InterruptPin> InterruptPin for Button<P>
 
 impl<P: InputPin + InterruptPin> Endstop for Button<P>
 {
-	type IsEndReachedError = <P as InputPin>::Error;
+	type IsEndReachedError = <P as ErrorType>::Error;
 	type OnEndReachedError = <P as InterruptPin>::Error;
 	type HomingError = ();
 

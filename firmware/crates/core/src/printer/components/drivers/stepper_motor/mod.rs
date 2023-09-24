@@ -2,7 +2,7 @@ mod direction;
 pub mod tmc2209;
 
 pub use direction::*;
-use embedded_hal::digital::v2::OutputPin;
+use embedded_hal::digital::{ErrorType, OutputPin};
 
 /// A [`stepper motor`] connected to a [`stepper driver`] (like the [`TMC2209`]) which is then connected to the microcontroller through
 /// the `DIR` pin and the `STEP` pin.
@@ -37,7 +37,7 @@ impl<DirPin: OutputPin, StepPin: OutputPin> StepperMotor<DirPin, StepPin>
 	/// The direction actually depends also on how the stepper motor is wired to the stepper driver.
 	/// If it is wired in reverse, even the steps it will take are going to be in the opposite direction.
 	pub fn set_rotation_direction(&mut self, direction: RotationalDirection)
-		-> Result<(), <DirPin as OutputPin>::Error>
+		-> Result<(), <DirPin as ErrorType>::Error>
 	{
 		match direction
 		{
@@ -47,13 +47,13 @@ impl<DirPin: OutputPin, StepPin: OutputPin> StepperMotor<DirPin, StepPin>
 	}
 
 	/// Check [`struct's documentation`](Self).
-	pub fn start_step_pulse(&mut self) -> Result<(), <StepPin as OutputPin>::Error>
+	pub fn start_step_pulse(&mut self) -> Result<(), <StepPin as ErrorType>::Error>
 	{
 		self.step_pin.set_high()
 	}
 
 	/// Check [`struct's documentation`](Self).
-	pub fn end_step_pulse(&mut self) -> Result<(), <StepPin as OutputPin>::Error>
+	pub fn end_step_pulse(&mut self) -> Result<(), <StepPin as ErrorType>::Error>
 	{
 		self.step_pin.set_low()
 	}
