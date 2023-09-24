@@ -57,7 +57,7 @@ impl<const N: usize> Bresenham<N>
 			}
 		}
 
-		let mut longest = lengths[longest_index];
+		let longest = lengths[longest_index];
 
 		let errors = [longest / 2; N];
 
