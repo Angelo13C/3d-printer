@@ -1,4 +1,4 @@
-use ringbuffer::{RingBuffer, AllocRingBuffer};
+use ringbuffer::{AllocRingBuffer, RingBuffer};
 
 use super::{config::TemperatureChangeConfig, ProtectionModeTrait};
 use crate::utils::measurement::temperature::Temperature;
@@ -58,10 +58,9 @@ impl RisingMode
 {
 	pub fn new(samples_count: usize) -> Self
 	{
-		Self
-		{
+		Self {
 			samples: AllocRingBuffer::new(samples_count),
-			remaining_seconds_for_new_sample: 0.
+			remaining_seconds_for_new_sample: 0.,
 		}
 	}
 

@@ -23,14 +23,16 @@ impl TemperatureSafety
 	pub fn new(
 		allowed_temperature_range: RangeInclusive<Temperature>,
 		keep_target_temperature_config: TemperatureChangeConfig,
-		rise_to_target_temperature_config: TemperatureChangeConfig,
-		rise_to_target_temperature_samples_count: usize
+		rise_to_target_temperature_config: TemperatureChangeConfig, rise_to_target_temperature_samples_count: usize,
 	) -> Self
 	{
 		Self {
 			allowed_temperature_range: AllowedTemperatureRangeSafety::new(allowed_temperature_range),
 			keep_target_temperature: TemperatureChangeSafety::new(KeepMode::default(), keep_target_temperature_config),
-			rise_to_target_temperature: TemperatureChangeSafety::new(RisingMode::new(rise_to_target_temperature_samples_count), rise_to_target_temperature_config),
+			rise_to_target_temperature: TemperatureChangeSafety::new(
+				RisingMode::new(rise_to_target_temperature_samples_count),
+				rise_to_target_temperature_config,
+			),
 		}
 	}
 
