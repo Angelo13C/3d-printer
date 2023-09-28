@@ -53,7 +53,7 @@ impl<ProtectionMode: ProtectionModeTrait> TemperatureChangeSafety<ProtectionMode
 			self.stop_timer();
 		}
 
-		if let Some(mut current_timer_in_seconds) = self.current_timer_in_seconds.as_mut()
+		if let Some(current_timer_in_seconds) = self.current_timer_in_seconds.as_mut()
 		{
 			if self.protection_mode.should_continue_timer(
 				current_temperature,
