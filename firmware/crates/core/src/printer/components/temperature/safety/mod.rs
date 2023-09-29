@@ -74,15 +74,15 @@ impl TemperatureSafety
 #[derive(enumset::EnumSetType, Debug, Hash)]
 pub enum TemperatureError
 {
-	/// The `current_temperature` is outside the allowable range you provided to [`Safety::new`].
+	/// The `current_temperature` is outside the allowable range you provided to [`TemperatureSafety::new`].
 	CurrentTemperatureOutsideAllowedRange,
 
-	/// The `target_temperature` is outside the allowable range you provided to [`Safety::new`].
+	/// The `target_temperature` is outside the allowable range you provided to [`TemperatureSafety::new`].
 	TargetTemperatureOutsideAllowedRange,
 
 	/// After `current_temperature` reached the `target_temperature` in a previous call to the function,
 	/// the `current_temperature` wasn't kept in the range `target_temperature ± keep_target_temperature_config.hysteresis`
-	/// for more than the `keep_target_temperature_config.period_in_seconds` you provided to [`Safety::new`].
+	/// for more than the `keep_target_temperature_config.period_in_seconds` you provided to [`TemperatureSafety::new`].
 	///
 	/// Check [`this`] for more info.
 	///

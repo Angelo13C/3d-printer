@@ -158,7 +158,7 @@ pub enum TickError
 	/// to [`Safety::new`] are too strict.
 	///
 	/// [`read`]: `Thermistor::read_temperature`
-	/// [`Safety::new`]: `safety::Safety::new`
+	/// [`Safety::new`]: `safety::TemperatureSafety::new`
 	ReadTemperatureIsWrong(EnumSet<safety::TemperatureError>),
 
 	/// It has been impossible to [`set`] the cartridge heater's heat percentage.
