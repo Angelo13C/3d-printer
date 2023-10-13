@@ -4382,7 +4382,7 @@
     )
   )
 
-  (symbol (lib_id "Project:C_Polarized_US") (at 214.63 38.1 0) (mirror x) (unit 1)
+  (symbol (lib_id "Project:C") (at 214.63 38.1 0) (mirror x) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 1dde0e72-b5d7-4003-8538-acf26ea30092)
     (property "Reference" "C6" (at 207.01 38.1 0)
@@ -4391,14 +4391,14 @@
     (property "Value" "0.1µF 50V" (at 203.2 35.56 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
-    (property "Footprint" "" (at 214.63 38.1 0)
+    (property "Footprint" "" (at 215.5952 34.29 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Datasheet" "~" (at 214.63 38.1 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid d154e64a-8be1-47fb-9f28-13edd1a7b1c7))
-    (pin "2" (uuid 46fadb70-0ec8-46e3-8926-8841f2bdea68))
+    (pin "1" (uuid 1e78e305-06f5-4d2f-ada3-50ac6f981b4d))
+    (pin "2" (uuid 88c595ab-9f12-4f4d-8a78-61a34226180c))
     (instances
       (project "controller"
         (path "/b72cfb6e-763f-4aec-88af-02f682ab9e2d"
@@ -4893,7 +4893,7 @@
     )
   )
 
-  (symbol (lib_id "Project:C_Polarized_US") (at 152.4 43.18 270) (mirror x) (unit 1)
+  (symbol (lib_id "Project:C") (at 152.4 43.18 270) (mirror x) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 3697d446-d8c4-4953-a1ba-a4ccab6b502a)
     (property "Reference" "C7" (at 152.4 35.56 90)
@@ -4902,14 +4902,14 @@
     (property "Value" "1µF 16V" (at 148.59 38.1 90)
       (effects (font (size 1.27 1.27)) (justify left))
     )
-    (property "Footprint" "" (at 152.4 43.18 0)
+    (property "Footprint" "" (at 148.59 42.2148 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Datasheet" "~" (at 152.4 43.18 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid b5d03f8e-29e7-4f71-b55f-05ebfb8b2de1))
-    (pin "2" (uuid 0a19e213-6eab-4a8b-b6a5-9498c99d4910))
+    (pin "1" (uuid 7266ec14-7207-46f5-ada7-e40aa6820bfd))
+    (pin "2" (uuid 66f87b9d-90d2-4d0d-b7bf-998b1522b83c))
     (instances
       (project "controller"
         (path "/b72cfb6e-763f-4aec-88af-02f682ab9e2d"
@@ -5806,7 +5806,7 @@
     )
   )
 
-  (symbol (lib_id "Project:C_Polarized_US") (at 322.58 40.64 270) (mirror x) (unit 1)
+  (symbol (lib_id "Project:C") (at 322.58 40.64 270) (mirror x) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 6efc2faf-66b4-47ad-911e-fdc5d6f53f24)
     (property "Reference" "C8" (at 321.31 45.72 90)
@@ -5815,14 +5815,14 @@
     (property "Value" "0.1µF 50V" (at 318.77 48.26 90)
       (effects (font (size 1.27 1.27)) (justify left))
     )
-    (property "Footprint" "" (at 322.58 40.64 0)
+    (property "Footprint" "" (at 318.77 39.6748 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Datasheet" "~" (at 322.58 40.64 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid 849e6b9f-6360-4d46-9343-e0c113aa848b))
-    (pin "2" (uuid 8955c0d6-e82b-46b2-a946-ba6b86e002f4))
+    (pin "1" (uuid 37c126ba-8ff0-41b6-a8d4-c5f4a0a99175))
+    (pin "2" (uuid cf16067b-5715-42ce-9b2d-d3d5bcc69982))
     (instances
       (project "controller"
         (path "/b72cfb6e-763f-4aec-88af-02f682ab9e2d"
@@ -6356,7 +6356,7 @@
     )
   )
 
-  (symbol (lib_id "Project:C_Polarized_US") (at 104.14 127 0) (unit 1)
+  (symbol (lib_id "Project:C") (at 104.14 127 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 8fd28b3e-e1ef-4268-9f1c-a9188aa361c3)
     (property "Reference" "C12" (at 107.95 128.27 0)
@@ -6365,14 +6365,14 @@
     (property "Value" "0.1µF 10V" (at 107.95 130.81 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
-    (property "Footprint" "" (at 104.14 127 0)
+    (property "Footprint" "" (at 105.1052 130.81 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Datasheet" "~" (at 104.14 127 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid 4d6e295b-ec7d-4be6-a135-b4ff9a61505d))
-    (pin "2" (uuid c8a594c6-0610-4a5c-a3fc-bdba3bdeab3f))
+    (pin "1" (uuid d6851d25-3743-4277-8c40-b654f1ce50aa))
+    (pin "2" (uuid 91100fb8-5ef5-4cb4-af4a-085a565e1623))
     (instances
       (project "controller"
         (path "/b72cfb6e-763f-4aec-88af-02f682ab9e2d"
@@ -6592,7 +6592,7 @@
     )
   )
 
-  (symbol (lib_id "Project:C_Polarized_US") (at 311.15 123.19 270) (mirror x) (unit 1)
+  (symbol (lib_id "Project:C") (at 311.15 123.19 270) (mirror x) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 97017ad6-c773-470c-9e85-e5c058db020a)
     (property "Reference" "C10" (at 309.88 128.27 90)
@@ -6601,14 +6601,14 @@
     (property "Value" "0.1µF 50V" (at 307.34 130.81 90)
       (effects (font (size 1.27 1.27)) (justify left))
     )
-    (property "Footprint" "" (at 311.15 123.19 0)
+    (property "Footprint" "" (at 307.34 122.2248 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Datasheet" "~" (at 311.15 123.19 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid 0c47136b-fb23-4f89-a90a-ff2780f253d1))
-    (pin "2" (uuid be384ba6-d925-4b28-bb70-21bdb9a0d9f1))
+    (pin "1" (uuid 52a58174-9caf-44c9-850e-4c4aa913cdd7))
+    (pin "2" (uuid 4ffe2301-be6b-48cb-ad8c-81fa94e6b63c))
     (instances
       (project "controller"
         (path "/b72cfb6e-763f-4aec-88af-02f682ab9e2d"
@@ -7225,8 +7225,8 @@
     (property "Datasheet" "~" (at 93.98 234.95 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid ada4d674-e929-4091-9ed4-8e1842979b68))
-    (pin "2" (uuid f98d1c61-19fe-4e3d-9931-b5fcd48fd45e))
+    (pin "1" (uuid 7bc41c32-05f1-4c2b-92dd-1a9d96cd8f60))
+    (pin "2" (uuid 43c0f676-5143-49f2-986f-70f2549175d2))
     (instances
       (project "controller"
         (path "/b72cfb6e-763f-4aec-88af-02f682ab9e2d"
@@ -7277,8 +7277,8 @@
     (property "Datasheet" "~" (at 176.53 234.95 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid 766c5b83-2827-48a9-af5b-8fa2e7cd07f3))
-    (pin "2" (uuid 898ecb70-f941-4348-a9d2-c7853305e58d))
+    (pin "1" (uuid 41309429-92da-4a71-9c15-36a940d2094f))
+    (pin "2" (uuid 8989887c-d4e5-4b08-94b1-de48655bdd21))
     (instances
       (project "controller"
         (path "/b72cfb6e-763f-4aec-88af-02f682ab9e2d"
@@ -7543,7 +7543,7 @@
     )
   )
 
-  (symbol (lib_id "Project:C_Polarized_US") (at 229.87 38.1 0) (mirror x) (unit 1)
+  (symbol (lib_id "Project:C") (at 229.87 38.1 0) (mirror x) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid d1c8d675-b539-4e2c-95c6-bcfe23d7cf32)
     (property "Reference" "C5" (at 234.95 38.1 0)
@@ -7552,14 +7552,14 @@
     (property "Value" "22µF 25V" (at 231.14 35.56 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
-    (property "Footprint" "" (at 229.87 38.1 0)
+    (property "Footprint" "" (at 230.8352 34.29 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Datasheet" "~" (at 229.87 38.1 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid beb7ff08-34dc-4501-8d7e-cbbf9a8e3cb8))
-    (pin "2" (uuid 29c1bba6-5849-4b7b-b1dc-d232676e7887))
+    (pin "1" (uuid 36cbfae8-7892-44e9-8912-8f9b1aac7aa2))
+    (pin "2" (uuid 2d3c2614-bf58-40c3-bc4c-d9eac4267810))
     (instances
       (project "controller"
         (path "/b72cfb6e-763f-4aec-88af-02f682ab9e2d"
@@ -7748,7 +7748,7 @@
     )
   )
 
-  (symbol (lib_id "Project:C_Polarized_US") (at 317.5 83.82 270) (mirror x) (unit 1)
+  (symbol (lib_id "Project:C") (at 317.5 83.82 270) (mirror x) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid ded6f8c6-ea37-4582-bb0e-cb91eef938f5)
     (property "Reference" "C9" (at 316.23 88.9 90)
@@ -7757,14 +7757,14 @@
     (property "Value" "0.1µF 50V" (at 313.69 91.44 90)
       (effects (font (size 1.27 1.27)) (justify left))
     )
-    (property "Footprint" "" (at 317.5 83.82 0)
+    (property "Footprint" "" (at 313.69 82.8548 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Datasheet" "~" (at 317.5 83.82 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid 0e2eeaee-b9dd-4872-b416-7ff7747228c5))
-    (pin "2" (uuid 8cb4da31-c435-4007-a640-d1a57d774cfe))
+    (pin "1" (uuid a6029bd3-0d7a-4575-86fe-d55794da78fa))
+    (pin "2" (uuid 71a10777-4405-4ed6-8313-08515deed319))
     (instances
       (project "controller"
         (path "/b72cfb6e-763f-4aec-88af-02f682ab9e2d"
@@ -8097,8 +8097,8 @@
     (property "Datasheet" "~" (at 95.25 179.07 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid 64cb8b81-3172-4bc9-ac7c-ba42ad49a7f7))
-    (pin "2" (uuid 54f8c4e3-ecf1-4a81-8622-d7f3c8f16c88))
+    (pin "1" (uuid cf3b5a7c-0da9-4ced-aec6-ef1e511bdbd3))
+    (pin "2" (uuid 9cb916dd-c7ec-497e-a092-908d3fa9594e))
     (instances
       (project "controller"
         (path "/b72cfb6e-763f-4aec-88af-02f682ab9e2d"
@@ -8199,8 +8199,8 @@
     (property "Datasheet" "~" (at 175.26 179.07 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid c24ce9a5-50f8-4dc4-9233-fc06c703f4f0))
-    (pin "2" (uuid 45396382-4f6b-45f3-9e1d-5d0b94deb2a1))
+    (pin "1" (uuid 268166f3-77cc-4900-abfd-9c0ec0325213))
+    (pin "2" (uuid bbb009dc-6157-4744-9ffa-14556df8a4f2))
     (instances
       (project "controller"
         (path "/b72cfb6e-763f-4aec-88af-02f682ab9e2d"
@@ -8340,7 +8340,7 @@
     )
   )
 
-  (symbol (lib_id "Project:C_Polarized_US") (at 396.24 121.92 180) (unit 1)
+  (symbol (lib_id "Project:C") (at 396.24 121.92 180) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid f657f822-eb5c-4173-bf5a-4c3309d1f9c1)
     (property "Reference" "C11" (at 391.16 118.11 0)
@@ -8349,14 +8349,14 @@
     (property "Value" "0.1µF 50V" (at 393.7 120.65 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
-    (property "Footprint" "" (at 396.24 121.92 0)
+    (property "Footprint" "" (at 395.2748 118.11 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Datasheet" "~" (at 396.24 121.92 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid ad6a2569-3f0f-4039-abb6-8c4b7b879106))
-    (pin "2" (uuid 34f0de50-cb36-498f-bf71-d9e5a82ab2db))
+    (pin "1" (uuid e3f62bc2-11c6-4ee1-8720-20e4d17829a2))
+    (pin "2" (uuid 558c28c1-4776-46cc-b5ef-aa8ee17e6a95))
     (instances
       (project "controller"
         (path "/b72cfb6e-763f-4aec-88af-02f682ab9e2d"
