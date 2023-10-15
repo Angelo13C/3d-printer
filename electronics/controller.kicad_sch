@@ -4,6 +4,12 @@
 
   (paper "A3")
 
+  (title_block
+    (title "ESP32-S3 3D printer controller")
+    (date "2023-10-15")
+    (rev "1.0")
+  )
+
   (lib_symbols
     (symbol "Project:+24V" (power) (pin_names (offset 0)) (in_bom yes) (on_board yes)
       (property "Reference" "#PWR" (at 0 -3.81 0)
