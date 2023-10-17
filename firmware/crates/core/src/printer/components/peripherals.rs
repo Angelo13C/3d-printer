@@ -1,8 +1,22 @@
-use super::{hal::pwm::PwmPin, time::SystemTime};
+use super::{
+	hal::{
+		adc::{Adc, AdcPin},
+		pwm::PwmPin,
+		timer::Timer,
+	},
+	time::SystemTime,
+};
 
 pub trait Peripherals
 {
 	type CartridgeHeaterPin: PwmPin;
+	type HotendAdcPin: AdcPin<Self::Adc>;
+
+	type HeatedBedHeaterPin: PwmPin;
+	type HeatedBedAdcPin: AdcPin<Self::Adc>;
+
+	type Adc: Adc;
+
 	type FanPin: PwmPin;
 
 	type SystemTime: SystemTime;

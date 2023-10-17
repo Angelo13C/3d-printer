@@ -9,14 +9,17 @@ pub mod time;
 
 pub use peripherals::*;
 
-use self::{drivers::fan::Fan, time::Clock};
-use crate::utils::math::Percentage;
-use config::ComponentsConfig;
+use self::{config::ComponentsConfig, drivers::fan::Fan, temperature::TemperaturePidController, time::Clock};
 
 pub struct Printer3DComponents<P: Peripherals>
 {
 	pub layer_fan: Fan<P::FanPin>,
 	pub hotend_fan: Fan<P::FanPin>,
+
+	pub hotend_pid_controller: TemperaturePidController<P::CartridgeHeaterPin, P::Adc, P::HotendAdcPin>,
+	pub heated_bed_pid_controller: TemperaturePidController<P::HeatedBedHeaterPin, P::Adc, P::HeatedBedAdcPin>,
+
+	pub adc: P::Adc,
 
 	pub clock: Clock<P::SystemTime>,
 }
@@ -43,6 +46,9 @@ impl<P: Peripherals> Printer3DComponents<P>
 					.take_system_time()
 					.ok_or(CreationError::PeripheralMissing { name: "System time" })?,
 			),
+			hotend_pid_controller: todo!(),
+			heated_bed_pid_controller: todo!(),
+			adc: todo!(),
 		})
 	}
 
