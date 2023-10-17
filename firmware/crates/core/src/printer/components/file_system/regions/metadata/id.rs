@@ -1,6 +1,6 @@
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Debug)]
 /// Unique identifier of a file for a 3D printer.
-/// 2 files on the same printer can never have the same [`FileId`], even after one of them has been deleted (the value of 
+/// 2 files on the same printer can never have the same [`FileId`], even after one of them has been deleted (the value of
 /// FileIds is never reused).
 pub struct FileId(u32);
 
