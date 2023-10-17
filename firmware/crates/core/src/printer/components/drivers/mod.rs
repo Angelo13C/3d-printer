@@ -1,3 +1,4 @@
+pub mod bl_touch;
 pub mod button;
 pub mod cartridge_heater;
 pub mod fan;
