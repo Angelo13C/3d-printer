@@ -1,3 +1,4 @@
+pub mod config;
 pub mod drivers;
 pub mod file_system;
 pub mod hal;
@@ -10,6 +11,7 @@ pub use peripherals::*;
 
 use self::{drivers::fan::Fan, time::Clock};
 use crate::utils::math::Percentage;
+use config::ComponentsConfig;
 
 pub struct Printer3DComponents<P: Peripherals>
 {
@@ -21,7 +23,7 @@ pub struct Printer3DComponents<P: Peripherals>
 
 impl<P: Peripherals> Printer3DComponents<P>
 {
-	pub fn new(peripherals: &mut P, config: Config) -> Result<Self, CreationError>
+	pub fn new(peripherals: &mut P, config: ComponentsConfig) -> Result<Self, CreationError>
 	{
 		Ok(Self {
 			layer_fan: Fan::new(
@@ -50,12 +52,6 @@ impl<P: Peripherals> Printer3DComponents<P>
 
 		todo!()
 	}
-}
-
-pub struct Config
-{
-	pub layer_fan_min_duty_cycle_to_move: Percentage,
-	pub hotend_fan_min_duty_cycle_to_move: Percentage,
 }
 
 #[derive(Debug)]
