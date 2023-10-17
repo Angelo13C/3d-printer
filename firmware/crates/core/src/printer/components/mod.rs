@@ -1,4 +1,5 @@
 pub mod drivers;
+pub mod file_system;
 pub mod hal;
 pub mod motion;
 mod peripherals;
