@@ -390,7 +390,7 @@
       "no_connect_dangling": "warning",
       "pin_not_connected": "error",
       "pin_not_driven": "error",
-      "pin_to_pin": "warning",
+      "pin_to_pin": "error",
       "power_pin_not_driven": "error",
       "similar_labels": "warning",
       "simulation_model_issue": "ignore",
@@ -430,14 +430,183 @@
         "via_diameter": 0.8,
         "via_drill": 0.4,
         "wire_width": 6
+      },
+      {
+        "bus_width": 12,
+        "clearance": 0.2,
+        "diff_pair_gap": 0.25,
+        "diff_pair_via_gap": 0.25,
+        "diff_pair_width": 0.2,
+        "line_style": 0,
+        "microvia_diameter": 0.3,
+        "microvia_drill": 0.1,
+        "name": "1A",
+        "pcb_color": "rgba(0, 0, 0, 0.000)",
+        "schematic_color": "rgba(0, 0, 0, 0.000)",
+        "track_width": 0.25,
+        "via_diameter": 0.8,
+        "via_drill": 0.4,
+        "wire_width": 6
       }
     ],
     "meta": {
       "version": 3
     },
     "net_colors": null,
-    "netclass_assignments": null,
-    "netclass_patterns": []
+    "netclass_assignments": {
+      "Net-(D1-A)": "1A",
+      "Net-(J11-Pin_2)": "1A",
+      "Net-(J2-Pin_2)": "1A",
+      "Net-(J3-Pin_2)": "1A",
+      "Net-(J4-D+-PadA6)": "1A",
+      "Net-(J4-D--PadA7)": "1A",
+      "Net-(Q3-G)": "1A",
+      "Net-(Q4-G)": "1A",
+      "Net-(U3-GPIO17{slash}U1TXD{slash}ADC2_CH6)": "1A",
+      "Net-(U3-GPIO3{slash}TOUCH3{slash}ADC1_CH2)": "1A"
+    },
+    "netclass_patterns": [
+      {
+        "netclass": "1A",
+        "pattern": "/BL_TOUCH_ZMIN"
+      },
+      {
+        "netclass": "1A",
+        "pattern": "/BL_TOUCH_SIGNAL"
+      },
+      {
+        "netclass": "1A",
+        "pattern": "/MOTOR_Z_DIR"
+      },
+      {
+        "netclass": "1A",
+        "pattern": "/MOTOR_Z_STEP"
+      },
+      {
+        "netclass": "1A",
+        "pattern": "/MOTOR_E_DIR"
+      },
+      {
+        "netclass": "1A",
+        "pattern": "/MOTOR_E_STEP"
+      },
+      {
+        "netclass": "1A",
+        "pattern": "/MOTOR_A_DIR"
+      },
+      {
+        "netclass": "1A",
+        "pattern": "/MOTOR_A_STEP"
+      },
+      {
+        "netclass": "1A",
+        "pattern": "/MOTOR_B_DIR"
+      },
+      {
+        "netclass": "1A",
+        "pattern": "/MOTOR_B_STEP"
+      },
+      {
+        "netclass": "1A",
+        "pattern": "/HEATED_BED_CONTROL"
+      },
+      {
+        "netclass": "1A",
+        "pattern": "/HOTEND_CONTROL"
+      },
+      {
+        "netclass": "1A",
+        "pattern": "/USB_D+"
+      },
+      {
+        "netclass": "1A",
+        "pattern": "/USB_D-"
+      },
+      {
+        "netclass": "1A",
+        "pattern": "/BOOT"
+      },
+      {
+        "netclass": "1A",
+        "pattern": "/PAUSE_RESUME_BUTTON"
+      },
+      {
+        "netclass": "1A",
+        "pattern": "/UNUSED_PIN_1"
+      },
+      {
+        "netclass": "1A",
+        "pattern": "/X_AXIS_ENDSTOP"
+      },
+      {
+        "netclass": "1A",
+        "pattern": "/Y_AXIS_ENDSTOP"
+      },
+      {
+        "netclass": "1A",
+        "pattern": "/HEATED_BED_THERMISTOR"
+      },
+      {
+        "netclass": "1A",
+        "pattern": "/HOTEND_THERMISTOR"
+      },
+      {
+        "netclass": "1A",
+        "pattern": "/USB_SENSE"
+      },
+      {
+        "netclass": "1A",
+        "pattern": "/HOLD_IO3"
+      },
+      {
+        "netclass": "1A",
+        "pattern": "/CS_FLASH"
+      },
+      {
+        "netclass": "1A",
+        "pattern": "/SI_IO0"
+      },
+      {
+        "netclass": "1A",
+        "pattern": "/SCK"
+      },
+      {
+        "netclass": "1A",
+        "pattern": "/SO_IO1"
+      },
+      {
+        "netclass": "1A",
+        "pattern": "/WP_IO2"
+      },
+      {
+        "netclass": "1A",
+        "pattern": "/MOTOR_DRIVERS_UART"
+      },
+      {
+        "netclass": "1A",
+        "pattern": "/HOTEND_FAN_CONTROL"
+      },
+      {
+        "netclass": "1A",
+        "pattern": "/UNUSED_PIN_2"
+      },
+      {
+        "netclass": "1A",
+        "pattern": "/LAYER_FAN_CONTROL"
+      },
+      {
+        "netclass": "1A",
+        "pattern": "/EN"
+      },
+      {
+        "netclass": "1A",
+        "pattern": "+3.3V"
+      },
+      {
+        "netclass": "1A",
+        "pattern": "+5V"
+      }
+    ]
   },
   "pcbnew": {
     "last_paths": {
