@@ -895,7 +895,7 @@
     (property "Value" "K7805MT-1000R4" (at 0 7.62 0)
       (effects (font (size 1.27 1.27)))
     )
-    (property "Footprint" "" (at 0 1.27 0)
+    (property "Footprint" "Project:MODULE_6-SMD" (at 0 -19.05 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Datasheet" "https://www.mornsun-power.com/html/pdf/K7805MT-1000R4.html" (at 0 -16.51 0)
