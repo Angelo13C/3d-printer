@@ -447,6 +447,40 @@
         "via_diameter": 0.8,
         "via_drill": 0.4,
         "wire_width": 6
+      },
+      {
+        "bus_width": 12,
+        "clearance": 0.2,
+        "diff_pair_gap": 0.25,
+        "diff_pair_via_gap": 0.25,
+        "diff_pair_width": 0.2,
+        "line_style": 0,
+        "microvia_diameter": 0.3,
+        "microvia_drill": 0.1,
+        "name": "20A",
+        "pcb_color": "rgba(0, 0, 0, 0.000)",
+        "schematic_color": "rgba(0, 0, 0, 0.000)",
+        "track_width": 10.0,
+        "via_diameter": 0.8,
+        "via_drill": 0.4,
+        "wire_width": 6
+      },
+      {
+        "bus_width": 12,
+        "clearance": 0.2,
+        "diff_pair_gap": 0.25,
+        "diff_pair_via_gap": 0.25,
+        "diff_pair_width": 0.2,
+        "line_style": 0,
+        "microvia_diameter": 0.3,
+        "microvia_drill": 0.1,
+        "name": "2A",
+        "pcb_color": "rgba(0, 0, 0, 0.000)",
+        "schematic_color": "rgba(0, 0, 0, 0.000)",
+        "track_width": 0.8,
+        "via_diameter": 0.8,
+        "via_drill": 0.4,
+        "wire_width": 6
       }
     ],
     "meta": {
@@ -455,7 +489,24 @@
     "net_colors": null,
     "netclass_assignments": {
       "Net-(D1-A)": "1A",
+      "Net-(J1-Pin_2)": "20A",
       "Net-(J11-Pin_2)": "1A",
+      "Net-(J13-Pin_1)": "2A",
+      "Net-(J13-Pin_2)": "2A",
+      "Net-(J13-Pin_3)": "2A",
+      "Net-(J13-Pin_4)": "2A",
+      "Net-(J14-Pin_1)": "2A",
+      "Net-(J14-Pin_2)": "2A",
+      "Net-(J14-Pin_3)": "2A",
+      "Net-(J14-Pin_4)": "2A",
+      "Net-(J15-Pin_1)": "2A",
+      "Net-(J15-Pin_2)": "2A",
+      "Net-(J15-Pin_3)": "2A",
+      "Net-(J15-Pin_4)": "2A",
+      "Net-(J16-Pin_1)": "2A",
+      "Net-(J16-Pin_2)": "2A",
+      "Net-(J16-Pin_3)": "2A",
+      "Net-(J16-Pin_4)": "2A",
       "Net-(J2-Pin_2)": "1A",
       "Net-(J3-Pin_2)": "1A",
       "Net-(J4-D+-PadA6)": "1A",
@@ -605,6 +656,10 @@
       {
         "netclass": "1A",
         "pattern": "+5V"
+      },
+      {
+        "netclass": "2A",
+        "pattern": "+24V"
       }
     ]
   },
