@@ -1,7 +1,7 @@
 use std::{
 	default::Default,
 	num::ParseIntError,
-	ops::{Add, AddAssign, Div, Mul, MulAssign, Neg, Sub},
+	ops::{Add, AddAssign, Div, Mul, MulAssign, Neg, Sub, SubAssign},
 };
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Default)]
@@ -284,6 +284,13 @@ impl Sub<Distance> for Distance
 	fn sub(self, rhs: Self) -> Self::Output
 	{
 		Self::from_tens_of_nanometers(self.tens_of_nanometers - rhs.tens_of_nanometers)
+	}
+}
+impl SubAssign for Distance
+{
+	fn sub_assign(&mut self, rhs: Self)
+	{
+		*self = *self - rhs;
 	}
 }
 
