@@ -1,6 +1,7 @@
 pub mod bresenham;
 pub mod math;
 pub mod measurement;
+pub mod mutex;
 
 /// Converts the provided `slice` to an array of the same type and with the length `N`.
 ///
