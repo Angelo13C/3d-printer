@@ -1,4 +1,6 @@
-﻿using System.Net.Http;
+﻿using System;
+using System.Net.Http;
+using System.Threading.Tasks;
 using UnityEngine;
 
 namespace Client.Connectivity
@@ -6,6 +8,6 @@ namespace Client.Connectivity
     public abstract class Connection : MonoBehaviour
     {
         public abstract bool IsConnected();
-        protected abstract bool SendIfPossible(HttpRequestMessage request);
+        public abstract Task<HttpResponseMessage> SendRequest(HttpRequestMessage request, string relativeUri);
     }
 }
