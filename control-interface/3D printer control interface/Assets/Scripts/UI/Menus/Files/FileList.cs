@@ -68,9 +68,24 @@ namespace UI.Menus.Files
             {
                 var childFileBox = transform.GetChild(i).GetComponent<FileBox>();
                 childFileBox.FileName.text = _currentlyStoredFiles[i].Name;
-                childFileBox.FileSize.text = _currentlyStoredFiles[i].SizeInBytes.ToString();
+                childFileBox.FileSize.text = "Size: " + BytesToString(_currentlyStoredFiles[i].SizeInBytes);
                 childFileBox.FileId = _currentlyStoredFiles[i].ID;
             }
+        }
+        
+        private static string BytesToString(ulong byteCount)
+        {
+            string[] suffixes = { "B", "KB", "MB" };
+            const ulong OrderSize = 1024;
+            
+            var order = 0;
+            var byteCountFloat = (float) byteCount;
+            while (byteCountFloat >= OrderSize && order < suffixes.Length - 1) {
+                order++;
+                byteCountFloat /= OrderSize;
+            }
+            
+            return string.Format("{0:0.##}{1}", byteCountFloat, suffixes[order]);;
         }
     }
 }
