@@ -53,6 +53,8 @@ namespace UI.Menus.Files
             var responseBodyString = await response.Content.ReadAsStringAsync();
             var responseBody = JsonUtility.FromJson<HttpResponse>(responseBodyString);
             _currentlyStoredFiles = responseBody.Files;
+            
+            _emptyFileListMessage.SetActive(_currentlyStoredFiles.Count == 0);
         }
 
         private void OnEnable() => Refresh();
