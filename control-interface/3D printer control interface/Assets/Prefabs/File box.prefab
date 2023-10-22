@@ -111,7 +111,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 8236907655535193735}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 5436620878529135070}
+        m_TargetAssemblyTypeName: UI.Menus.Files.FileBox, Assembly-CSharp
+        m_MethodName: PressPrintButton
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &2291771606767529354
 GameObject:
   m_ObjectHideFlags: 0
@@ -223,7 +235,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 3666542755100279497}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 5436620878529135070}
+        m_TargetAssemblyTypeName: UI.Menus.Files.FileBox, Assembly-CSharp
+        m_MethodName: PressDeleteButton
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &5096323747601184468
 GameObject:
   m_ObjectHideFlags: 0
@@ -501,8 +525,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1799751382562461789}
+  - component: {fileID: 5436620878529135070}
   m_Layer: 5
-  m_Name: File
+  m_Name: File box
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -530,6 +555,20 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 90}
   m_Pivot: {x: 0.5, y: 1}
+--- !u!114 &5436620878529135070
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6496921952393588220}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5bff6aeab9947ac8c788e72aa4572e6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  <FileName>k__BackingField: {fileID: 1063440776740548101}
+  <FileSize>k__BackingField: {fileID: 5245578550125746216}
 --- !u!1 &8885539088554349727
 GameObject:
   m_ObjectHideFlags: 0
