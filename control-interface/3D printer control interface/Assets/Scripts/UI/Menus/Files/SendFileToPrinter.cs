@@ -33,7 +33,7 @@ namespace UI.Menus.Files
                             Headers =
                             {
                                 { "length", file.Length.ToString() },
-                                { "name", file.Name }
+                                { "name", Path.GetFileNameWithoutExtension(file.Name) }
                             }
                         };
                         await _httpsClient.SendRequest(request, RequestType.SendFile);
