@@ -2,7 +2,7 @@
 using Unity.VectorGraphics;
 using UnityEngine;
 
-namespace UI
+namespace UI.Menus.Base
 {
     [RequireComponent(typeof(SVGImage))]
     public class ConnectionUI : MonoBehaviour
