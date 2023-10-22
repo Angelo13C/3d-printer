@@ -1,8 +1,6 @@
-﻿using System;
-using UnityEngine;
-using UnityEngine.UI;
+﻿using UnityEngine;
 
-namespace UI
+namespace UI.Menus.Base
 {
     public class MenuUI : MonoBehaviour
     {
@@ -13,16 +11,16 @@ namespace UI
         private void Awake()
         {
             foreach (var menu in _menus)
-                menu.enabled = false;
+                menu.gameObject.SetActive(false);
         }
 
         public void OpenMenu(Canvas menu)
         {
             if (_currentlySelectedMenu != null)
-                _currentlySelectedMenu.enabled = false;
+                _currentlySelectedMenu.gameObject.SetActive(false);
 
             _currentlySelectedMenu = menu;
-            _currentlySelectedMenu.enabled = true;
+            _currentlySelectedMenu.gameObject.SetActive(true);
         }
     }
 }
