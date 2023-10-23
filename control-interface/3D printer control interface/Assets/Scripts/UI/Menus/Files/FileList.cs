@@ -66,7 +66,7 @@ namespace UI.Menus.Files
             for (var i = 0; i < _currentlyStoredFiles.Count - transform.childCount; i++) 
                 Instantiate(_filePrefab, transform);
 
-            for (var i = 0; i < _currentlyStoredFiles.Count; i++)
+            for (var i = 0; i < transform.childCount; i++)
             {
                 var childFileBox = transform.GetChild(i).GetComponent<FileBox>();
                 childFileBox.FileName.text = _currentlyStoredFiles[i].Name;
