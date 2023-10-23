@@ -21,6 +21,6 @@ namespace UI.Menus.Files
     [System.Serializable]
     public struct FileId
     {
-        public uint Value;
+        public uint FileID;
     }
 }
