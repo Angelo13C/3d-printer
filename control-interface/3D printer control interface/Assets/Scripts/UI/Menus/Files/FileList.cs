@@ -20,7 +20,7 @@ namespace UI.Menus.Files
         private List<HttpResponse.File> _currentlyStoredFiles = new(20);
 
         [System.Serializable]
-        struct HttpResponse
+        public struct HttpResponse
         {
             public List<File> Files;
 
@@ -63,8 +63,12 @@ namespace UI.Menus.Files
         {
             for (var i = 0; i < transform.childCount - _currentlyStoredFiles.Count; i++)
                 Destroy(transform.GetChild(i).gameObject);
-            for (var i = 0; i < _currentlyStoredFiles.Count - transform.childCount; i++) 
-                Instantiate(_filePrefab, transform);
+            for (var i = 0; i < _currentlyStoredFiles.Count - transform.childCount; i++)
+            {
+                var newFileBox = Instantiate(_filePrefab, transform).GetComponent<FileBox>();
+                newFileBox.OnPrintButtonPressed += PrintFile;
+                newFileBox.OnDeleteButtonPressed += DeleteFile;
+            }
 
             for (var i = 0; i < transform.childCount; i++)
             {
@@ -73,6 +77,26 @@ namespace UI.Menus.Files
                 childFileBox.FileSize.text = "Size: " + BytesToString(_currentlyStoredFiles[i].SizeInBytes);
                 childFileBox.FileId = _currentlyStoredFiles[i].ID;
             }
+        }
+
+        private async void PrintFile(FileId fileId)
+        {
+            var request = new HttpRequestMessage
+            {
+                Method = HttpMethod.Post,
+                Content = new StringContent(JsonUtility.ToJson(fileId), Encoding.UTF8)
+            };
+            await _httpsClient.SendRequest(request, RequestType.PrintFile);
+        }
+
+        private async void DeleteFile(FileId fileId)
+        {
+            var request = new HttpRequestMessage
+            {
+                Method = HttpMethod.Delete,
+                Content = new StringContent(JsonUtility.ToJson(fileId), Encoding.UTF8)
+            };
+            await _httpsClient.SendRequest(request, RequestType.DeleteFile);
         }
         
         private static string BytesToString(ulong byteCount)
