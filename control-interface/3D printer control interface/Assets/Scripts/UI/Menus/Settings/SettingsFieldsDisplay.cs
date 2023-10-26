@@ -10,25 +10,37 @@ namespace UI.Menus.Settings
         [Header("Prefabs")]
         [SerializeField] private GameObject _blockPrefab;
         [SerializeField] private GameObject _fieldPrefab;
+        [SerializeField] private GameObject _pidFieldPrefab;
 
         [Header("Customization")] 
         [SerializeField] private float _rightPaddingForUnits = 20;
         
         private void Awake()
         {
+            var child = 0;
             foreach (var block in _settingsFields.Blocks)
             {
-                var blockGameObject = Instantiate(_blockPrefab, transform);
+                var blockGameObject = Instantiate(_blockPrefab, transform.GetChild(child));
                 blockGameObject.GetComponent<TextMeshProUGUI>().text = block.Title;
+
+                child = child == 0 ? 1 : 0;
 
                 foreach (var field in block.Fields)
                 {
-                    var fieldGameObject = Instantiate(_fieldPrefab, blockGameObject.transform);
-                    fieldGameObject.GetComponentInChildren<TextMeshProUGUI>().text = field.Name;
+                    if (field.Type == SettingsFields.Block.Field.FieldType.PIDGains)
+                    {
+                        var fieldGameObject = Instantiate(_pidFieldPrefab, blockGameObject.transform);
+                        fieldGameObject.GetComponentInChildren<TextMeshProUGUI>().text = field.Name;
+                    }
+                    else
+                    {
+                        var fieldGameObject = Instantiate(_fieldPrefab, blockGameObject.transform);
+                        fieldGameObject.GetComponentInChildren<TextMeshProUGUI>().text = field.Name;
 
-                    var inputField = fieldGameObject.GetComponentInChildren<TMP_InputField>();
+                        var inputField = fieldGameObject.GetComponentInChildren<TMP_InputField>();
                     
-                    ApplyFieldTypeSettings(field.Type, inputField);
+                        ApplyFieldTypeSettings(field.Type, inputField);
+                    }
                 }
             }
         }

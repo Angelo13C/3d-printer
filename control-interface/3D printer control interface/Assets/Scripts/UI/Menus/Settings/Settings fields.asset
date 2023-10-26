@@ -13,9 +13,15 @@ MonoBehaviour:
   m_Name: Settings fields
   m_EditorClassIdentifier: 
   <Blocks>k__BackingField:
-  - Title: Endstops
+  - Title: Endstops offset
     Fields:
-    - Name: X Offset
+    - Name: X
       Type: 1
-    - Name: Y Offset
+    - Name: Y
       Type: 1
+  - Title: Heaters (PID gains)
+    Fields:
+    - Name: Hotend
+      Type: 2
+    - Name: Bed
+      Type: 2

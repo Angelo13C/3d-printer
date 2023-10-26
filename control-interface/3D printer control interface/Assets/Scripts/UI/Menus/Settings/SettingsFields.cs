@@ -22,7 +22,8 @@ namespace UI.Menus.Settings
                 public enum FieldType
                 {
                     Int,
-                    Distance
+                    Distance,
+                    PIDGains
                 }
             }
         }
