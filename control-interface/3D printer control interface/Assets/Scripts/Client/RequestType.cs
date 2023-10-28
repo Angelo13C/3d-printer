@@ -9,6 +9,8 @@ namespace Client
         PrintFile,
         SendFile,
         GetPrintStatus,
+        PauseOrResume,
+        PrinterState,
     }
     
     public static class RequestTypeExtensions
@@ -22,6 +24,8 @@ namespace Client
                 case RequestType.PrintFile:     return "print-file";
                 case RequestType.SendFile:      return "send-file";
                 case RequestType.GetPrintStatus: return "print-status";
+                case RequestType.PauseOrResume: return "pause-or-resume";
+                case RequestType.PrinterState: return "printer-state";
                 default: throw new NotImplementedException();
             }
         }
