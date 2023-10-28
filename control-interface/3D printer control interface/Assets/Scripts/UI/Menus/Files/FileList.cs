@@ -46,13 +46,11 @@ namespace UI.Menus.Files
             {
                 Method = HttpMethod.Get
             };
-            var response = await _httpsClient.SendRequest(request, RequestType.ListFiles);
-            if (response == null || response.Content == null)
+            var (hasResponse, response) = await _httpsClient.SendRequest<HttpResponse>(request, RequestType.ListFiles);
+            if (!hasResponse)
                 return;
             
-            var responseBodyString = await response.Content.ReadAsStringAsync();
-            var responseBody = JsonUtility.FromJson<HttpResponse>(responseBodyString);
-            _currentlyStoredFiles = responseBody.Files;
+            _currentlyStoredFiles = response.Files;
             
             _emptyFileListMessage.SetActive(_currentlyStoredFiles.Count == 0);
         }
@@ -86,7 +84,7 @@ namespace UI.Menus.Files
                 Method = HttpMethod.Post,
                 Content = new StringContent(JsonUtility.ToJson(fileId), Encoding.UTF8)
             };
-            await _httpsClient.SendRequest(request, RequestType.PrintFile);
+            await _httpsClient.SendRequestGetRawResponse(request, RequestType.PrintFile);
         }
 
         private async void DeleteFile(FileId fileId)
@@ -96,7 +94,7 @@ namespace UI.Menus.Files
                 Method = HttpMethod.Delete,
                 Content = new StringContent(JsonUtility.ToJson(fileId), Encoding.UTF8)
             };
-            await _httpsClient.SendRequest(request, RequestType.DeleteFile);
+            await _httpsClient.SendRequestGetRawResponse(request, RequestType.DeleteFile);
         }
         
         private static string BytesToString(ulong byteCount)

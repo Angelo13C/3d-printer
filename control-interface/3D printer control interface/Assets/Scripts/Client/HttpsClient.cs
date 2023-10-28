@@ -26,7 +26,18 @@ namespace Client
         }
 
         [CanBeNull]
-        public async Task<HttpResponseMessage> SendRequest(HttpRequestMessage request, RequestType requestType)
+        public async Task<(bool, T)> SendRequest<T>(HttpRequestMessage request, RequestType requestType)
+        {
+            var response = await SendRequestGetRawResponse(request, requestType);
+            if (response == null || response.Content == null)
+                return (false, default);
+            
+            var responseBodyString = await response.Content.ReadAsStringAsync();
+            return (true, JsonUtility.FromJson<T>(responseBodyString));
+        }
+
+        [CanBeNull]
+        public async Task<HttpResponseMessage> SendRequestGetRawResponse(HttpRequestMessage request, RequestType requestType)
         {
             foreach (var connection in _connections)
             {

@@ -36,7 +36,7 @@ namespace UI.Menus.Files
                                 { "name", Path.GetFileNameWithoutExtension(file.Name) }
                             }
                         };
-                        await _httpsClient.SendRequest(request, RequestType.SendFile);
+                        await _httpsClient.SendRequestGetRawResponse(request, RequestType.SendFile);
                     }
                 }
             });
