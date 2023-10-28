@@ -7,7 +7,8 @@ namespace Client
         ListFiles,
         DeleteFile,
         PrintFile,
-        SendFile
+        SendFile,
+        GetPrintStatus,
     }
     
     public static class RequestTypeExtensions
@@ -20,6 +21,7 @@ namespace Client
                 case RequestType.DeleteFile:    return "delete-file";
                 case RequestType.PrintFile:     return "print-file";
                 case RequestType.SendFile:      return "send-file";
+                case RequestType.GetPrintStatus: return "print-status";
                 default: throw new NotImplementedException();
             }
         }
