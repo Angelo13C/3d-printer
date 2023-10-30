@@ -9,12 +9,17 @@ pub mod time;
 
 pub use peripherals::*;
 
-use self::{config::ComponentsConfig, drivers::fan::Fan, temperature::TemperaturePidController, time::Clock};
+use self::{
+	config::ComponentsConfig, drivers::fan::Fan, motion::MotionController, temperature::TemperaturePidController,
+	time::Clock,
+};
 
 pub struct Printer3DComponents<P: Peripherals>
 {
 	pub layer_fan: Fan<P::FanPin>,
 	pub hotend_fan: Fan<P::FanPin>,
+
+	pub motion_controller: MotionController<P::StepperTickerTimer, P::Kinematics, P::ZAxisEndstop>,
 
 	pub hotend_pid_controller: TemperaturePidController<P::CartridgeHeaterPin, P::Adc, P::HotendAdcPin>,
 	pub heated_bed_pid_controller: TemperaturePidController<P::HeatedBedHeaterPin, P::Adc, P::HeatedBedAdcPin>,
@@ -49,6 +54,7 @@ impl<P: Peripherals> Printer3DComponents<P>
 			hotend_pid_controller: todo!(),
 			heated_bed_pid_controller: todo!(),
 			adc: todo!(),
+			motion_controller: todo!(),
 		})
 	}
 

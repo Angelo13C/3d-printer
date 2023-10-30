@@ -267,7 +267,7 @@ impl<Timer: TimerTrait> StepperMotorsTicker<Timer>
 			}
 		}
 
-		// The timer's counter is not resetted, so instead of simply setting the alarm to the `next_isr_tick` the current 
+		// The timer's counter is not resetted, so instead of simply setting the alarm to the `next_isr_tick` the current
 		// time (`start_isr_time`) is added to it
 		let alarm = Duration::from_nanos(next_isr_tick.as_nanos() + start_isr_time);
 		parameters.timer.set_alarm(alarm).unwrap();
