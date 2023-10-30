@@ -1,6 +1,332 @@
+use std::time::Duration;
+
+use embedded_hal::digital::OutputPin;
 pub use linear::*;
 
+use self::{
+	axes::Axis,
+	bed_leveling::{Probe, ZAxisProbe},
+	homing::{endstop::Endstop, HomingProcedure},
+	kinematics::Kinematics as KinematicsTrait,
+	planner::{communicate_to_ticker, BlocksBufferIsFull, Planner, Settings},
+	ticker::StepperMotorsTicker,
+};
+use super::{
+	drivers::stepper_motor::{tmc2209::TMC2209, StepperMotor},
+	hal::timer::Timer as TimerTrait,
+};
+use crate::utils::{
+	math::vectors::{Vector2, VectorN},
+	measurement::distance::Distance,
+};
+
 pub mod axes;
+pub mod bed_leveling;
 pub mod homing;
 pub mod kinematics;
 mod linear;
+pub mod planner;
+pub mod ticker;
+
+/// Number of stepper motors controlled by the machine.
+pub const N_MOTORS: usize = 4;
+
+const DEFAULT_FEED_RATE: f32 = 3_000.;
+
+/// Controls all the stuff (moves, homing, bed levelling..) related to the movement of everything inside the machine.
+pub struct MotionController<Timer: TimerTrait, Kinematics: KinematicsTrait, ZEndstop: ZAxisProbe>
+{
+	planner: Planner<N_MOTORS>,
+
+	ticker: StepperMotorsTicker<Timer>,
+
+	tmc2209_drivers: [TMC2209; N_MOTORS],
+	rotations_to_linear_motions: [RotationToLinearMotion; N_MOTORS],
+	kinematics: Kinematics,
+
+	homing_procedure: HomingProcedure,
+
+	current_move: Option<CurrentMove>,
+
+	z_endstop: Probe<ZEndstop>,
+
+	bed_size: Vector2,
+	next_move_feed_rate: f32,
+}
+
+impl<Timer: TimerTrait, Kinematics: KinematicsTrait, ZEndstop: ZAxisProbe> MotionController<Timer, Kinematics, ZEndstop>
+{
+	pub fn new<
+		LeftDirPin: OutputPin + 'static,
+		LeftStepPin: OutputPin + 'static,
+		RightDirPin: OutputPin + 'static,
+		RightStepPin: OutputPin + 'static,
+		ZAxisDirPin: OutputPin + 'static,
+		ZAxisStepPin: OutputPin + 'static,
+		ExtruderDirPin: OutputPin + 'static,
+		ExtruderStepPin: OutputPin + 'static,
+		XEndstop: Endstop + 'static,
+		YEndstop: Endstop + 'static,
+	>(
+		mut configuration: CreationParameters<
+			Timer,
+			Kinematics,
+			LeftDirPin,
+			LeftStepPin,
+			RightDirPin,
+			RightStepPin,
+			ZAxisDirPin,
+			ZAxisStepPin,
+			ExtruderDirPin,
+			ExtruderStepPin,
+			XEndstop,
+			YEndstop,
+			ZEndstop,
+		>,
+	) -> Result<Self, CreationError<Timer, ZEndstop>>
+	{
+		communicate_to_ticker::set_kinematics_functions::<Kinematics>();
+
+		let mut ticker = StepperMotorsTicker::new(
+			configuration.left_motor.stepper_motor,
+			configuration.right_motor.stepper_motor,
+			configuration.z_axis_motor.stepper_motor,
+			configuration.extruder_motor.stepper_motor,
+			configuration.ticker_timer,
+			configuration.x_endstop,
+			configuration.y_endstop,
+			&mut configuration.z_endstop,
+		)
+		.map_err(CreationError::CreateStepperTickerTimer)?;
+
+		ticker.enable().map_err(CreationError::EnableStepperTickerTimer)?;
+
+		Ok(Self {
+			planner: Planner::new(configuration.planner_blocks_count, &ticker, configuration.settings),
+			ticker,
+			kinematics: configuration.kinematics,
+			bed_size: configuration.bed_size,
+			current_move: None,
+			homing_procedure: HomingProcedure::None,
+			tmc2209_drivers: [
+				configuration.left_motor.tmc2209,
+				configuration.right_motor.tmc2209,
+				configuration.z_axis_motor.tmc2209,
+				configuration.extruder_motor.tmc2209,
+			],
+			rotations_to_linear_motions: [
+				configuration.left_motor.rotation_to_linear_motion,
+				configuration.right_motor.rotation_to_linear_motion,
+				configuration.z_axis_motor.rotation_to_linear_motion,
+				configuration.extruder_motor.rotation_to_linear_motion,
+			],
+			next_move_feed_rate: DEFAULT_FEED_RATE,
+			z_endstop: configuration.z_endstop,
+		})
+	}
+
+	/// Make the tool move to the provided coordinates after the previous moves are completed (and after
+	/// [`Self::mark_last_move_as_ready_to_go`] has been called!).
+	///
+	/// `x`, `y`, `z`, `e` (extruder) are the movements along each respective axis, and for the ones of them that are set
+	/// to `None` there won't be any movement along that axis.
+	///
+	/// The optional `feed_rate` will determine the speed of not only this move, but also all the subsequent ones.
+	/// 
+	/// Returns `Err(BlocksBufferIsFull)` if the move couldn't be planned, and you **MUST** call this method again
+	/// to try to plan it!
+	/// 
+	/// # Warning
+	/// This motion controller must be [`ticked`] to effectively execute the moves.
+	/// 
+	/// [`ticked`]: Self::tick
+	pub fn plan_move(
+		&mut self, x: Option<Distance>, y: Option<Distance>, z: Option<Distance>, e: Option<Distance>,
+		feed_rate: Option<f32>,
+	) -> Result<(), BlocksBufferIsFull>
+	{
+		if let Some(feed_rate) = feed_rate
+		{
+			self.next_move_feed_rate = feed_rate;
+		}
+
+		let mut target_position = self.planner.get_position().clone();
+		let mut set_target_position_axis = |distance, index| {
+			if let Some(distance) = distance
+			{
+				target_position[index] = distance;
+			}
+		};
+		(set_target_position_axis)(x, Axis::X as usize);
+		(set_target_position_axis)(y, Axis::Y as usize);
+		(set_target_position_axis)(z, Axis::Z as usize);
+		(set_target_position_axis)(e, Axis::E as usize);
+
+		self.planner.plan_move::<Kinematics>(
+			target_position,
+			calculate_microsteps_per_mm(&self.rotations_to_linear_motions, &self.tmc2209_drivers),
+			self.next_move_feed_rate,
+		)?;
+
+		Ok(())
+	}
+
+	/// Make the last [`planned move`] ready to be executed.
+	/// 
+	/// [`planned move`]: Self::plan_move
+	pub fn mark_last_move_as_ready_to_go(&mut self)
+	{
+		self.planner.mark_last_added_move_as_ready_to_go()
+	}
+
+	/// This method internally ticks the [`HomingProcedure`] and the [`Planner`], executing the planned moves.
+	pub fn tick(&mut self) -> Result<(), homing::TickError<Probe<ZEndstop>>>
+	{
+		self.homing_procedure.tick::<N_MOTORS, Kinematics, _>(
+			&mut self.planner,
+			|| calculate_microsteps_per_mm(&self.rotations_to_linear_motions, &self.tmc2209_drivers),
+			&mut self.z_endstop,
+			self.bed_size,
+		)?;
+
+		if let Some(current_move_steps_difference) = self.planner.tick()
+		{
+			let steps_to_distance = |steps_index: usize| {
+				let steps = current_move_steps_difference[steps_index];
+				self.rotations_to_linear_motions[steps_index].microsteps_to_distance(steps)
+			};
+			let a_distance = (steps_to_distance)(0);
+			let b_distance = (steps_to_distance)(1);
+
+			let steps_difference = VectorN::new([
+				Kinematics::ab_displacement_to_x(a_distance, b_distance),
+				Kinematics::ab_displacement_to_y(a_distance, b_distance),
+				(steps_to_distance)(Axis::Z as usize),
+				(steps_to_distance)(Axis::E as usize),
+			]);
+
+			let last_end_position = self
+				.current_move
+				.as_ref()
+				.map(|current_move| current_move.end_position.clone())
+				.unwrap_or(VectorN::ZERO);
+			self.current_move = Some(CurrentMove {
+				start_position: last_end_position.clone(),
+				end_position: steps_difference + &last_end_position,
+				start_time: self.ticker.get_time().ok(),
+			});
+		}
+
+		Ok(())
+	}
+
+	/// Make the machine start the [`HomingProcedure`] after all the planned moves are completed.
+	/// 
+	/// Returns `Err(BlocksBufferIsFull)` if the procedure couldn't be started, and you **MUST** call this method again
+	/// to try to start it!
+	pub fn start_homing(&mut self) -> Result<(), BlocksBufferIsFull>
+	{
+		self.homing_procedure
+			.start_homing::<N_MOTORS, Kinematics>(&mut self.planner, || {
+				calculate_microsteps_per_mm(&self.rotations_to_linear_motions, &self.tmc2209_drivers)
+			})?;
+		ticker::start_homing();
+		
+		Ok(())
+	}
+
+	/// TODO!
+	pub fn start_bed_leveling(&mut self)
+	{
+		todo!();
+	}
+
+	/// Returns a mutable reference to the [`TMC2209`] driver you provided to [`Self::new`]
+	/// that drives the stepper motor on the specific `axis`.
+	///
+	/// # Warning
+	/// It's better if you don't modify any setting of any TMC2209 driver while there is a print going on.
+	/// This is because talking to the chip needs some time, and even delays are used in internal TMC2209 functions.
+	/// A delay could block the [`StepperMotorsTicker`] from doing its job resulting in missed steps and bad prints.
+	///
+	/// Consider changing all the TMC2209's settings before or after a print.
+	pub fn get_tmc2209_driver(&mut self, axis: Axis) -> &mut TMC2209
+	{
+		&mut self.tmc2209_drivers[axis as usize]
+	}
+}
+
+struct CurrentMove
+{
+	start_position: VectorN<N_MOTORS>,
+	end_position: VectorN<N_MOTORS>,
+	start_time: Option<Duration>,
+}
+
+/// Data necessary to create a [`MotionController`].
+pub struct CreationParameters<
+	Timer: TimerTrait,
+	Kinematics: KinematicsTrait,
+	LeftDirPin: OutputPin + 'static,
+	LeftStepPin: OutputPin + 'static,
+	RightDirPin: OutputPin + 'static,
+	RightStepPin: OutputPin + 'static,
+	ZAxisDirPin: OutputPin + 'static,
+	ZAxisStepPin: OutputPin + 'static,
+	ExtruderDirPin: OutputPin + 'static,
+	ExtruderStepPin: OutputPin + 'static,
+	XEndstop: Endstop,
+	YEndstop: Endstop,
+	ZEndstop: ZAxisProbe,
+> {
+	pub left_motor: MotorConfig<LeftDirPin, LeftStepPin>,
+	pub right_motor: MotorConfig<RightDirPin, RightStepPin>,
+	pub z_axis_motor: MotorConfig<ZAxisDirPin, ZAxisStepPin>,
+	pub extruder_motor: MotorConfig<ExtruderDirPin, ExtruderStepPin>,
+
+	pub ticker_timer: Timer,
+
+	pub kinematics: Kinematics,
+
+	pub bed_size: Vector2,
+
+	pub planner_blocks_count: usize,
+
+	pub x_endstop: XEndstop,
+	pub y_endstop: YEndstop,
+	pub z_endstop: Probe<ZEndstop>,
+
+	pub settings: Settings<N_MOTORS>,
+}
+
+/// Data necessary to control a stepper motor.
+pub struct MotorConfig<DP: OutputPin, SP: OutputPin>
+{
+	pub stepper_motor: StepperMotor<DP, SP>,
+	pub tmc2209: TMC2209,
+	pub rotation_to_linear_motion: RotationToLinearMotion,
+}
+
+/// An error that can occur when you instatiate a [`MotionController`] struct.
+pub enum CreationError<Timer: TimerTrait, ZEndstop: ZAxisProbe>
+{
+	CreateStepperTickerTimer(ticker::CreationError<Timer, ZEndstop>),
+	EnableStepperTickerTimer(ticker::EnableError<Timer>),
+}
+
+fn calculate_microsteps_per_mm(
+	rotations_to_linear_motions: &[RotationToLinearMotion; N_MOTORS], tmc2209_drivers: &[TMC2209; N_MOTORS],
+) -> [f32; N_MOTORS]
+{
+	let mut microsteps_per_mm = [0.; N_MOTORS];
+	for i in 0..N_MOTORS
+	{
+		let steps_per_mm = rotations_to_linear_motions[i].distance_to_microsteps(Distance::MILLIMETER) as f32;
+		let microsteps_taken_per_step = tmc2209_drivers[i]
+			.get_microsteps_per_step()
+			.as_max_resolution_microsteps_count() as f32;
+		microsteps_per_mm[i] = steps_per_mm / microsteps_taken_per_step;
+	}
+
+	microsteps_per_mm
+}
