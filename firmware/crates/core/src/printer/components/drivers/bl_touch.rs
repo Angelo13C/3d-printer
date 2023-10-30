@@ -17,9 +17,6 @@ const MAX_PULSE_DURATION: u32 = 2400;
 
 /// A [`BLTouch`] sensor.
 ///
-/// # Alarm mode
-///
-///
 /// [`BLTouch`]: https://www.antclabs.com/bltouch-v3
 pub struct BLTouch<CP: PwmPin, ZP: InputPin + InterruptPin>
 {
