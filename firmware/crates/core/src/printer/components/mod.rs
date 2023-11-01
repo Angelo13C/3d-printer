@@ -2,6 +2,7 @@ pub mod config;
 pub mod drivers;
 pub mod file_system;
 pub mod hal;
+pub mod mock;
 pub mod motion;
 mod peripherals;
 pub mod temperature;

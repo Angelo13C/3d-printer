@@ -157,9 +157,10 @@ impl<const N: usize> MulAssign<f32> for VectorN<N>
 
 impl<const N: usize> Default for VectorN<N>
 {
-    fn default() -> Self {
-        Self([Distance::ZERO; N])
-    }
+	fn default() -> Self
+	{
+		Self([Distance::ZERO; N])
+	}
 }
 
 impl<const N: usize> VectorN<N>
