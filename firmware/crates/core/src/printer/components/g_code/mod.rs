@@ -8,6 +8,7 @@
 //!
 //! For an extensive list of all the existing G-code commands, check the [RepRap's documentation](https://reprap.org/wiki/G-code).
 
+pub mod commands;
 pub mod execute;
 pub mod parameters;
 

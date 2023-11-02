@@ -13,7 +13,7 @@
 //! S60
 //! ```
 //!
-//! [`parameter`]: GCodeParameter
+//! [`parameter`]: Param
 //! [`identifier`]: GCodeParameterIdentifier
 //! [`value`]: GCodeParameterValue
 //! [`G-code commands`]: super::commands
@@ -31,8 +31,8 @@ pub mod value;
 /// [`module's`]: self
 pub struct Param<I: GCodeParameterIdentifier, V: GCodeParameterValue>
 {
-	identifier: I,
-	value: Option<V>,
+	pub(super) identifier: I,
+	pub(super) value: Option<V>,
 }
 
 impl<I: GCodeParameterIdentifier, V: GCodeParameterValue> Param<I, V>
