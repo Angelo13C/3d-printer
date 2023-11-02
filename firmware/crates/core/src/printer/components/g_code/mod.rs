@@ -11,6 +11,7 @@
 pub mod commands;
 pub mod execute;
 pub mod parameters;
+pub mod parser;
 
 use std::{any::Any, fmt::Debug};
 
