@@ -9,7 +9,6 @@ use crate::{
 
 pub const SAVED_POSITIONS_COUNT: usize = 1;
 
-#[derive(Default)]
 pub struct GCodeExecuter<P: Peripherals>
 {
 	current_command: Option<Box<dyn GCodeCommand<P>>>,
@@ -120,6 +119,20 @@ impl<P: Peripherals> GCodeExecuter<P>
 		{
 			true => Err(InvalidPositionSlot),
 			false => Ok(()),
+		}
+	}
+}
+
+impl<P: Peripherals> Default for GCodeExecuter<P>
+{
+	fn default() -> Self
+	{
+		Self {
+			current_command: Default::default(),
+			command_buffer_reversed: Vec::with_capacity(50),
+			position_mode: Default::default(),
+			extruder_position_mode: Default::default(),
+			saved_positions: Default::default(),
 		}
 	}
 }
