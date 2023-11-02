@@ -3,11 +3,12 @@ use super::{
 	pwm::MockPwmPin,
 	time::MockSystemTime,
 	z_axis_probe::MockZAxisProbe,
-	MockTimer, MockSpi,
+	MockOutputPin, MockSpi, MockTimer,
 };
 use crate::printer::components::{
+	drivers::spi_flash_memory::MT29F2G01ABAGDWB,
 	motion::{homing::endstop::ManualEndstop, kinematics::CoreXYKinematics},
-	Peripherals, drivers::spi_flash_memory::MT29F2G01ABAGDWB,
+	Peripherals,
 };
 
 #[derive(Debug)]
@@ -18,6 +19,15 @@ impl Peripherals for MockPeripherals
 	type Kinematics = CoreXYKinematics;
 
 	type StepperTickerTimer = MockTimer;
+
+	type LeftDirPin = MockOutputPin;
+	type LeftStepPin = MockOutputPin;
+	type RightDirPin = MockOutputPin;
+	type RightStepPin = MockOutputPin;
+	type ZAxisDirPin = MockOutputPin;
+	type ZAxisStepPin = MockOutputPin;
+	type ExtruderDirPin = MockOutputPin;
+	type ExtruderStepPin = MockOutputPin;
 
 	type XAxisEndstop = ManualEndstop;
 	type YAxisEndstop = ManualEndstop;
@@ -74,6 +84,21 @@ impl Peripherals for MockPeripherals
 	}
 
 	fn take_system_time(&mut self) -> Option<Self::SystemTime>
+	{
+		todo!()
+	}
+
+	fn take_adc(&mut self) -> Option<Self::Adc>
+	{
+		todo!()
+	}
+
+	fn take_bed_thermistor_pin(&mut self) -> Option<Self::HeatedBedAdcPin>
+	{
+		todo!()
+	}
+
+	fn take_hotend_thermistor_pin(&mut self) -> Option<Self::HotendAdcPin>
 	{
 		todo!()
 	}
