@@ -8,7 +8,7 @@ use crate::utils::measurement::frequency::Frequency;
 /// [`call some callback you provide when a certain time is reached`]: `Self::on_alarm`
 pub trait Timer
 {
-	type Error;
+	type Error: Debug;
 	type AdditionalFunctionality: TimerAdditionalFunctionality;
 
 	/// Returns a [`Self::AdditionalFunctionality`] instance that can be used to get some additional timer

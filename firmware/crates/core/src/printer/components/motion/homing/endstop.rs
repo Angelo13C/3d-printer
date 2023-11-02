@@ -1,3 +1,5 @@
+use std::fmt::Debug;
+
 /// Type that can be used as an [`endstop`].
 ///
 /// [`endstop`]: <https://reprap.org/wiki/Endstop>
@@ -5,7 +7,7 @@ pub trait Endstop
 {
 	type IsEndReachedError;
 	type OnEndReachedError;
-	type HomingError;
+	type HomingError: Debug;
 
 	/// Check if the endstop is currently triggered or not.
 	///

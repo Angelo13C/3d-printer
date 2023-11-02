@@ -1,4 +1,5 @@
 use std::{
+	fmt::Debug,
 	sync::atomic::{AtomicBool, Ordering},
 	time::Duration,
 };
@@ -291,6 +292,7 @@ fn is_z_axis_triggered() -> bool
 	Z_AXIS_ENDSTOP_TRIGGERED.swap(false, Ordering::Relaxed)
 }
 
+#[derive(Debug)]
 pub enum CreationError<Timer: TimerTrait, ZEndstop: ZAxisProbe>
 {
 	OnAlarm(Timer::Error),
@@ -301,6 +303,18 @@ pub enum EnableError<Timer: TimerTrait>
 {
 	EnableAlarm(Timer::Error),
 	SetAlarm(<Timer::AdditionalFunctionality as TimerAdditionalFunctionality>::Error),
+}
+
+impl<Timer: TimerTrait> Debug for EnableError<Timer>
+{
+	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result
+	{
+		match self
+		{
+			Self::EnableAlarm(arg0) => f.debug_tuple("EnableAlarm").field(arg0).finish(),
+			Self::SetAlarm(arg0) => f.debug_tuple("SetAlarm").field(arg0).finish(),
+		}
+	}
 }
 
 struct TickParameters<

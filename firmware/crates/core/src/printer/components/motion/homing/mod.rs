@@ -158,11 +158,25 @@ impl HomingMove
 	}
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Clone, Copy, PartialEq, Eq)]
 pub enum TickError<ZEndstop: Endstop>
 {
 	HomingX,
 	HomingY,
 	HomingZ,
 	PreparingZAxisToProbe(ZEndstop::HomingError),
+}
+
+impl<ZEndstop: Endstop> std::fmt::Debug for TickError<ZEndstop>
+{
+	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result
+	{
+		match self
+		{
+			Self::HomingX => write!(f, "HomingX"),
+			Self::HomingY => write!(f, "HomingY"),
+			Self::HomingZ => write!(f, "HomingZ"),
+			Self::PreparingZAxisToProbe(arg0) => f.debug_tuple("PreparingZAxisToProbe").field(arg0).finish(),
+		}
+	}
 }

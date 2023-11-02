@@ -1,6 +1,8 @@
+use std::fmt::Debug;
+
 pub trait InterruptPin
 {
-	type Error;
+	type Error: Debug;
 
 	/// # Safety
 	/// The `callback` will be called in an ISR context.

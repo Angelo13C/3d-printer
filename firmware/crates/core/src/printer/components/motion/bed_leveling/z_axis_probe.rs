@@ -1,3 +1,5 @@
+use std::fmt::Debug;
+
 use super::super::homing::endstop::Endstop;
 use crate::utils::math::vectors::Vector3;
 
@@ -54,9 +56,9 @@ impl<P: ZAxisProbe> Endstop for Probe<P>
 
 pub trait ZAxisProbe
 {
-	type IsEndReachedError;
-	type OnEndReachedError;
-	type HomingError;
+	type IsEndReachedError: Debug;
+	type OnEndReachedError: Debug;
+	type HomingError: Debug;
 
 	fn is_end_reached(&self) -> Result<bool, Self::IsEndReachedError>;
 
