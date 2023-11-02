@@ -10,6 +10,7 @@ use crate::printer::components::{
 	Peripherals,
 };
 
+#[derive(Debug)]
 pub struct MockPeripherals;
 
 impl Peripherals for MockPeripherals
