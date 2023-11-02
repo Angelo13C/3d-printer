@@ -3,11 +3,11 @@ use super::{
 	pwm::MockPwmPin,
 	time::MockSystemTime,
 	z_axis_probe::MockZAxisProbe,
-	MockTimer,
+	MockTimer, MockSpi,
 };
 use crate::printer::components::{
 	motion::{homing::endstop::ManualEndstop, kinematics::CoreXYKinematics},
-	Peripherals,
+	Peripherals, drivers::spi_flash_memory::MT29F2G01ABAGDWB,
 };
 
 #[derive(Debug)]
@@ -28,6 +28,9 @@ impl Peripherals for MockPeripherals
 
 	type HeatedBedHeaterPin = MockPwmPin;
 	type HeatedBedAdcPin = MockAdcPin;
+
+	type FlashChip = MT29F2G01ABAGDWB;
+	type FlashSpi = MockSpi;
 
 	type Adc = MockAdc;
 
