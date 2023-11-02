@@ -1,4 +1,4 @@
-use std::{ops::Div, fmt::Debug};
+use std::{fmt::Debug, ops::Div};
 
 use crate::utils::math::Percentage;
 
@@ -38,11 +38,14 @@ pub enum ReadPercentageError<A: Adc, P: AdcPin<A>>
 	InvalidPercentage,
 }
 
-impl<A: Adc, P: AdcPin<A>> Debug for ReadPercentageError<A, P> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Self::CantRead(arg0) => f.debug_tuple("Can't read").field(arg0).finish(),
-            Self::InvalidPercentage => write!(f, "Invalid percentage"),
-        }
-    }
+impl<A: Adc, P: AdcPin<A>> Debug for ReadPercentageError<A, P>
+{
+	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result
+	{
+		match self
+		{
+			Self::CantRead(arg0) => f.debug_tuple("Can't read").field(arg0).finish(),
+			Self::InvalidPercentage => write!(f, "Invalid percentage"),
+		}
+	}
 }
