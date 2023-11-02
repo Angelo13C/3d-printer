@@ -19,45 +19,44 @@
 //! [`G-code commands`]: super::commands
 
 use self::{identifier::GCodeParameterIdentifier, value::GCodeParameterValue};
-use crate::utils::measurement::distance::Units;
 
 pub mod identifier;
 pub mod value;
 
+#[derive(Clone, Copy, Debug, PartialEq)]
 /// A parameter of a G-code command.
 ///
 /// Check the [`module's`] documentation for more details.
 ///
 /// [`module's`]: self
-pub trait GCodeParameter
+pub struct Param<I: GCodeParameterIdentifier, V: GCodeParameterValue>
 {
-	type Value;
-
-	fn convert(string: &str, units: Units) -> Option<Self::Value>;
+	identifier: I,
+	value: Option<V>,
 }
 
-impl<I: GCodeParameterIdentifier, V: GCodeParameterValue> GCodeParameter for (I, V)
+impl<I: GCodeParameterIdentifier, V: GCodeParameterValue> Param<I, V>
 {
-	type Value = (I, V);
-
-	fn convert(string: &str, units: Units) -> Option<(I, V)>
+	pub fn new(identifier: Option<I>, value: Option<V>) -> Self
 	{
-		let mut identifier = I::default();
-		if let Ok(offset) = identifier.is_this(string)
-		{
-			let offseted_string = &string[offset..];
-			if let Ok(result) = V::from_str(offseted_string, units)
-			{
-				Some((identifier, result))
-			}
-			else
-			{
-				None
-			}
+		Self {
+			identifier: identifier.unwrap_or_default(),
+			value,
 		}
-		else
-		{
-			None
-		}
+	}
+}
+
+impl<I: GCodeParameterIdentifier, V: GCodeParameterValue> From<Option<V>> for Param<I, V>
+{
+	fn from(value: Option<V>) -> Self
+	{
+		Self::new(None, value)
+	}
+}
+impl<I: GCodeParameterIdentifier, V: GCodeParameterValue> From<V> for Param<I, V>
+{
+	fn from(value: V) -> Self
+	{
+		Self::new(None, Some(value))
 	}
 }
