@@ -348,6 +348,7 @@ pub struct MotorConfig<DP: OutputPin, SP: OutputPin>
 }
 
 /// An error that can occur when you instatiate a [`MotionController`] struct.
+#[derive(Debug)]
 pub enum CreationError<Timer: TimerTrait, ZEndstop: ZAxisProbe>
 {
 	CreateStepperTickerTimer(ticker::CreationError<Timer, ZEndstop>),
