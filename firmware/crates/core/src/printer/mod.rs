@@ -1,6 +1,6 @@
 pub mod components;
 
-use components::{Config, CreationError, Peripherals, Printer3DComponents};
+use components::{config::ComponentsConfig, Peripherals, Printer3DComponents};
 
 pub struct Printer3D<P: Peripherals>
 {
@@ -9,7 +9,7 @@ pub struct Printer3D<P: Peripherals>
 
 impl<P: Peripherals> Printer3D<P>
 {
-	pub fn new(mut peripherals: P, components_config: Config) -> Result<Self, CreationError>
+	pub fn new(mut peripherals: P, components_config: ComponentsConfig) -> Result<Self, CreationError>
 	{
 		Ok(Self {
 			components: Printer3DComponents::new(&mut peripherals, components_config)?,
@@ -20,4 +20,10 @@ impl<P: Peripherals> Printer3D<P>
 	{
 		self.components.tick();
 	}
+}
+
+#[derive(Debug)]
+pub enum CreationError
+{
+	Components(components::CreationError),
 }
