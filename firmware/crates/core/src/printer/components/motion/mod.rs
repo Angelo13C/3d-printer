@@ -47,6 +47,7 @@ pub struct MotionController<Timer: TimerTrait, Kinematics: KinematicsTrait, ZEnd
 	homing_procedure: HomingProcedure,
 
 	current_move: Option<CurrentMove>,
+	last_planned_move_end_position: Option<VectorN<N_MOTORS>>,
 
 	z_endstop: Probe<ZEndstop>,
 
@@ -107,6 +108,7 @@ impl<Timer: TimerTrait, Kinematics: KinematicsTrait, ZEndstop: ZAxisProbe> Motio
 			kinematics: configuration.kinematics,
 			bed_size: configuration.bed_size,
 			current_move: None,
+			last_planned_move_end_position: None,
 			homing_procedure: HomingProcedure::None,
 			tmc2209_drivers: [
 				configuration.left_motor.tmc2209,
@@ -132,13 +134,13 @@ impl<Timer: TimerTrait, Kinematics: KinematicsTrait, ZEndstop: ZAxisProbe> Motio
 	/// to `None` there won't be any movement along that axis.
 	///
 	/// The optional `feed_rate` will determine the speed of not only this move, but also all the subsequent ones.
-	/// 
+	///
 	/// Returns `Err(BlocksBufferIsFull)` if the move couldn't be planned, and you **MUST** call this method again
 	/// to try to plan it!
-	/// 
+	///
 	/// # Warning
 	/// This motion controller must be [`ticked`] to effectively execute the moves.
-	/// 
+	///
 	/// [`ticked`]: Self::tick
 	pub fn plan_move(
 		&mut self, x: Option<Distance>, y: Option<Distance>, z: Option<Distance>, e: Option<Distance>,
@@ -149,6 +151,19 @@ impl<Timer: TimerTrait, Kinematics: KinematicsTrait, ZEndstop: ZAxisProbe> Motio
 		{
 			self.next_move_feed_rate = feed_rate;
 		}
+
+		let mut last_planned_move_end_position = self.last_planned_move_end_position.clone().unwrap_or_default();
+		let mut apply_movement = |movement, axis| {
+			if let Some(movement) = movement
+			{
+				last_planned_move_end_position[axis as usize] = movement;
+			}
+		};
+		(apply_movement)(x, Axis::X);
+		(apply_movement)(y, Axis::Y);
+		(apply_movement)(z, Axis::Z);
+		(apply_movement)(e, Axis::E);
+		self.last_planned_move_end_position = Some(last_planned_move_end_position);
 
 		let mut target_position = self.planner.get_position().clone();
 		let mut set_target_position_axis = |distance, index| {
@@ -172,11 +187,36 @@ impl<Timer: TimerTrait, Kinematics: KinematicsTrait, ZEndstop: ZAxisProbe> Motio
 	}
 
 	/// Make the last [`planned move`] ready to be executed.
-	/// 
+	///
 	/// [`planned move`]: Self::plan_move
 	pub fn mark_last_move_as_ready_to_go(&mut self)
 	{
 		self.planner.mark_last_added_move_as_ready_to_go()
+	}
+
+	/// Returns the position of the last [`planned move`] if there has been one, otherwise returns `None`.
+	///
+	/// [`planned move`]: Self::plan_move
+	pub fn get_last_planned_move_end_position(&self) -> Option<VectorN<N_MOTORS>>
+	{
+		self.last_planned_move_end_position.clone()
+	}
+
+	pub fn set_position(&mut self, x: Option<Distance>, y: Option<Distance>, z: Option<Distance>, e: Option<Distance>)
+	{
+		let mut position = self.planner.get_position().clone();
+		let mut apply_position_axis = |value, axis| {
+			if let Some(value) = value
+			{
+				position[axis as usize] = value;
+			}
+		};
+		(apply_position_axis)(x, Axis::X);
+		(apply_position_axis)(y, Axis::Y);
+		(apply_position_axis)(z, Axis::Z);
+		(apply_position_axis)(e, Axis::E);
+
+		self.planner.set_position(position);
 	}
 
 	/// This method internally ticks the [`HomingProcedure`] and the [`Planner`], executing the planned moves.
@@ -221,7 +261,7 @@ impl<Timer: TimerTrait, Kinematics: KinematicsTrait, ZEndstop: ZAxisProbe> Motio
 	}
 
 	/// Make the machine start the [`HomingProcedure`] after all the planned moves are completed.
-	/// 
+	///
 	/// Returns `Err(BlocksBufferIsFull)` if the procedure couldn't be started, and you **MUST** call this method again
 	/// to try to start it!
 	pub fn start_homing(&mut self) -> Result<(), BlocksBufferIsFull>
@@ -231,7 +271,7 @@ impl<Timer: TimerTrait, Kinematics: KinematicsTrait, ZEndstop: ZAxisProbe> Motio
 				calculate_microsteps_per_mm(&self.rotations_to_linear_motions, &self.tmc2209_drivers)
 			})?;
 		ticker::start_homing();
-		
+
 		Ok(())
 	}
 
