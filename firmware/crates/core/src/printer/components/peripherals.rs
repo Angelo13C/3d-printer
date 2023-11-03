@@ -25,9 +25,9 @@ pub trait Peripherals
 	type ExtruderDirPin: OutputPin + 'static;
 	type ExtruderStepPin: OutputPin + 'static;
 
-	type XAxisEndstop: Endstop;
-	type YAxisEndstop: Endstop;
-	type ZAxisEndstop: ZAxisProbe;
+	type XAxisEndstop: Endstop + 'static;
+	type YAxisEndstop: Endstop + 'static;
+	type ZAxisEndstop: ZAxisProbe + 'static;
 
 	type FlashChip: FlashMemoryChip + Send + 'static;
 	type FlashSpi: SpiDevice<u8> + Send + 'static;
