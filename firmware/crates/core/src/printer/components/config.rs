@@ -1,26 +1,8 @@
-use embedded_hal::digital::OutputPin;
-
-use super::{
-	hal::timer::Timer as TimerTrait,
-	motion::{self, bed_leveling::ZAxisProbe, homing::endstop::Endstop, kinematics::Kinematics as KinematicsTrait},
-};
+use super::{motion, Peripherals};
 use crate::utils::math::Percentage;
 
-pub struct ComponentsConfig<
-	Timer: TimerTrait,
-	Kinematics: KinematicsTrait,
-	LeftDirPin: OutputPin + 'static,
-	LeftStepPin: OutputPin + 'static,
-	RightDirPin: OutputPin + 'static,
-	RightStepPin: OutputPin + 'static,
-	ZAxisDirPin: OutputPin + 'static,
-	ZAxisStepPin: OutputPin + 'static,
-	ExtruderDirPin: OutputPin + 'static,
-	ExtruderStepPin: OutputPin + 'static,
-	XEndstop: Endstop + 'static,
-	YEndstop: Endstop + 'static,
-	ZEndstop: ZAxisProbe,
-> {
+pub struct ComponentsConfig<P: Peripherals>
+{
 	pub layer_fan_min_duty_cycle_to_move: Percentage,
 	pub hotend_fan_min_duty_cycle_to_move: Percentage,
 
@@ -28,19 +10,19 @@ pub struct ComponentsConfig<
 	pub heated_bed_pid: temperature::PidConfig,
 
 	pub motion_controller: motion::CreationParameters<
-		Timer,
-		Kinematics,
-		LeftDirPin,
-		LeftStepPin,
-		RightDirPin,
-		RightStepPin,
-		ZAxisDirPin,
-		ZAxisStepPin,
-		ExtruderDirPin,
-		ExtruderStepPin,
-		XEndstop,
-		YEndstop,
-		ZEndstop,
+		P::StepperTickerTimer,
+		P::Kinematics,
+		P::LeftDirPin,
+		P::LeftStepPin,
+		P::RightDirPin,
+		P::RightStepPin,
+		P::ZAxisDirPin,
+		P::ZAxisStepPin,
+		P::ExtruderDirPin,
+		P::ExtruderStepPin,
+		P::XAxisEndstop,
+		P::YAxisEndstop,
+		P::ZAxisEndstop,
 	>,
 }
 

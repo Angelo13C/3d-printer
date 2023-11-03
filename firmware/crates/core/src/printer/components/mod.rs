@@ -6,6 +6,7 @@ pub mod hal;
 pub mod mock;
 pub mod motion;
 mod peripherals;
+mod print_process;
 pub mod temperature;
 pub mod time;
 
@@ -43,22 +44,7 @@ pub struct Printer3DComponents<P: Peripherals>
 impl<P: Peripherals> Printer3DComponents<P>
 {
 	pub fn new(
-		peripherals: &mut P,
-		config: ComponentsConfig<
-			P::StepperTickerTimer,
-			P::Kinematics,
-			P::LeftDirPin,
-			P::LeftStepPin,
-			P::RightDirPin,
-			P::RightStepPin,
-			P::ZAxisDirPin,
-			P::ZAxisStepPin,
-			P::ExtruderDirPin,
-			P::ExtruderStepPin,
-			P::XAxisEndstop,
-			P::YAxisEndstop,
-			P::ZAxisEndstop,
-		>,
+		peripherals: &mut P, config: ComponentsConfig<P>,
 	) -> Result<Self, CreationError<P::StepperTickerTimer, P::ZAxisEndstop>>
 	{
 		Ok(Self {
