@@ -9,7 +9,24 @@ pub struct Printer3D<P: Peripherals>
 
 impl<P: Peripherals> Printer3D<P>
 {
-	pub fn new(mut peripherals: P, components_config: ComponentsConfig) -> Result<Self, CreationError>
+	pub fn new(
+		mut peripherals: P,
+		components_config: ComponentsConfig<
+			P::StepperTickerTimer,
+			P::Kinematics,
+			P::LeftDirPin,
+			P::LeftStepPin,
+			P::RightDirPin,
+			P::RightStepPin,
+			P::ZAxisDirPin,
+			P::ZAxisStepPin,
+			P::ExtruderDirPin,
+			P::ExtruderStepPin,
+			P::XAxisEndstop,
+			P::YAxisEndstop,
+			P::ZAxisEndstop,
+		>,
+	) -> Result<Self, CreationError<P>>
 	{
 		Ok(Self {
 			components: Printer3DComponents::new(&mut peripherals, components_config)
@@ -17,14 +34,16 @@ impl<P: Peripherals> Printer3D<P>
 		})
 	}
 
-	pub fn tick(&mut self)
+	pub fn tick(&mut self) -> Result<(), components::TickError<P::ZAxisEndstop>>
 	{
-		self.components.tick();
+		self.components.tick()?;
+
+		Ok(())
 	}
 }
 
 #[derive(Debug)]
-pub enum CreationError
+pub enum CreationError<P: Peripherals>
 {
-	Components(components::CreationError),
+	Components(components::CreationError<P::StepperTickerTimer, P::ZAxisEndstop>),
 }
