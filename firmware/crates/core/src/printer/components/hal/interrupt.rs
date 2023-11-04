@@ -7,7 +7,7 @@ pub trait InterruptPin
 	/// # Safety
 	/// The `callback` will be called in an ISR context.
 	unsafe fn subscribe_to_interrupt(
-		&mut self, when_to_trigger: Trigger, callback: impl FnMut() + 'static,
+		&mut self, when_to_trigger: Trigger, callback: impl FnMut() + Send + 'static,
 	) -> Result<(), Self::Error>;
 }
 
