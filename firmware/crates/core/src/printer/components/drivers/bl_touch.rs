@@ -1,3 +1,5 @@
+use std::fmt::Debug;
+
 use embedded_hal::digital::{ErrorType, InputPin};
 
 use super::servo_motor::{ServoMotor, ServoPosition};
@@ -143,4 +145,11 @@ impl<CP: PwmPin, ZP: InputPin + InterruptPin> ZAxisProbe for BLTouch<CP, ZP>
 
 		Ok(())
 	}
+}
+
+impl<CP: PwmPin, ZP: InputPin + InterruptPin> Debug for BLTouch<CP, ZP>
+{
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("BLTouch").finish()
+    }
 }
