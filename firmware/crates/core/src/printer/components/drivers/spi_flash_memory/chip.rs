@@ -67,6 +67,7 @@ impl<Chip: FlashMemoryChip> FlashMemoryChipExt for Chip {}
 /// 2Gbit 3.3V NAND SPI flash memory chip ([datasheet]).
 ///
 /// [datasheet]: <https://datasheet.lcsc.com/lcsc/1912111437_Micron-Tech-MT29F2G01ABAGDWB-IT-G_C410863.pdf>
+#[derive(Clone, PartialEq, Eq, Debug)]
 pub struct MT29F2G01ABAGDWB;
 impl FlashMemoryChip for MT29F2G01ABAGDWB
 {
