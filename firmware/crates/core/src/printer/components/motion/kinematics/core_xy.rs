@@ -18,7 +18,7 @@ use crate::utils::measurement::distance::Distance;
 /// assert_eq!(CoreXYKinematics::ab_displacement_to_x(a, b), (a + b) / 2);
 /// assert_eq!(CoreXYKinematics::ab_displacement_to_y(a, b), (a - b) / 2);
 /// ```
-#[derive(Clone,PartialEq, Eq, Debug)]
+#[derive(Clone, PartialEq, Eq, Debug)]
 pub struct CoreXYKinematics;
 
 impl Kinematics for CoreXYKinematics
