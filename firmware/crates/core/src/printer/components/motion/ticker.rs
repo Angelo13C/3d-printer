@@ -60,16 +60,16 @@ impl<Timer: TimerTrait> StepperMotorsTicker<Timer>
 	///
 	/// [`setting the callback of the timer`]: `TimerTrait::on_alarm`
 	pub fn new<
-		LeftDirPin: OutputPin + 'static,
-		LeftStepPin: OutputPin + 'static,
-		RightDirPin: OutputPin + 'static,
-		RightStepPin: OutputPin + 'static,
-		ZAxisDirPin: OutputPin + 'static,
-		ZAxisStepPin: OutputPin + 'static,
-		ExtruderDirPin: OutputPin + 'static,
-		ExtruderStepPin: OutputPin + 'static,
-		XEndstop: Endstop + 'static,
-		YEndstop: Endstop + 'static,
+		LeftDirPin: OutputPin + Send + 'static,
+		LeftStepPin: OutputPin + Send + 'static,
+		RightDirPin: OutputPin + Send + 'static,
+		RightStepPin: OutputPin + Send + 'static,
+		ZAxisDirPin: OutputPin + Send + 'static,
+		ZAxisStepPin: OutputPin + Send + 'static,
+		ExtruderDirPin: OutputPin + Send + 'static,
+		ExtruderStepPin: OutputPin + Send + 'static,
+		XEndstop: Endstop + Send + 'static,
+		YEndstop: Endstop + Send + 'static,
 		ZEndstop: ZAxisProbe,
 	>(
 		left_motor: StepperMotor<LeftDirPin, LeftStepPin>, right_motor: StepperMotor<RightDirPin, RightStepPin>,

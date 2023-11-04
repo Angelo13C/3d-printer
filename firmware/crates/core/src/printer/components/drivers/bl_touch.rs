@@ -40,7 +40,9 @@ impl<CP: PwmPin, ZP: InputPin + InterruptPin> BLTouch<CP, ZP>
 	///
 	/// # Safety
 	/// Check [`InterruptPin::subscribe_to_interrupt`].
-	pub unsafe fn on_touch(&mut self, callback: impl FnMut() + Send + 'static) -> Result<(), <ZP as InterruptPin>::Error>
+	pub unsafe fn on_touch(
+		&mut self, callback: impl FnMut() + Send + 'static,
+	) -> Result<(), <ZP as InterruptPin>::Error>
 	{
 		self.z_min.subscribe_to_interrupt(Trigger::AnyEdge, callback)
 	}
@@ -119,7 +121,8 @@ impl<CP: PwmPin, ZP: InputPin + InterruptPin> ZAxisProbe for BLTouch<CP, ZP>
 	}
 
 	/// Equivalent to [`BLTouch::on_touch`].
-	unsafe fn on_end_reached(&mut self, callback: impl FnMut() + Send + 'static) -> Result<(), Self::OnEndReachedError>
+	unsafe fn on_end_reached(&mut self, callback: impl FnMut() + Send + 'static)
+		-> Result<(), Self::OnEndReachedError>
 	{
 		self.on_touch(callback)
 	}
@@ -149,7 +152,8 @@ impl<CP: PwmPin, ZP: InputPin + InterruptPin> ZAxisProbe for BLTouch<CP, ZP>
 
 impl<CP: PwmPin, ZP: InputPin + InterruptPin> Debug for BLTouch<CP, ZP>
 {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("BLTouch").finish()
-    }
+	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result
+	{
+		f.debug_struct("BLTouch").finish()
+	}
 }

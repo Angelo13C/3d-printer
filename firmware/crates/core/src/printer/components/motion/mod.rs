@@ -61,19 +61,19 @@ pub struct MotionController<Timer: TimerTrait, Kinematics: KinematicsTrait, ZEnd
 impl<Timer: TimerTrait, Kinematics: KinematicsTrait, ZEndstop: ZAxisProbe> MotionController<Timer, Kinematics, ZEndstop>
 {
 	pub fn new<
-		LeftDirPin: OutputPin + 'static,
-		LeftStepPin: OutputPin + 'static,
-		RightDirPin: OutputPin + 'static,
-		RightStepPin: OutputPin + 'static,
-		ZAxisDirPin: OutputPin + 'static,
-		ZAxisStepPin: OutputPin + 'static,
-		ExtruderDirPin: OutputPin + 'static,
-		ExtruderStepPin: OutputPin + 'static,
-		XEndstop: Endstop + 'static,
-		YEndstop: Endstop + 'static,
+		LeftDirPin: OutputPin + Send + 'static,
+		LeftStepPin: OutputPin + Send + 'static,
+		RightDirPin: OutputPin + Send + 'static,
+		RightStepPin: OutputPin + Send + 'static,
+		ZAxisDirPin: OutputPin + Send + 'static,
+		ZAxisStepPin: OutputPin + Send + 'static,
+		ExtruderDirPin: OutputPin + Send + 'static,
+		ExtruderStepPin: OutputPin + Send + 'static,
+		XEndstop: Endstop + Send + 'static,
+		YEndstop: Endstop + Send + 'static,
 		Uart: UartTrait,
 	>(
-		mut peripherals: CreationParameters<
+		peripherals: CreationParameters<
 			Timer,
 			Kinematics,
 			LeftDirPin,

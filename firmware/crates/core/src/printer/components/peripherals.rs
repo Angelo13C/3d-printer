@@ -17,19 +17,19 @@ pub trait Peripherals
 	type Kinematics: Kinematics;
 	type StepperTickerTimer: Timer;
 
-	type LeftDirPin: OutputPin + 'static;
-	type LeftStepPin: OutputPin + 'static;
-	type RightDirPin: OutputPin + 'static;
-	type RightStepPin: OutputPin + 'static;
-	type ZAxisDirPin: OutputPin + 'static;
-	type ZAxisStepPin: OutputPin + 'static;
-	type ExtruderDirPin: OutputPin + 'static;
-	type ExtruderStepPin: OutputPin + 'static;
+	type LeftDirPin: OutputPin + Send + 'static;
+	type LeftStepPin: OutputPin + Send + 'static;
+	type RightDirPin: OutputPin + Send + 'static;
+	type RightStepPin: OutputPin + Send + 'static;
+	type ZAxisDirPin: OutputPin + Send + 'static;
+	type ZAxisStepPin: OutputPin + Send + 'static;
+	type ExtruderDirPin: OutputPin + Send + 'static;
+	type ExtruderStepPin: OutputPin + Send + 'static;
 
 	type UartDriver: Uart;
 
-	type XAxisEndstop: Endstop + 'static;
-	type YAxisEndstop: Endstop + 'static;
+	type XAxisEndstop: Endstop + Send + 'static;
+	type YAxisEndstop: Endstop + Send + 'static;
 	type ZAxisEndstop: ZAxisProbe + 'static;
 
 	type FlashChip: FlashMemoryChip + Send + 'static;

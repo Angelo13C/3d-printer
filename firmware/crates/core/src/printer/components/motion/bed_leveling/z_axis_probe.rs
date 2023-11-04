@@ -38,7 +38,8 @@ impl<P: ZAxisProbe> Endstop for Probe<P>
 		self.inner_probe.is_end_reached()
 	}
 
-	unsafe fn on_end_reached(&mut self, callback: impl FnMut() + Send + 'static) -> Result<(), Self::OnEndReachedError>
+	unsafe fn on_end_reached(&mut self, callback: impl FnMut() + Send + 'static)
+		-> Result<(), Self::OnEndReachedError>
 	{
 		self.inner_probe.on_end_reached(callback)
 	}
@@ -64,7 +65,8 @@ pub trait ZAxisProbe
 
 	/// # Safety
 	/// The `callback` will be called in an ISR context.
-	unsafe fn on_end_reached(&mut self, callback: impl FnMut() + Send + 'static) -> Result<(), Self::OnEndReachedError>;
+	unsafe fn on_end_reached(&mut self, callback: impl FnMut() + Send + 'static)
+		-> Result<(), Self::OnEndReachedError>;
 
 	/// Prepare the probe for homing.
 	fn prepare_for_homing(&mut self) -> Result<(), Self::HomingError>;
