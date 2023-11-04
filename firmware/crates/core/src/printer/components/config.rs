@@ -1,7 +1,7 @@
-use super::{motion, Peripherals};
+use super::motion;
 use crate::utils::math::Percentage;
 
-pub struct ComponentsConfig<P: Peripherals>
+pub struct ComponentsConfig
 {
 	pub layer_fan_min_duty_cycle_to_move: Percentage,
 	pub hotend_fan_min_duty_cycle_to_move: Percentage,
@@ -9,21 +9,7 @@ pub struct ComponentsConfig<P: Peripherals>
 	pub hotend_pid: temperature::PidConfig,
 	pub heated_bed_pid: temperature::PidConfig,
 
-	pub motion_controller: motion::CreationParameters<
-		P::StepperTickerTimer,
-		P::Kinematics,
-		P::LeftDirPin,
-		P::LeftStepPin,
-		P::RightDirPin,
-		P::RightStepPin,
-		P::ZAxisDirPin,
-		P::ZAxisStepPin,
-		P::ExtruderDirPin,
-		P::ExtruderStepPin,
-		P::XAxisEndstop,
-		P::YAxisEndstop,
-		P::ZAxisEndstop,
-	>,
+	pub motion_controller: motion::CreationConfig,
 }
 
 pub mod temperature

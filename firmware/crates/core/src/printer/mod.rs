@@ -9,7 +9,7 @@ pub struct Printer3D<P: Peripherals>
 
 impl<P: Peripherals> Printer3D<P>
 {
-	pub fn new(mut peripherals: P, components_config: ComponentsConfig<P>) -> Result<Self, CreationError<P>>
+	pub fn new(mut peripherals: P, components_config: ComponentsConfig) -> Result<Self, CreationError<P>>
 	{
 		Ok(Self {
 			components: Printer3DComponents::new(&mut peripherals, components_config)
@@ -28,5 +28,5 @@ impl<P: Peripherals> Printer3D<P>
 #[derive(Debug)]
 pub enum CreationError<P: Peripherals>
 {
-	Components(components::CreationError<P::StepperTickerTimer, P::ZAxisEndstop>),
+	Components(components::CreationError<P::StepperTickerTimer, P::ZAxisEndstop, P::UartDriver>),
 }

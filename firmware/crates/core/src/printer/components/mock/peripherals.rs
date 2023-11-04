@@ -2,6 +2,7 @@ use super::{
 	adc::{MockAdc, MockAdcPin},
 	pwm::MockPwmPin,
 	time::MockSystemTime,
+	uart::MockUart,
 	z_axis_probe::MockZAxisProbe,
 	MockOutputPin, MockSpi, MockTimer,
 };
@@ -28,6 +29,8 @@ impl Peripherals for MockPeripherals
 	type ZAxisStepPin = MockOutputPin;
 	type ExtruderDirPin = MockOutputPin;
 	type ExtruderStepPin = MockOutputPin;
+
+	type UartDriver = MockUart;
 
 	type XAxisEndstop = ManualEndstop;
 	type YAxisEndstop = ManualEndstop;
@@ -99,6 +102,61 @@ impl Peripherals for MockPeripherals
 	}
 
 	fn take_hotend_thermistor_pin(&mut self) -> Option<Self::HotendAdcPin>
+	{
+		todo!()
+	}
+
+	fn take_kinematics(&mut self) -> Option<Self::Kinematics>
+	{
+		todo!()
+	}
+
+	fn take_stepper_ticker_timer(&mut self) -> Option<Self::StepperTickerTimer>
+	{
+		todo!()
+	}
+
+	fn take_left_motor_dir_pin(&mut self) -> Option<Self::LeftDirPin>
+	{
+		todo!()
+	}
+
+	fn take_left_motor_step_pin(&mut self) -> Option<Self::LeftStepPin>
+	{
+		todo!()
+	}
+
+	fn take_right_motor_dir_pin(&mut self) -> Option<Self::RightDirPin>
+	{
+		todo!()
+	}
+
+	fn take_right_motor_step_pin(&mut self) -> Option<Self::RightStepPin>
+	{
+		todo!()
+	}
+
+	fn take_z_axis_motor_dir_pin(&mut self) -> Option<Self::ZAxisDirPin>
+	{
+		todo!()
+	}
+
+	fn take_z_axis_motor_step_pin(&mut self) -> Option<Self::ZAxisStepPin>
+	{
+		todo!()
+	}
+
+	fn take_extruder_motor_dir_pin(&mut self) -> Option<Self::ExtruderDirPin>
+	{
+		todo!()
+	}
+
+	fn take_extruder_motor_step_pin(&mut self) -> Option<Self::ExtruderStepPin>
+	{
+		todo!()
+	}
+
+	fn take_uart_driver(&mut self) -> Option<Self::UartDriver>
 	{
 		todo!()
 	}
