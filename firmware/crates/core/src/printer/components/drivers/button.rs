@@ -33,7 +33,7 @@ impl<P: InputPin + InterruptPin> Button<P>
 	///
 	/// # Safety
 	/// Check [`P::subscribe`](InterruptPin).
-	pub unsafe fn on_pressed(&mut self, callback: impl FnMut() + 'static) -> Result<(), <P as InterruptPin>::Error>
+	pub unsafe fn on_pressed(&mut self, callback: impl FnMut() + Send + 'static) -> Result<(), <P as InterruptPin>::Error>
 	{
 		self.subscribe_to_interrupt(Trigger::PositiveEdge, callback)
 	}
@@ -62,7 +62,7 @@ impl<P: InputPin + InterruptPin> InterruptPin for Button<P>
 	type Error = <P as InterruptPin>::Error;
 
 	unsafe fn subscribe_to_interrupt(
-		&mut self, when_to_trigger: Trigger, callback: impl FnMut() + 'static,
+		&mut self, when_to_trigger: Trigger, callback: impl FnMut() + Send + 'static,
 	) -> Result<(), Self::Error>
 	{
 		self.pin.subscribe_to_interrupt(when_to_trigger, callback)
@@ -81,7 +81,7 @@ impl<P: InputPin + InterruptPin> Endstop for Button<P>
 	}
 
 	/// Equivalent to [`Button::on_pressed`], even for safety rules.
-	unsafe fn on_end_reached(&mut self, callback: impl FnMut() + 'static) -> Result<(), Self::OnEndReachedError>
+	unsafe fn on_end_reached(&mut self, callback: impl FnMut() + Send + 'static) -> Result<(), Self::OnEndReachedError>
 	{
 		self.on_pressed(callback)
 	}
