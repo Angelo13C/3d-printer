@@ -18,6 +18,7 @@ use crate::utils::measurement::distance::Distance;
 /// assert_eq!(CartesianKinematics::ab_displacement_to_x(a, b), a);
 /// assert_eq!(CartesianKinematics::ab_displacement_to_y(a, b), b);
 /// ```
+#[derive(Clone,PartialEq, Eq, Debug)]
 pub struct CartesianKinematics;
 
 impl Kinematics for CartesianKinematics
