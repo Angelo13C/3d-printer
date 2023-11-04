@@ -347,46 +347,8 @@ pub enum ValidateIdError<Spi: SpiDevice<u8>>
 #[cfg(test)]
 mod tests
 {
-	use embedded_hal::spi::{Error, ErrorKind, SpiDeviceRead, SpiDeviceWrite};
-
 	use super::{chip::MT29F2G01ABAGDWB, *};
-
-	#[derive(Debug)]
-	struct MockSpiError;
-	impl Error for MockSpiError
-	{
-		fn kind(&self) -> ErrorKind
-		{
-			ErrorKind::Other
-		}
-	}
-
-	struct MockSpi;
-	impl ErrorType for MockSpi
-	{
-		type Error = MockSpiError;
-	}
-	impl SpiDeviceWrite for MockSpi
-	{
-		fn write_transaction(&mut self, _: &[&[u8]]) -> Result<(), Self::Error>
-		{
-			panic!()
-		}
-	}
-	impl SpiDeviceRead for MockSpi
-	{
-		fn read_transaction(&mut self, _: &mut [&mut [u8]]) -> Result<(), Self::Error>
-		{
-			panic!()
-		}
-	}
-	impl SpiDevice<u8> for MockSpi
-	{
-		fn transaction(&mut self, _: &mut [embedded_hal::spi::Operation<'_, u8>]) -> Result<(), Self::Error>
-		{
-			panic!()
-		}
-	}
+	use crate::printer::components::mock::{MockError, MockSpi};
 
 	#[test]
 	fn cycle_zero_pages()
@@ -412,7 +374,7 @@ mod tests
 					let row_address = (parameters.row_address.get_page_index()) as usize;
 					if cycled_pages[row_address]
 					{
-						Err(MockSpiError)
+						Err(MockError)
 					}
 					else
 					{

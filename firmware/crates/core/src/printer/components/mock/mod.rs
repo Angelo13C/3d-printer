@@ -15,3 +15,20 @@ pub use spi::*;
 pub use time::*;
 pub use timer::*;
 pub use z_axis_probe::*;
+
+#[derive(Debug)]
+pub struct MockError;
+impl embedded_hal::spi::Error for MockError
+{
+	fn kind(&self) -> embedded_hal::spi::ErrorKind
+	{
+		todo!()
+	}
+}
+impl embedded_hal::digital::Error for MockError
+{
+	fn kind(&self) -> embedded_hal::digital::ErrorKind
+	{
+		todo!()
+	}
+}
