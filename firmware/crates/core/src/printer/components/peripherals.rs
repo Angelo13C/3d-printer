@@ -6,6 +6,7 @@ use super::{
 		adc::{Adc, AdcPin},
 		pwm::PwmPin,
 		timer::Timer,
+		uart::Uart,
 	},
 	motion::{bed_leveling::ZAxisProbe, homing::endstop::Endstop, kinematics::Kinematics},
 	time::SystemTime,
@@ -25,6 +26,8 @@ pub trait Peripherals
 	type ExtruderDirPin: OutputPin + 'static;
 	type ExtruderStepPin: OutputPin + 'static;
 
+	type UartDriver: Uart;
+
 	type XAxisEndstop: Endstop + 'static;
 	type YAxisEndstop: Endstop + 'static;
 	type ZAxisEndstop: ZAxisProbe + 'static;
@@ -43,6 +46,20 @@ pub trait Peripherals
 	type FanPin: PwmPin;
 
 	type SystemTime: SystemTime;
+
+	fn take_kinematics(&mut self) -> Option<Self::Kinematics>;
+	fn take_stepper_ticker_timer(&mut self) -> Option<Self::StepperTickerTimer>;
+
+	fn take_left_motor_dir_pin(&mut self) -> Option<Self::LeftDirPin>;
+	fn take_left_motor_step_pin(&mut self) -> Option<Self::LeftStepPin>;
+	fn take_right_motor_dir_pin(&mut self) -> Option<Self::RightDirPin>;
+	fn take_right_motor_step_pin(&mut self) -> Option<Self::RightStepPin>;
+	fn take_z_axis_motor_dir_pin(&mut self) -> Option<Self::ZAxisDirPin>;
+	fn take_z_axis_motor_step_pin(&mut self) -> Option<Self::ZAxisStepPin>;
+	fn take_extruder_motor_dir_pin(&mut self) -> Option<Self::ExtruderDirPin>;
+	fn take_extruder_motor_step_pin(&mut self) -> Option<Self::ExtruderStepPin>;
+
+	fn take_uart_driver(&mut self) -> Option<Self::UartDriver>;
 
 	fn take_x_axis_endstop(&mut self) -> Option<Self::XAxisEndstop>;
 	fn take_y_axis_endstop(&mut self) -> Option<Self::YAxisEndstop>;

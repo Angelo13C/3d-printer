@@ -15,8 +15,8 @@ pub use peripherals::*;
 
 use self::{
 	config::ComponentsConfig,
-	drivers::{cartridge_heater::CartridgeHeater, fan::Fan, thermistor::Thermistor},
-	hal::timer::Timer as TimerTrait,
+	drivers::{cartridge_heater::CartridgeHeater, fan::Fan, stepper_motor::StepperMotor, thermistor::Thermistor},
+	hal::{timer::Timer as TimerTrait, uart::Uart as UartTrait},
 	motion::{
 		bed_leveling::{Probe, ZAxisProbe},
 		MotionController,
@@ -31,6 +31,7 @@ pub struct Printer3DComponents<P: Peripherals>
 	pub hotend_fan: Fan<P::FanPin>,
 
 	pub motion_controller: MotionController<P::StepperTickerTimer, P::Kinematics, P::ZAxisEndstop>,
+	pub uart_driver: P::UartDriver,
 
 	pub hotend_pid_controller: TemperaturePidController<P::CartridgeHeaterPin, P::Adc, P::HotendAdcPin>,
 	pub heated_bed_pid_controller: TemperaturePidController<P::HeatedBedHeaterPin, P::Adc, P::HeatedBedAdcPin>,
@@ -43,9 +44,12 @@ pub struct Printer3DComponents<P: Peripherals>
 impl<P: Peripherals> Printer3DComponents<P>
 {
 	pub fn new(
-		peripherals: &mut P, config: ComponentsConfig<P>,
-	) -> Result<Self, CreationError<P::StepperTickerTimer, P::ZAxisEndstop>>
+		peripherals: &mut P, config: ComponentsConfig,
+	) -> Result<Self, CreationError<P::StepperTickerTimer, P::ZAxisEndstop, P::UartDriver>>
 	{
+		let mut uart_driver = peripherals
+			.take_uart_driver()
+			.ok_or(CreationError::PeripheralMissing { name: "Uart driver" })?;
 		Ok(Self {
 			layer_fan: Fan::new(
 				peripherals
@@ -113,8 +117,79 @@ impl<P: Peripherals> Printer3DComponents<P>
 			adc: peripherals
 				.take_adc()
 				.ok_or(CreationError::PeripheralMissing { name: "ADC" })?,
-			motion_controller: MotionController::new(config.motion_controller)
-				.map_err(CreationError::MotionController)?,
+			motion_controller: MotionController::new(
+				motion::CreationParameters {
+					left_motor: StepperMotor::new(
+						peripherals
+							.take_left_motor_dir_pin()
+							.ok_or(CreationError::PeripheralMissing {
+								name: "Left motor dir pin",
+							})?,
+						peripherals
+							.take_left_motor_step_pin()
+							.ok_or(CreationError::PeripheralMissing {
+								name: "Left motor step pin",
+							})?,
+					),
+					right_motor: StepperMotor::new(
+						peripherals
+							.take_right_motor_dir_pin()
+							.ok_or(CreationError::PeripheralMissing {
+								name: "Right motor dir pin",
+							})?,
+						peripherals
+							.take_right_motor_step_pin()
+							.ok_or(CreationError::PeripheralMissing {
+								name: "Right motor step pin",
+							})?,
+					),
+					z_axis_motor: StepperMotor::new(
+						peripherals
+							.take_z_axis_motor_dir_pin()
+							.ok_or(CreationError::PeripheralMissing {
+								name: "Z axis motor dir pin",
+							})?,
+						peripherals
+							.take_z_axis_motor_step_pin()
+							.ok_or(CreationError::PeripheralMissing {
+								name: "Z axis motor step pin",
+							})?,
+					),
+					extruder_motor: StepperMotor::new(
+						peripherals
+							.take_extruder_motor_dir_pin()
+							.ok_or(CreationError::PeripheralMissing {
+								name: "Extruder motor dir pin",
+							})?,
+						peripherals
+							.take_extruder_motor_step_pin()
+							.ok_or(CreationError::PeripheralMissing {
+								name: "Extruder motor step pin",
+							})?,
+					),
+					ticker_timer: peripherals
+						.take_stepper_ticker_timer()
+						.ok_or(CreationError::PeripheralMissing {
+							name: "Stepper ticker timer",
+						})?,
+					kinematics: peripherals
+						.take_kinematics()
+						.ok_or(CreationError::PeripheralMissing { name: "Kinematics" })?,
+					x_endstop: peripherals
+						.take_x_axis_endstop()
+						.ok_or(CreationError::PeripheralMissing { name: "X axis endstop" })?,
+					y_endstop: peripherals
+						.take_y_axis_endstop()
+						.ok_or(CreationError::PeripheralMissing { name: "Y axis endstop" })?,
+					z_endstop: peripherals
+						.take_z_axis_endstop()
+						.ok_or(CreationError::PeripheralMissing { name: "Z axis endstop" })?,
+				},
+				config.motion_controller,
+				&mut uart_driver,
+			)
+			.map_err(CreationError::MotionController)?,
+			uart_driver,
 		})
 	}
 
@@ -138,7 +213,7 @@ impl<P: Peripherals> Printer3DComponents<P>
 
 #[derive(Debug)]
 /// An error that can occur when you instatiate a [`Printer3DComponents`] struct.
-pub enum CreationError<Timer: TimerTrait, ZEndstop: ZAxisProbe>
+pub enum CreationError<Timer: TimerTrait, ZEndstop: ZAxisProbe, Uart: UartTrait>
 {
 	/// A peripheral from the provided ones is missing (`name` is the name of the peripheral that's missing).
 	/// This means that `peripherals.take_...()` returned `None` instead of `Some`.
@@ -149,7 +224,7 @@ pub enum CreationError<Timer: TimerTrait, ZEndstop: ZAxisProbe>
 
 	Endstop,
 
-	MotionController(motion::CreationError<Timer, ZEndstop>),
+	MotionController(motion::CreationError<Timer, ZEndstop, Uart>),
 }
 
 /// An error that can occur when you tick a [`Printer3DComponents`] struct.

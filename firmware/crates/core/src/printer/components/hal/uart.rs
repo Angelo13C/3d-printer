@@ -1,3 +1,5 @@
+use std::fmt::Debug;
+
 use crate::utils::measurement::duration::SmallDuration;
 
 /// A type that can be used to communicate using the [`UART protocol`].
@@ -5,7 +7,7 @@ use crate::utils::measurement::duration::SmallDuration;
 /// [`UART protocol`]: <https://it.wikipedia.org/wiki/UART>
 pub trait Uart
 {
-	type Error;
+	type Error: Debug;
 
 	/// Try to read `buf.len()` bytes from the interface and write them in `buf`.
 	/// If there are not enough readable bytes and the `timeout` expires, the function will return

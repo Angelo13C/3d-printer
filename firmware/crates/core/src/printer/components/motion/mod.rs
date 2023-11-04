@@ -12,11 +12,14 @@ use self::{
 	ticker::StepperMotorsTicker,
 };
 use super::{
-	drivers::stepper_motor::{tmc2209::TMC2209, StepperMotor},
-	hal::timer::Timer as TimerTrait,
+	drivers::stepper_motor::{
+		tmc2209::{UARTAddress, TMC2209},
+		StepperMotor,
+	},
+	hal::{timer::Timer as TimerTrait, uart::Uart as UartTrait},
 };
 use crate::utils::{
-	math::vectors::{Vector2, VectorN},
+	math::vectors::{Vector2, Vector3, VectorN},
 	measurement::distance::Distance,
 };
 
@@ -68,8 +71,9 @@ impl<Timer: TimerTrait, Kinematics: KinematicsTrait, ZEndstop: ZAxisProbe> Motio
 		ExtruderStepPin: OutputPin + 'static,
 		XEndstop: Endstop + 'static,
 		YEndstop: Endstop + 'static,
+		Uart: UartTrait,
 	>(
-		mut configuration: CreationParameters<
+		mut peripherals: CreationParameters<
 			Timer,
 			Kinematics,
 			LeftDirPin,
@@ -84,37 +88,48 @@ impl<Timer: TimerTrait, Kinematics: KinematicsTrait, ZEndstop: ZAxisProbe> Motio
 			YEndstop,
 			ZEndstop,
 		>,
-	) -> Result<Self, CreationError<Timer, ZEndstop>>
+		configuration: CreationConfig, uart_driver: &mut Uart,
+	) -> Result<Self, CreationError<Timer, ZEndstop, Uart>>
 	{
 		communicate_to_ticker::set_kinematics_functions::<Kinematics>();
 
+		let mut z_endstop = Probe::new(peripherals.z_endstop, configuration.offset_from_nozzle_of_z_probe);
+
 		let mut ticker = StepperMotorsTicker::new(
-			configuration.left_motor.stepper_motor,
-			configuration.right_motor.stepper_motor,
-			configuration.z_axis_motor.stepper_motor,
-			configuration.extruder_motor.stepper_motor,
-			configuration.ticker_timer,
-			configuration.x_endstop,
-			configuration.y_endstop,
-			&mut configuration.z_endstop,
+			peripherals.left_motor,
+			peripherals.right_motor,
+			peripherals.z_axis_motor,
+			peripherals.extruder_motor,
+			peripherals.ticker_timer,
+			peripherals.x_endstop,
+			peripherals.y_endstop,
+			&mut z_endstop,
 		)
 		.map_err(CreationError::CreateStepperTickerTimer)?;
 
 		ticker.enable().map_err(CreationError::EnableStepperTickerTimer)?;
 
 		Ok(Self {
-			planner: Planner::new(configuration.planner_blocks_count, &ticker, configuration.settings),
+			planner: Planner::new(
+				configuration.planner_blocks_count,
+				&ticker,
+				configuration.planner_settings,
+			),
 			ticker,
-			kinematics: configuration.kinematics,
+			kinematics: peripherals.kinematics,
 			bed_size: configuration.bed_size,
 			current_move: None,
 			last_planned_move_end_position: None,
 			homing_procedure: HomingProcedure::None,
 			tmc2209_drivers: [
-				configuration.left_motor.tmc2209,
-				configuration.right_motor.tmc2209,
-				configuration.z_axis_motor.tmc2209,
-				configuration.extruder_motor.tmc2209,
+				TMC2209::new_using_uart(configuration.left_motor.tmc2209_address, uart_driver)
+					.map_err(CreationError::CreateLeftTMC2209)?,
+				TMC2209::new_using_uart(configuration.right_motor.tmc2209_address, uart_driver)
+					.map_err(CreationError::CreateRightTMC2209)?,
+				TMC2209::new_using_uart(configuration.z_axis_motor.tmc2209_address, uart_driver)
+					.map_err(CreationError::CreateZAxisTMC2209)?,
+				TMC2209::new_using_uart(configuration.extruder_motor.tmc2209_address, uart_driver)
+					.map_err(CreationError::CreateExtruderTMC2209)?,
 			],
 			rotations_to_linear_motions: [
 				configuration.left_motor.rotation_to_linear_motion,
@@ -123,7 +138,7 @@ impl<Timer: TimerTrait, Kinematics: KinematicsTrait, ZEndstop: ZAxisProbe> Motio
 				configuration.extruder_motor.rotation_to_linear_motion,
 			],
 			next_move_feed_rate: DEFAULT_FEED_RATE,
-			z_endstop: configuration.z_endstop,
+			z_endstop,
 		})
 	}
 
@@ -319,40 +334,53 @@ pub struct CreationParameters<
 	YEndstop: Endstop,
 	ZEndstop: ZAxisProbe,
 > {
-	pub left_motor: MotorConfig<LeftDirPin, LeftStepPin>,
-	pub right_motor: MotorConfig<RightDirPin, RightStepPin>,
-	pub z_axis_motor: MotorConfig<ZAxisDirPin, ZAxisStepPin>,
-	pub extruder_motor: MotorConfig<ExtruderDirPin, ExtruderStepPin>,
+	pub left_motor: StepperMotor<LeftDirPin, LeftStepPin>,
+	pub right_motor: StepperMotor<RightDirPin, RightStepPin>,
+	pub z_axis_motor: StepperMotor<ZAxisDirPin, ZAxisStepPin>,
+	pub extruder_motor: StepperMotor<ExtruderDirPin, ExtruderStepPin>,
 
 	pub ticker_timer: Timer,
 
 	pub kinematics: Kinematics,
 
-	pub bed_size: Vector2,
-
-	pub planner_blocks_count: usize,
-
 	pub x_endstop: XEndstop,
 	pub y_endstop: YEndstop,
-	pub z_endstop: Probe<ZEndstop>,
-
-	pub settings: Settings<N_MOTORS>,
+	pub z_endstop: ZEndstop,
 }
 
-/// Data necessary to control a stepper motor.
-pub struct MotorConfig<DP: OutputPin, SP: OutputPin>
+pub struct CreationConfig
 {
-	pub stepper_motor: StepperMotor<DP, SP>,
-	pub tmc2209: TMC2209,
+	pub left_motor: MotorConfig,
+	pub right_motor: MotorConfig,
+	pub z_axis_motor: MotorConfig,
+	pub extruder_motor: MotorConfig,
+
+	pub bed_size: Vector2,
+
+	pub offset_from_nozzle_of_z_probe: Vector3,
+
+	pub planner_blocks_count: usize,
+	pub planner_settings: Settings<N_MOTORS>,
+}
+
+/// Data necessary to configure a stepper motor.
+pub struct MotorConfig
+{
+	pub tmc2209_address: UARTAddress,
 	pub rotation_to_linear_motion: RotationToLinearMotion,
 }
 
 /// An error that can occur when you instatiate a [`MotionController`] struct.
 #[derive(Debug)]
-pub enum CreationError<Timer: TimerTrait, ZEndstop: ZAxisProbe>
+pub enum CreationError<Timer: TimerTrait, ZEndstop: ZAxisProbe, Uart: UartTrait>
 {
 	CreateStepperTickerTimer(ticker::CreationError<Timer, ZEndstop>),
 	EnableStepperTickerTimer(ticker::EnableError<Timer>),
+
+	CreateLeftTMC2209(Uart::Error),
+	CreateRightTMC2209(Uart::Error),
+	CreateZAxisTMC2209(Uart::Error),
+	CreateExtruderTMC2209(Uart::Error),
 }
 
 fn calculate_microsteps_per_mm(
