@@ -1,4 +1,5 @@
 mod adc;
+mod input;
 mod output;
 mod peripherals;
 mod pwm;
@@ -8,6 +9,7 @@ mod timer;
 mod z_axis_probe;
 
 pub use adc::*;
+pub use input::*;
 pub use output::*;
 pub use peripherals::*;
 pub use pwm::*;
