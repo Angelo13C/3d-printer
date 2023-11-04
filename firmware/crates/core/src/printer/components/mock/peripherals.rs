@@ -160,4 +160,14 @@ impl Peripherals for MockPeripherals
 	{
 		todo!()
 	}
+
+	fn take_flash_chip(&mut self) -> Option<Self::FlashChip>
+	{
+		todo!()
+	}
+
+	fn take_flash_spi(&mut self) -> Option<Self::FlashSpi>
+	{
+		todo!()
+	}
 }

@@ -65,6 +65,9 @@ pub trait Peripherals
 	fn take_y_axis_endstop(&mut self) -> Option<Self::YAxisEndstop>;
 	fn take_z_axis_endstop(&mut self) -> Option<Self::ZAxisEndstop>;
 
+	fn take_flash_chip(&mut self) -> Option<Self::FlashChip>;
+	fn take_flash_spi(&mut self) -> Option<Self::FlashSpi>;
+
 	fn take_adc(&mut self) -> Option<Self::Adc>;
 
 	fn take_bed_thermistor_pin(&mut self) -> Option<Self::HeatedBedAdcPin>;
