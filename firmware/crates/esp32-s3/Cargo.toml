@@ -37,5 +37,7 @@ embedded-svc = { version = "0.26", optional = true, default-features = false }
 
 firmware-core = { path = "../core" }
 
+enumset = "1.1.2"
+
 [build-dependencies]
 embuild = "0.31.2"
