@@ -16,6 +16,7 @@ ringbuffer = "0.15"
 
 cassette = "0.2.3"
 
+strum = { version = "0.25", features = ["derive"] }
 enumset = "1.1.2"
 
 [build-dependencies]
