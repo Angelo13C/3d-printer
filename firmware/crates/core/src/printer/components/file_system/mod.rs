@@ -1,3 +1,5 @@
+use std::fmt::Debug;
+
 use embedded_hal::spi::{ErrorType, SpiDevice};
 
 use self::regions::{
@@ -14,7 +16,7 @@ pub struct FileSystem<Chip: FlashMemoryChip, Spi: SpiDevice<u8>>
 {
 	spi_flash_memory: SpiFlashMemory<Chip, Spi>,
 
-	regions_config: RegionsConfig<Chip>,
+	regions_config: RegionsConfig,
 
 	metadatas_region: FilesMetadatasRegion,
 	files_region: FilesRegion,
@@ -23,7 +25,7 @@ pub struct FileSystem<Chip: FlashMemoryChip, Spi: SpiDevice<u8>>
 impl<Chip: FlashMemoryChip, Spi: SpiDevice<u8>> FileSystem<Chip, Spi>
 {
 	pub fn new(
-		mut spi_flash_memory: SpiFlashMemory<Chip, Spi>, regions_config: RegionsConfig<Chip>,
+		mut spi_flash_memory: SpiFlashMemory<Chip, Spi>, regions_config: RegionsConfig,
 	) -> Result<Self, CreationError<Spi>>
 	{
 		let metadatas_region = FilesMetadatasRegion::read_from_flash(&mut spi_flash_memory, &regions_config)
@@ -138,4 +140,15 @@ pub enum DeleteFileError<Spi: SpiDevice<u8>>
 pub enum CreationError<Spi: SpiDevice<u8>>
 {
 	MetadatasRegion(<Spi as ErrorType>::Error),
+}
+
+impl<Spi: SpiDevice<u8>> Debug for CreationError<Spi>
+{
+	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result
+	{
+		match self
+		{
+			Self::MetadatasRegion(arg0) => f.debug_tuple("MetadatasRegion").field(arg0).finish(),
+		}
+	}
 }

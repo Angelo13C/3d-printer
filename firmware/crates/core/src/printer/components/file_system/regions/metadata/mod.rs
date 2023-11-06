@@ -38,12 +38,12 @@ impl FilesMetadatasRegion
 	///
 	/// [`stored`]: `Self::store_in_flash`
 	pub fn read_from_flash<Chip: FlashMemoryChip, Spi: SpiDevice<u8>>(
-		spi_flash_memory: &mut SpiFlashMemory<Chip, Spi>, regions_config: &RegionsConfig<Chip>,
+		spi_flash_memory: &mut SpiFlashMemory<Chip, Spi>, regions_config: &RegionsConfig,
 	) -> Result<Self, <Spi as ErrorType>::Error>
 	{
 		let mut needs_to_store_in_flash = false;
 
-		let address_offset = *regions_config.metadata_address_range().start();
+		let address_offset = *regions_config.metadata_address_range::<Chip>().start();
 
 		const READ_DATA_SIZE: usize = 2048;
 		assert_eq!(READ_DATA_SIZE, Chip::PAGE_SIZE as usize);
@@ -137,7 +137,7 @@ impl FilesMetadatasRegion
 	/// Returns `Err(...)` if there has been an error in communicating with the flash memory,
 	/// otherwise returns `Ok(())`.
 	pub fn store_in_flash<Chip: FlashMemoryChip, Spi: SpiDevice<u8>>(
-		&self, spi_flash_memory: &mut SpiFlashMemory<Chip, Spi>, regions_config: &RegionsConfig<Chip>,
+		&self, spi_flash_memory: &mut SpiFlashMemory<Chip, Spi>, regions_config: &RegionsConfig,
 	) -> Result<(), <Spi as ErrorType>::Error>
 	{
 		spi_flash_memory.erase_blocks(regions_config.metadata_block_range.clone())?;
@@ -153,7 +153,7 @@ impl FilesMetadatasRegion
 			)
 			.collect();
 
-		spi_flash_memory.program(&self_as_bytes, *regions_config.metadata_address_range().start())?;
+		spi_flash_memory.program(&self_as_bytes, *regions_config.metadata_address_range::<Chip>().start())?;
 
 		Ok(())
 	}
@@ -167,7 +167,7 @@ impl FilesMetadatasRegion
 	/// This won't store the metadata of the newly created file in the flash memory, a call
 	/// to [`Self::finish_writing_file`] is required.
 	pub fn create_file<Chip: FlashMemoryChip>(
-		&mut self, bytes_count: u32, regions_config: &RegionsConfig<Chip>,
+		&mut self, bytes_count: u32, regions_config: &RegionsConfig,
 	) -> Result<(FileId, u32), NotEnoughSpaceAvailable>
 	{
 		let data_holes = DataHoles::<Chip>::from_metadatas_region(&self, regions_config);
@@ -189,7 +189,7 @@ impl FilesMetadatasRegion
 
 	pub fn finish_writing_file<Chip: FlashMemoryChip, Spi: SpiDevice<u8>>(
 		&mut self, file_metadata: FileMetadata, spi_flash_memory: &mut SpiFlashMemory<Chip, Spi>,
-		regions_config: &RegionsConfig<Chip>,
+		regions_config: &RegionsConfig,
 	) -> Result<(), <Spi as ErrorType>::Error>
 	{
 		self.files_metadatas.push(file_metadata);
