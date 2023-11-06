@@ -19,6 +19,8 @@ cassette = "0.2.3"
 strum = { version = "0.25", features = ["derive"] }
 enumset = "1.1.2"
 
+usb-device = { version = "0.2.9", optional = true }
+
 [build-dependencies]
 syn = { version = "2.0", features = ["parsing", "full", "printing"] }
 quote = "1"
