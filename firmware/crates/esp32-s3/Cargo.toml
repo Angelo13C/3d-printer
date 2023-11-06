@@ -16,7 +16,7 @@ opt-level = "z"
 
 [features]
 
-default = ["std", "hal", "esp-idf-sys/native"]
+default = ["std", "hal", "esp-idf-sys/native", "alloc", "nightly"]
 
 
 pio = ["esp-idf-sys/pio"]
