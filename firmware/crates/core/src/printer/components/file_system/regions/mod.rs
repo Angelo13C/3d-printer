@@ -72,7 +72,9 @@ impl RegionsConfig
 		Self::block_range_to_address_range::<Chip>(&self.data_block_range)
 	}
 
-	const fn block_range_to_address_range<Chip: FlashMemoryChip>(block_range: &RangeInclusive<u16>) -> RangeInclusive<u32>
+	const fn block_range_to_address_range<Chip: FlashMemoryChip>(
+		block_range: &RangeInclusive<u16>,
+	) -> RangeInclusive<u32>
 	{
 		*block_range.start() as u32 * Chip::BLOCK_SIZE..=*block_range.end() as u32 * Chip::BLOCK_SIZE
 	}

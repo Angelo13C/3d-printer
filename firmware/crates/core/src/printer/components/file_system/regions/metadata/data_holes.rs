@@ -14,9 +14,8 @@ pub struct DataHoles<Chip: FlashMemoryChip>
 
 impl<Chip: FlashMemoryChip> DataHoles<Chip>
 {
-	pub fn from_metadatas_region(
-		files_metadatas_region: &FilesMetadatasRegion, regions_config: &RegionsConfig,
-	) -> Self
+	pub fn from_metadatas_region(files_metadatas_region: &FilesMetadatasRegion, regions_config: &RegionsConfig)
+		-> Self
 	{
 		if files_metadatas_region.files_metadatas.is_empty()
 		{
