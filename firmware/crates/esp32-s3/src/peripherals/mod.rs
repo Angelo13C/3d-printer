@@ -29,7 +29,7 @@ use self::{
 	timer::Timer,
 };
 use crate::{
-	config::{ADC_CONFIG, FLASH_SPI_CONFIG, FLASH_SPI_DRIVER_CONFIG},
+	config::components::{ADC_CONFIG, FLASH_SPI_CONFIG, FLASH_SPI_DRIVER_CONFIG},
 	peripherals::uart::UARTDriver,
 };
 
@@ -230,7 +230,8 @@ impl Peripherals
 {
 	pub fn from_esp_peripherals(peripherals: esp_idf_hal::peripherals::Peripherals) -> Result<Self, EspError>
 	{
-		let fans_timer_driver = LedcTimerDriver::new(peripherals.ledc.timer0, &crate::config::FANS_PWM_TIMER)?;
+		let fans_timer_driver =
+			LedcTimerDriver::new(peripherals.ledc.timer0, &crate::config::components::FANS_PWM_TIMER)?;
 
 		Ok(Self {
 			system_time: Some(SystemTime::new()?),
@@ -240,9 +241,12 @@ impl Peripherals
 				peripherals.pins.gpio18,
 				None as Option<Gpio0>,
 				None as Option<Gpio0>,
-				&crate::config::UART_CONFIGURATION,
+				&crate::config::components::UART_CONFIGURATION,
 			)?)),
-			stepper_ticker_timer: Some(Timer::new(peripherals.timer00, &crate::config::STEPPER_TIMER_CONFIG)?),
+			stepper_ticker_timer: Some(Timer::new(
+				peripherals.timer00,
+				&crate::config::components::STEPPER_TIMER_CONFIG,
+			)?),
 			kinematics: CoreXYKinematics,
 			left_motor_dir_pin: Some(PinDriver::output(peripherals.pins.gpio40)?),
 			left_motor_step_pin: Some(PinDriver::output(peripherals.pins.gpio6)?),
@@ -257,7 +261,10 @@ impl Peripherals
 			z_axis_endstop: Some(BLTouch::new(
 				LedcPwmPin(LedcDriver::new(
 					peripherals.ledc.channel2,
-					&LedcTimerDriver::new(peripherals.ledc.timer1, &crate::config::BL_TOUCH_SIGNAL_PWM_TIMER)?,
+					&LedcTimerDriver::new(
+						peripherals.ledc.timer1,
+						&crate::config::components::BL_TOUCH_SIGNAL_PWM_TIMER,
+					)?,
 					peripherals.pins.gpio16,
 				)?),
 				InputPin(PinDriver::input(peripherals.pins.gpio15)?),
@@ -284,13 +291,19 @@ impl Peripherals
 			)?)),
 			bed_cartridge_heater_pin: Some(LedcPwmPin(LedcDriver::new(
 				peripherals.ledc.channel4,
-				&LedcTimerDriver::new(peripherals.ledc.timer2, &crate::config::BED_HEATER_PWM_TIMER)?,
+				&LedcTimerDriver::new(
+					peripherals.ledc.timer2,
+					&crate::config::components::BED_HEATER_PWM_TIMER,
+				)?,
 				peripherals.pins.gpio4,
 			)?)),
 			bed_thermistor_pin: Some(AdcPin::new(AdcChannelDriver::new(peripherals.pins.gpio1)?)),
 			hotend_cartridge_heater_pin: Some(LedcPwmPin(LedcDriver::new(
 				peripherals.ledc.channel6,
-				&LedcTimerDriver::new(peripherals.ledc.timer3, &crate::config::HOTEND_HEATER_PWM_TIMER)?,
+				&LedcTimerDriver::new(
+					peripherals.ledc.timer3,
+					&crate::config::components::HOTEND_HEATER_PWM_TIMER,
+				)?,
 				peripherals.pins.gpio5,
 			)?)),
 			hotend_thermistor_pin: Some(AdcPin::new(AdcChannelDriver::new(peripherals.pins.gpio2)?)),

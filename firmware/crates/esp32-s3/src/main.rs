@@ -1,7 +1,6 @@
 pub mod config;
 pub mod peripherals;
 
-use config::configuration;
 use esp_idf_hal::peripherals::Peripherals as EspPeripherals;
 use esp_idf_sys::{self as _, EspError}; // If using the `binstart` feature of `esp-idf-sys`, always keep this module imported
 use firmware_core::printer::Printer3D;
@@ -28,7 +27,11 @@ fn create_printer() -> Result<Printer3D<Peripherals>, CreatePrinterError>
 	let peripherals =
 		Peripherals::from_esp_peripherals(EspPeripherals::take().map_err(CreatePrinterError::CantTakeEspPeripherals)?)
 			.map_err(CreatePrinterError::CantCreatePeripherals)?;
-	Printer3D::new(peripherals, configuration()).map_err(CreatePrinterError::Printer3DCreation)
+	Printer3D::new(
+		peripherals,
+		config::components::configuration(),
+	)
+	.map_err(CreatePrinterError::Printer3DCreation)
 }
 
 #[derive(Debug)]
