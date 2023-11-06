@@ -41,7 +41,7 @@ impl RegionsConfig
 	/// 	..RegionsConfig::default::<MT29F2G01ABAGDWB>()
 	/// };
 	///
-	/// assert_eq!(regions_config.metadata_address_range(), start_metadata_address..=end_metadata_address);
+	/// assert_eq!(regions_config.metadata_address_range::<MT29F2G01ABAGDWB>(), start_metadata_address..=end_metadata_address);
 	/// ```
 	pub const fn metadata_address_range<Chip: FlashMemoryChip>(&self) -> RangeInclusive<u32>
 	{
