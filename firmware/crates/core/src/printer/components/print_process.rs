@@ -158,6 +158,13 @@ impl<P: Peripherals> PrintProcess<P>
 		}
 	}
 
+	/// Returns `Some(FileId)` if a file is currently being printed (whic means you called [`Self::print_file`]
+	/// and the file has not been completely read yet), otherwise returns `None`.
+	pub fn get_file_being_printed(&self) -> Option<FileId>
+	{
+		self.file_id_to_print.clone()
+	}
+
 	/// Returns the command and the comment present in the provided `line` (if they are present),
 	/// or `Err(())` if the line is a [`GCodeLine::Error`].
 	fn parse_line_to_execute<'a>(&mut self, line: &'a str) -> Result<LineToExecuteParsed<'a, P>, ()>
