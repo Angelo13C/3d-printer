@@ -1,0 +1,229 @@
+//! Check [`PrintProcess`].
+
+use std::string::FromUtf8Error;
+
+use embedded_hal::spi::SpiDevice;
+
+use super::{
+	drivers::spi_flash_memory::FlashMemoryChip,
+	file_system::{
+		regions::{
+			data::{FileReader, ReadError},
+			metadata::FileId,
+		},
+		FileSystem,
+	},
+	g_code::{
+		parser::{GCodeLine, GCodeParser},
+		GCodeCommand,
+	},
+	Peripherals,
+};
+
+/// This struct controls the process of printing a file, by parsing the content of the
+/// file to [`G-code commmands`].
+///
+/// [`G-code commmands`]: super::g_code::commands
+pub struct PrintProcess<P: Peripherals>
+{
+	g_code_parser: GCodeParser,
+
+	file_id_to_print: Option<FileId>,
+	file_to_print_reader: Option<FileReader<P::FlashChip, P::FlashSpi>>,
+
+	max_commands_in_buffer_before_reading_new: u16,
+
+	g_code_to_execute: String,
+	// This is taken from the GCode file
+	estimated_duration_in_seconds: Option<u32>,
+}
+
+impl<P: Peripherals> PrintProcess<P>
+{
+	const ESTIMATED_TIME_PREFIX: &'static str = "TIME:";
+
+	/// Returns an empty [`PrintProcess`].
+	///
+	/// Use [`Self::print_file`] to start the process of printing.
+	pub fn new(max_commands_in_buffer_before_reading_new: u16) -> Self
+	{
+		Self {
+			g_code_parser: GCodeParser::default(),
+			file_id_to_print: None,
+			file_to_print_reader: None,
+			max_commands_in_buffer_before_reading_new,
+			estimated_duration_in_seconds: None,
+			g_code_to_execute: String::with_capacity(P::FlashChip::PAGE_SIZE as usize),
+		}
+	}
+
+	/// Starts printing the file with the provided `file_id_to_print` file id.
+	///
+	/// # Warning
+	/// You must call [`Self::tick`] to effectively make the print process progress.
+	pub fn print_file(&mut self, file_id_to_print: FileId)
+	{
+		self.file_id_to_print = Some(file_id_to_print);
+	}
+
+	/// If a file is currently [`being printed`], calling this function will try to read new
+	/// G-code commands from the file system that will be executed by the [`GCodeExecuter`].
+	///
+	/// If instead no file is being printed, calling this function will do nothing.
+	///
+	/// [`being printed`]: Self::print_file
+	/// [`GCodeExecuter`]: super::g_code::execute::GCodeExecuter
+	pub fn tick(
+		&mut self, file_system: &mut FileSystem<P::FlashChip, P::FlashSpi>, commands_in_buffer: u16,
+	) -> Result<PrintProcessOk<P>, PrintProcessError<P::FlashSpi>>
+	{
+		if let Some(file_id_to_print) = self.file_id_to_print
+		{
+			if self.file_to_print_reader.is_none()
+			{
+				self.file_to_print_reader = Some(
+					file_system
+						.read_file(file_id_to_print)
+						.map_err(|_| PrintProcessError::CouldntOpenFileForRead)?,
+				);
+			}
+
+			if commands_in_buffer < self.max_commands_in_buffer_before_reading_new
+			{
+				let start = self.g_code_to_execute.len();
+				let mut read_lines = Vec::with_capacity(start + P::FlashChip::PAGE_SIZE as usize);
+				read_lines.extend_from_slice(self.g_code_to_execute.as_bytes());
+				read_lines.extend(core::iter::repeat(0).take(P::FlashChip::PAGE_SIZE as usize));
+
+				self.file_to_print_reader
+					.as_mut()
+					.unwrap()
+					.read_data(file_system, &mut read_lines[start..])
+					.map_err(PrintProcessError::SPIError)?;
+
+				let read_lines =
+					String::from_utf8(read_lines).map_err(|err| PrintProcessError::FileContainsInvalidUtf8(err))?;
+
+				let is_last_line_finished = read_lines.ends_with("\n");
+				let mut read_commands = Vec::with_capacity(read_lines.len() / 25);
+				let mut read_lines_iterator = read_lines.lines().peekable();
+				while let Some(line) = read_lines_iterator.next()
+				{
+					if read_lines_iterator.peek().is_none()
+					{
+						if !is_last_line_finished
+						{
+							self.g_code_to_execute = line.to_string();
+							break;
+						}
+					}
+					match self.parse_line_to_execute(&line)
+					{
+						Ok(result) =>
+						{
+							if let Some(command) = result.command
+							{
+								read_commands.push(command);
+							}
+						},
+						Err(_) => return Err(PrintProcessError::CouldntParseLine),
+					}
+				}
+
+				if self.file_to_print_reader.as_ref().unwrap().has_reached_end_of_file()
+				{
+					self.file_id_to_print = None;
+					self.file_to_print_reader = None;
+				}
+
+				Ok(PrintProcessOk {
+					read_lines: Some(read_lines),
+					read_commands,
+				})
+			}
+			else
+			{
+				Ok(PrintProcessOk {
+					read_lines: None,
+					read_commands: Vec::new(),
+				})
+			}
+		}
+		else
+		{
+			Ok(PrintProcessOk {
+				read_lines: None,
+				read_commands: Vec::new(),
+			})
+		}
+	}
+
+	/// Returns the command and the comment present in the provided `line` (if they are present),
+	/// or `Err(())` if the line is a [`GCodeLine::Error`].
+	fn parse_line_to_execute<'a>(&mut self, line: &'a str) -> Result<LineToExecuteParsed<'a, P>, ()>
+	{
+		match self.g_code_parser.parse_line(&line)
+		{
+			GCodeLine::Empty => Ok(LineToExecuteParsed {
+				comment: None,
+				command: None,
+			}),
+			GCodeLine::Command(command) => Ok(LineToExecuteParsed {
+				comment: None,
+				command: Some(command),
+			}),
+			GCodeLine::Comment(comment) =>
+			{
+				if self.estimated_duration_in_seconds.is_none() && comment.starts_with(Self::ESTIMATED_TIME_PREFIX)
+				{
+					let duration_string = &comment[Self::ESTIMATED_TIME_PREFIX.len()..];
+					self.estimated_duration_in_seconds = duration_string.parse::<u32>().ok();
+				}
+
+				Ok(LineToExecuteParsed {
+					comment: Some(comment),
+					command: None,
+				})
+			},
+			GCodeLine::CommandAndComment(command, comment) => Ok(LineToExecuteParsed {
+				comment: Some(comment),
+				command: Some(command),
+			}),
+			GCodeLine::Error => Err(()),
+		}
+	}
+}
+
+/// The call to [`PrintProcess::tick`] has been successful, and this struct contains the string
+/// that has been read from the flash memory ([`Self::read_lines`]) and also the result of parsing
+/// that string to GCodeCommands (in [`Self::read_commands`]).
+pub struct PrintProcessOk<P: Peripherals>
+{
+	pub read_lines: Option<String>,
+	pub read_commands: Vec<Box<dyn GCodeCommand<P>>>,
+}
+
+/// The call to [`PrintProcess::tick`] hasn't been successful. This enum contains the problems that
+/// could have arised.
+pub enum PrintProcessError<Spi: SpiDevice<u8>>
+{
+	/// Check [`FileSystem::read_file`].
+	CouldntOpenFileForRead,
+
+	/// The file contains some characters that are not [`utf-8`].
+	///
+	/// [`utf-8`]: <https://en.wikipedia.org/wiki/UTF-8>
+	FileContainsInvalidUtf8(FromUtf8Error),
+
+	/// Check [`FileReader::read_data`].
+	SPIError(ReadError<Spi>),
+
+	/// One of the lines read from the file is a [`GCodeLine::Error`].
+	CouldntParseLine,
+}
+
+struct LineToExecuteParsed<'a, P: Peripherals>
+{
+	comment: Option<&'a str>,
+	command: Option<Box<dyn GCodeCommand<P>>>,
+}
