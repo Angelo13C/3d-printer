@@ -6,6 +6,7 @@ pub mod hal;
 pub mod mock;
 pub mod motion;
 mod peripherals;
+pub mod print_process;
 pub mod temperature;
 pub mod time;
 
