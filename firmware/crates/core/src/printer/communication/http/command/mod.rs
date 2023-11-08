@@ -11,7 +11,7 @@ use crate::printer::components::{g_code::GCodeCommand, Peripherals, Printer3DCom
 /// [`executed`]: `Self::execute`
 pub enum Command<P: Peripherals>
 {
-	AddGCodeCommandToBuffer(Box<dyn GCodeCommand<P>>),
+	AddGCodeCommandsToBuffer(Vec<Box<dyn GCodeCommand<P>>>),
 }
 
 impl<P: Peripherals> Command<P>
@@ -20,7 +20,7 @@ impl<P: Peripherals> Command<P>
 	{
 		match self
 		{
-			Command::AddGCodeCommandToBuffer(command) =>
+			Command::AddGCodeCommandsToBuffer(commands) =>
 			{
 				todo!()
 			},
