@@ -17,6 +17,7 @@ pub use peripherals::*;
 use self::{
 	config::ComponentsConfig,
 	drivers::{cartridge_heater::CartridgeHeater, fan::Fan, stepper_motor::StepperMotor, thermistor::Thermistor},
+	g_code::execute::GCodeExecuter,
 	hal::{timer::Timer as TimerTrait, uart::Uart as UartTrait},
 	motion::{
 		bed_leveling::{Probe, ZAxisProbe},
@@ -40,6 +41,8 @@ pub struct Printer3DComponents<P: Peripherals>
 	pub adc: P::Adc,
 
 	pub clock: Clock<P::SystemTime>,
+
+	pub g_code_executer: Option<GCodeExecuter<P>>,
 }
 
 impl<P: Peripherals> Printer3DComponents<P>
@@ -191,12 +194,19 @@ impl<P: Peripherals> Printer3DComponents<P>
 			)
 			.map_err(CreationError::MotionController)?,
 			uart_driver,
+			g_code_executer: Some(GCodeExecuter::default()),
 		})
 	}
 
 	pub fn tick(&mut self) -> Result<(), TickError<P::ZAxisEndstop>>
 	{
 		self.clock.tick();
+
+		if let Some(mut g_code_executer) = self.g_code_executer.take()
+		{
+			g_code_executer.tick(self).map_err(TickError::GCodeExecuter)?;
+			self.g_code_executer = Some(g_code_executer);
+		}
 
 		let delta_time = self.clock.get_delta_time().as_secs_f64();
 		self.heated_bed_pid_controller
@@ -232,6 +242,7 @@ pub enum CreationError<Timer: TimerTrait, ZEndstop: ZAxisProbe, Uart: UartTrait>
 #[derive(Debug)]
 pub enum TickError<ZEndstop: ZAxisProbe>
 {
+	GCodeExecuter(g_code::execute::TickError),
 	HeatedBedPidController(temperature::PidUpdateError),
 	HotendPidController(temperature::PidUpdateError),
 	MotionController(motion::homing::TickError<Probe<ZEndstop>>),
