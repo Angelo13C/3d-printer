@@ -158,7 +158,7 @@ impl<P: Peripherals> PrintProcess<P>
 		}
 	}
 
-	/// Returns `Some(FileId)` if a file is currently being printed (whic means you called [`Self::print_file`]
+	/// Returns `Some(FileId)` if a file is currently being printed (which means you called [`Self::print_file`]
 	/// and the file has not been completely read yet), otherwise returns `None`.
 	pub fn get_file_being_printed(&self) -> Option<FileId>
 	{
