@@ -13,8 +13,9 @@ pub const SAVED_POSITIONS_COUNT: usize = 1;
 
 pub struct GCodeExecuter<P: Peripherals>
 {
-	current_command: Option<Box<dyn GCodeCommand<P>>>,
+	commands_to_prepare: VecDeque<Box<dyn GCodeCommand<P>>>,
 	command_buffer: VecDeque<Box<dyn GCodeCommand<P>>>,
+	current_command: Option<Box<dyn GCodeCommand<P>>>,
 
 	position_mode: PositionMode,
 	extruder_position_mode: PositionMode,
@@ -24,8 +25,18 @@ pub struct GCodeExecuter<P: Peripherals>
 
 impl<P: Peripherals> GCodeExecuter<P>
 {
-	pub fn tick(&mut self, printer_components: &mut Printer3DComponents<P>)
+	pub fn tick(&mut self, printer_components: &mut Printer3DComponents<P>) -> Result<(), TickError>
 	{
+		if let Some(mut command) = self.commands_to_prepare.pop_front()
+		{
+			match command.prepare(printer_components, self)
+			{
+				Status::Working => self.commands_to_prepare.push_front(command),
+				Status::Finished => self.command_buffer.push_back(command),
+				Status::Error(error) => return Err(TickError::PreparingCommand(error)),
+			}
+		}
+
 		if self.current_command.is_none()
 		{
 			self.current_command = self.command_buffer.pop_front();
@@ -35,18 +46,22 @@ impl<P: Peripherals> GCodeExecuter<P>
 		{
 			let status = command.execute(printer_components, self);
 
-			if status == Status::Working
+			match status
 			{
-				self.current_command = Some(command);
+				Status::Working => self.current_command = Some(command),
+				Status::Finished => (),
+				Status::Error(error) => return Err(TickError::ExecutingCommand(error)),
 			}
 		}
+
+		Ok(())
 	}
 
 	/// Returns `true` if it is currently executing a command or it has at least 1 command in its command buffer.
 	/// Otherwise returns `false`.
 	pub fn has_command_to_execute(&self) -> bool
 	{
-		self.current_command.is_some() || !self.command_buffer.is_empty()
+		self.current_command.is_some() || !self.command_buffer.is_empty() || !self.commands_to_prepare.is_empty()
 	}
 
 	pub fn set_units(&mut self, units: Units)
@@ -92,7 +107,7 @@ impl<P: Peripherals> GCodeExecuter<P>
 
 	pub fn add_command_to_buffer(&mut self, command: Box<dyn GCodeCommand<P>>)
 	{
-		self.command_buffer.push_back(command);
+		self.commands_to_prepare.push_back(command);
 	}
 
 	pub fn save_position(&mut self, position: VectorN<4>, slot: usize) -> Result<(), InvalidPositionSlot>
@@ -121,13 +136,21 @@ impl<P: Peripherals> GCodeExecuter<P>
 	}
 }
 
+#[derive(Debug)]
+pub enum TickError
+{
+	PreparingCommand(String),
+	ExecutingCommand(String),
+}
+
 impl<P: Peripherals> Default for GCodeExecuter<P>
 {
 	fn default() -> Self
 	{
 		Self {
+			commands_to_prepare: VecDeque::with_capacity(120),
+			command_buffer: VecDeque::with_capacity(100),
 			current_command: Default::default(),
-			command_buffer: VecDeque::with_capacity(120),
 			position_mode: Default::default(),
 			extruder_position_mode: Default::default(),
 			saved_positions: Default::default(),

@@ -204,7 +204,7 @@ impl<P: Peripherals> Printer3DComponents<P>
 
 		if let Some(mut g_code_executer) = self.g_code_executer.take()
 		{
-			g_code_executer.tick(self);
+			g_code_executer.tick(self).map_err(TickError::GCodeExecuter)?;
 			self.g_code_executer = Some(g_code_executer);
 		}
 
@@ -242,6 +242,7 @@ pub enum CreationError<Timer: TimerTrait, ZEndstop: ZAxisProbe, Uart: UartTrait>
 #[derive(Debug)]
 pub enum TickError<ZEndstop: ZAxisProbe>
 {
+	GCodeExecuter(g_code::execute::TickError),
 	HeatedBedPidController(temperature::PidUpdateError),
 	HotendPidController(temperature::PidUpdateError),
 	MotionController(motion::homing::TickError<Probe<ZEndstop>>),
