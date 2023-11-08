@@ -222,7 +222,7 @@ impl PeripheralsTrait for Peripherals
 
 	fn take_system_time(&mut self) -> Option<Self::SystemTime>
 	{
-		self.system_time.take()
+		self.system_time.clone().take()
 	}
 }
 

@@ -5,6 +5,7 @@ use esp_idf_svc::timer::EspTaskTimerService;
 use esp_idf_sys::EspError;
 use firmware_core::printer::components::time::SystemTime as SystemTimeTrait;
 
+#[derive(Clone)]
 pub struct SystemTime(EspTaskTimerService);
 
 impl SystemTime
