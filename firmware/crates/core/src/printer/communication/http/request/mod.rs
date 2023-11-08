@@ -1,16 +1,15 @@
 mod callbacks;
 
-use embedded_hal::spi::SpiDevice;
 use embedded_svc::http::{
 	server::{Connection, HandlerResult, Request},
 	Method,
 };
-use strum::EnumIter;
+use strum::{EnumCount, EnumIter};
 
 use super::resources::Resources;
 use crate::printer::components::{drivers::spi_flash_memory::FlashMemoryChip, Peripherals};
 
-#[derive(EnumIter, Clone, Copy)]
+#[derive(EnumIter, EnumCount, Clone, Copy)]
 /// A possible request that the HTTP server in this firmware can handle. Each request has a [`method`], an [`URI`]
 /// and a [`callback function`] that handles it.
 ///
@@ -113,4 +112,11 @@ impl HttpRequest
 			HttpRequest::SendGCodeCommands => callbacks::send_g_code_commands,
 		}
 	}
+}
+
+/// Returns the number of possible URI the HTTP server of this firmware can handle (which corresponds to
+/// the number of variants of the [`HttpRequest`] enum).
+pub const fn http_request_handlers_count() -> usize
+{
+	HttpRequest::COUNT
 }
