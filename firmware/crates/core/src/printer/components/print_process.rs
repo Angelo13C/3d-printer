@@ -1,6 +1,6 @@
 //! Check [`PrintProcess`].
 
-use std::string::FromUtf8Error;
+use std::{string::FromUtf8Error, time::Duration};
 
 use embedded_hal::spi::SpiDevice;
 
@@ -36,6 +36,7 @@ pub struct PrintProcess<P: Peripherals>
 	g_code_to_execute: String,
 	// This is taken from the GCode file
 	estimated_duration_in_seconds: Option<u32>,
+	print_start_time: Option<Duration>,
 }
 
 impl<P: Peripherals> PrintProcess<P>
@@ -53,6 +54,7 @@ impl<P: Peripherals> PrintProcess<P>
 			file_to_print_reader: None,
 			max_commands_in_buffer_before_reading_new,
 			estimated_duration_in_seconds: None,
+			print_start_time: None,
 			g_code_to_execute: String::with_capacity(P::FlashChip::PAGE_SIZE as usize),
 		}
 	}
@@ -61,13 +63,14 @@ impl<P: Peripherals> PrintProcess<P>
 	///
 	/// # Warning
 	/// You must call [`Self::tick`] to effectively make the print process progress.
-	pub fn print_file(&mut self, file_id_to_print: FileId)
+	pub fn print_file(&mut self, file_id_to_print: FileId, current_time: Option<Duration>)
 	{
 		self.file_id_to_print = Some(file_id_to_print);
+		self.print_start_time = current_time;
 	}
 
-	/// If a file is currently [`being printed`], calling this function will try to read new
-	/// G-code commands from the file system that will be executed by the [`GCodeExecuter`].
+	/// If a file is currently [`being printed`], calling this function will try to read new G-code commands
+	/// from the file system that will be executed by the [`GCodeExecuter`].
 	///
 	/// If instead no file is being printed, calling this function will do nothing.
 	///
@@ -163,6 +166,23 @@ impl<P: Peripherals> PrintProcess<P>
 	pub fn get_file_being_printed(&self) -> Option<FileId>
 	{
 		self.file_id_to_print.clone()
+	}
+
+	/// Returns `Some(duration_in_secs)` if a file is currently being printed (which means you called [`Self::print_file`]
+	/// and the file has not been completely read yet) and in the file there's a line containing `;TIME: {value}` where
+	/// `{value}` is a number.
+	/// Otherwise returns `None`.
+	pub fn get_print_estimated_duration_in_seconds(&self) -> Option<u32>
+	{
+		self.estimated_duration_in_seconds.clone()
+	}
+
+	/// Returns `Some(print_start_time)` if a file is currently being printed (which means you called [`Self::print_file`]
+	/// and the file has not been completely read yet) and you provided a start time for the print.
+	/// Otherwise returns `None`.
+	pub fn get_print_start_time(&self) -> Option<Duration>
+	{
+		self.print_start_time.clone()
 	}
 
 	/// Returns the command and the comment present in the provided `line` (if they are present),
