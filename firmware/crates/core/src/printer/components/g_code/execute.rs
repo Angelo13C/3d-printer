@@ -1,3 +1,5 @@
+use std::collections::VecDeque;
+
 use super::{GCodeCommand, Status};
 use crate::{
 	printer::components::{Peripherals, Printer3DComponents},
@@ -12,8 +14,7 @@ pub const SAVED_POSITIONS_COUNT: usize = 1;
 pub struct GCodeExecuter<P: Peripherals>
 {
 	current_command: Option<Box<dyn GCodeCommand<P>>>,
-	/// The commands are stored in reverse order (the first one to be executed is the last one present in this Vec).
-	command_buffer_reversed: Vec<Box<dyn GCodeCommand<P>>>,
+	command_buffer: VecDeque<Box<dyn GCodeCommand<P>>>,
 
 	position_mode: PositionMode,
 	extruder_position_mode: PositionMode,
@@ -25,12 +26,9 @@ impl<P: Peripherals> GCodeExecuter<P>
 {
 	pub fn tick(&mut self, printer_components: &mut Printer3DComponents<P>)
 	{
-		if self.current_command.is_none() && !self.command_buffer_reversed.is_empty()
+		if self.current_command.is_none()
 		{
-			self.current_command = Some(
-				self.command_buffer_reversed
-					.remove(self.command_buffer_reversed.len() - 1),
-			);
+			self.current_command = self.command_buffer.pop_front();
 		}
 
 		if let Some(mut command) = self.current_command.take()
@@ -48,7 +46,7 @@ impl<P: Peripherals> GCodeExecuter<P>
 	/// Otherwise returns `false`.
 	pub fn has_command_to_execute(&self) -> bool
 	{
-		self.current_command.is_some() || !self.command_buffer_reversed.is_empty()
+		self.current_command.is_some() || !self.command_buffer.is_empty()
 	}
 
 	pub fn set_units(&mut self, units: Units)
@@ -94,7 +92,7 @@ impl<P: Peripherals> GCodeExecuter<P>
 
 	pub fn add_command_to_buffer(&mut self, command: Box<dyn GCodeCommand<P>>)
 	{
-		self.command_buffer_reversed.insert(0, command);
+		self.command_buffer.push_back(command);
 	}
 
 	pub fn save_position(&mut self, position: VectorN<4>, slot: usize) -> Result<(), InvalidPositionSlot>
@@ -129,7 +127,7 @@ impl<P: Peripherals> Default for GCodeExecuter<P>
 	{
 		Self {
 			current_command: Default::default(),
-			command_buffer_reversed: Vec::with_capacity(50),
+			command_buffer: VecDeque::with_capacity(120),
 			position_mode: Default::default(),
 			extruder_position_mode: Default::default(),
 			saved_positions: Default::default(),
