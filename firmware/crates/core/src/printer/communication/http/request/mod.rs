@@ -11,17 +11,38 @@ use super::resources::Resources;
 use crate::printer::components::{drivers::spi_flash_memory::FlashMemoryChip, Peripherals};
 
 #[derive(EnumIter, Clone, Copy)]
+/// A possible request that the HTTP server in this firmware can handle. Each request has a [`method`], an [`URI`]
+/// and a [`callback function`] that handles it.
+///
+/// [`method`]: Self::get_method
+/// [`URI`]: Self::get_uri
+/// [`callback function`]: Self::get_callback
 pub enum HttpRequest
 {
+	/// List the metadatas of all the G-code files saved in the file system.
 	ListFiles,
+	/// Delete a specific file from the file system.
 	DeleteFile,
+	/// Start printing a specific file.
 	PrintFile,
+	/// Send a G-code file to the printer (that later on could be [`printed`](Self::PrintFile)).
 	SendFile,
+	/// Get the status of the current print (if a print is in execution), providing some info like the expected duration,
+	/// the name of the file being printed...
 	GetPrintStatus,
+	/// Pause or resume (based on the previous state) the current print.
 	PauseOrResume,
+	/// Get the status of various components of the machine (like the current temperature of the hotend, or the target
+	/// temperature of the bed).
 	PrinterState,
+	/// Moves the tool of the machine by the specified amount on the possible directions.
 	Move,
+	/// Provide the history of G-code commands that have been read from the file system to print the current file.
+	/// This request must be issued often, since microcontrollers don't have much RAM (which means that the history
+	/// being tracked can't be long), and a large amount of time between different requests might lead to some G-code
+	/// commands that have been executed by the printer to not appear in the history.
 	ListGCodeCommandsInMemory,
+	/// "Manually" add the provided G-code commands to the command buffer of the current print process.
 	SendGCodeCommands,
 }
 
@@ -29,6 +50,10 @@ type Callback<C, P> = fn(Request<&mut C>, Resources<P>) -> HandlerResult;
 
 impl HttpRequest
 {
+	/// Returns the HTTP method that the request received by the server should have to invoke the [`callback`]
+	/// of this variant of the enum.
+	///
+	/// [`callback`]: Self::get_callback
 	pub fn get_method(&self) -> Method
 	{
 		match self
@@ -46,6 +71,10 @@ impl HttpRequest
 		}
 	}
 
+	/// Returns the relative URI that the request received by the server should have to invoke the [`callback`]
+	/// of this variant of the enum.
+	///
+	/// [`callback`]: Self::get_callback
 	pub fn get_uri(&self) -> &'static str
 	{
 		match self
@@ -63,6 +92,11 @@ impl HttpRequest
 		}
 	}
 
+	/// Returns a pointer to the function that should be called when the server receives a request
+	/// with the corresponding [`URI`] and [`method`].
+	///
+	/// [`URI`]: Self::get_uri
+	/// [`method`]: Self::get_method
 	pub fn get_callback<C: Connection, P: Peripherals>(&self) -> Callback<C, P>
 	{
 		match self
