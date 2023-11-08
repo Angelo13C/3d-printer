@@ -22,7 +22,13 @@ impl<P: Peripherals> Command<P>
 		{
 			Command::AddGCodeCommandsToBuffer(commands) =>
 			{
-				todo!()
+				for command in commands
+				{
+					if let Some(g_code_executer) = components.g_code_executer.as_mut()
+					{
+						g_code_executer.add_command_to_buffer(command);
+					}
+				}
 			},
 		}
 	}
