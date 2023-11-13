@@ -17,7 +17,7 @@ impl<P: Peripherals> Printer3D<P>
 		})
 	}
 
-	pub fn tick(&mut self) -> Result<(), components::TickError<P::ZAxisEndstop>>
+	pub fn tick(&mut self) -> Result<(), components::TickError<P::ZAxisEndstop, P::StepperTickerTimer>>
 	{
 		self.components.tick()?;
 

@@ -5,6 +5,7 @@ pub mod g_code;
 pub mod hal;
 pub mod mock;
 pub mod motion;
+pub mod pauser;
 mod peripherals;
 pub mod print_process;
 pub mod temperature;
@@ -198,14 +199,17 @@ impl<P: Peripherals> Printer3DComponents<P>
 		})
 	}
 
-	pub fn tick(&mut self) -> Result<(), TickError<P::ZAxisEndstop>>
+	pub fn tick(&mut self) -> Result<(), TickError<P::ZAxisEndstop, P::StepperTickerTimer>>
 	{
 		self.clock.tick();
 
-		if let Some(mut g_code_executer) = self.g_code_executer.take()
+		if !pauser::is_paused()
 		{
-			g_code_executer.tick(self).map_err(TickError::GCodeExecuter)?;
-			self.g_code_executer = Some(g_code_executer);
+			if let Some(mut g_code_executer) = self.g_code_executer.take()
+			{
+				g_code_executer.tick(self).map_err(TickError::GCodeExecuter)?;
+				self.g_code_executer = Some(g_code_executer);
+			}
 		}
 
 		let delta_time = self.clock.get_delta_time().as_secs_f64();
@@ -216,6 +220,9 @@ impl<P: Peripherals> Printer3DComponents<P>
 			.tick(delta_time, &mut self.adc)
 			.map_err(TickError::HotendPidController)?;
 
+		self.motion_controller
+			.set_paused(pauser::is_paused())
+			.map_err(TickError::PausingMotionController)?;
 		self.motion_controller.tick().map_err(TickError::MotionController)?;
 
 		Ok(())
@@ -240,10 +247,11 @@ pub enum CreationError<Timer: TimerTrait, ZEndstop: ZAxisProbe, Uart: UartTrait>
 
 /// An error that can occur when you tick a [`Printer3DComponents`] struct.
 #[derive(Debug)]
-pub enum TickError<ZEndstop: ZAxisProbe>
+pub enum TickError<ZEndstop: ZAxisProbe, Timer: TimerTrait>
 {
 	GCodeExecuter(g_code::execute::TickError),
 	HeatedBedPidController(temperature::PidUpdateError),
 	HotendPidController(temperature::PidUpdateError),
 	MotionController(motion::homing::TickError<Probe<ZEndstop>>),
+	PausingMotionController(motion::SetPausedError<Timer>),
 }
