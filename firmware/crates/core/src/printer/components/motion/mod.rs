@@ -56,6 +56,8 @@ pub struct MotionController<Timer: TimerTrait, Kinematics: KinematicsTrait, ZEnd
 
 	bed_size: Vector2,
 	next_move_feed_rate: f32,
+
+	is_paused: bool,
 }
 
 impl<Timer: TimerTrait, Kinematics: KinematicsTrait, ZEndstop: ZAxisProbe> MotionController<Timer, Kinematics, ZEndstop>
@@ -139,6 +141,7 @@ impl<Timer: TimerTrait, Kinematics: KinematicsTrait, ZEndstop: ZAxisProbe> Motio
 			],
 			next_move_feed_rate: DEFAULT_FEED_RATE,
 			z_endstop,
+			is_paused: false,
 		})
 	}
 
@@ -237,6 +240,11 @@ impl<Timer: TimerTrait, Kinematics: KinematicsTrait, ZEndstop: ZAxisProbe> Motio
 	/// This method internally ticks the [`HomingProcedure`] and the [`Planner`], executing the planned moves.
 	pub fn tick(&mut self) -> Result<(), homing::TickError<Probe<ZEndstop>>>
 	{
+		if self.is_paused
+		{
+			return Ok(());
+		}
+
 		self.homing_procedure.tick::<N_MOTORS, Kinematics, _>(
 			&mut self.planner,
 			|| calculate_microsteps_per_mm(&self.rotations_to_linear_motions, &self.tmc2209_drivers),
@@ -270,6 +278,22 @@ impl<Timer: TimerTrait, Kinematics: KinematicsTrait, ZEndstop: ZAxisProbe> Motio
 				end_position: steps_difference + &last_end_position,
 				start_time: self.ticker.get_time().ok(),
 			});
+		}
+
+		Ok(())
+	}
+
+	pub fn set_paused(&mut self, paused: bool) -> Result<(), SetPausedError<Timer>>
+	{
+		if self.is_paused != paused
+		{
+			self.is_paused = paused;
+
+			match paused
+			{
+				true => self.ticker.disable().map_err(SetPausedError::TryingToPause)?,
+				false => self.ticker.enable().map_err(SetPausedError::TryingToResume)?,
+			}
 		}
 
 		Ok(())
@@ -381,6 +405,16 @@ pub enum CreationError<Timer: TimerTrait, ZEndstop: ZAxisProbe, Uart: UartTrait>
 	CreateRightTMC2209(Uart::Error),
 	CreateZAxisTMC2209(Uart::Error),
 	CreateExtruderTMC2209(Uart::Error),
+}
+
+/// An error that can occur when you [`pause or resume`] a [`MotionController`].
+///
+/// [`pause or resume`]: MotionController::set_paused
+#[derive(Debug)]
+pub enum SetPausedError<Timer: TimerTrait>
+{
+	TryingToPause(Timer::Error),
+	TryingToResume(ticker::EnableError<Timer>),
 }
 
 fn calculate_microsteps_per_mm(
