@@ -53,7 +53,7 @@ impl GCodeHistory
 	/// ```
 	pub fn add_read_lines(&mut self, lines: String)
 	{
-		let lines_count = self.history.lines().count() as u32;
+		let lines_count = lines.lines().count() as u32;
 		self.history_lines_bounds = self.history_lines_bounds.end..(self.history_lines_bounds.end + lines_count);
 
 		self.history = lines;
