@@ -45,7 +45,7 @@ pub trait Peripherals
 
 	type FanPin: PwmPin;
 
-	type SystemTime: SystemTime;
+	type SystemTime: SystemTime + Send;
 
 	fn take_kinematics(&mut self) -> Option<Self::Kinematics>;
 	fn take_stepper_ticker_timer(&mut self) -> Option<Self::StepperTickerTimer>;
