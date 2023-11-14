@@ -9,8 +9,14 @@ use crate::{
 	utils::mutex::{Mutex, MutexGuard},
 };
 
+/// A container of resources that can be used by the [`callbacks`] of the http requests and also by the
+/// [`Communication`] struct. Internally it's simply a [`ResourcesImpl`] wrapped in an `Arc<Mutex>`.
+///
+/// [`callbacks`]: super::request
+/// [`Communication`]: super::super::Communication
 pub struct Resources<P: Peripherals>(Arc<Mutex<ResourcesImpl<P>>>);
 
+/// Check [`Resources`].
 pub struct ResourcesImpl<P: Peripherals>
 {
 	pub system_time: Option<P::SystemTime>,
@@ -24,6 +30,7 @@ pub struct ResourcesImpl<P: Peripherals>
 
 impl<P: Peripherals> Resources<P>
 {
+	/// Wraps the provided resources in an `Arc<Mutex>>` and returns the resulting [`Resources`].
 	pub fn new(
 		system_time: Option<P::SystemTime>, file_system: FileSystem<P::FlashChip, P::FlashSpi>, security: Security,
 		command_sender: CommandsSender<P>, print_process: PrintProcess<P>,
@@ -39,6 +46,8 @@ impl<P: Peripherals> Resources<P>
 		})))
 	}
 
+	/// Try to get the internal resources, returning `None` if they already currently being used, or `Some(...)`
+	/// if they can be used.
 	pub fn try_lock(&self) -> Option<MutexGuard<'_, ResourcesImpl<P>>>
 	{
 		self.0.try_lock()
@@ -47,6 +56,7 @@ impl<P: Peripherals> Resources<P>
 
 impl<P: Peripherals> Clone for Resources<P>
 {
+	/// Makes a clone of the [`Arc`] pointer.
 	fn clone(&self) -> Self
 	{
 		Self(Arc::clone(&self.0))
