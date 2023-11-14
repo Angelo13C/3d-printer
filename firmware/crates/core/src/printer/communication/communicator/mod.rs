@@ -10,6 +10,8 @@ use strum::IntoEnumIterator;
 use super::http::{request::HttpRequest, resources::Resources};
 use crate::printer::components::{drivers::spi_flash_memory::FlashMemoryChip, Peripherals};
 
+pub mod wifi;
+
 /// A type that implements this trait can be used to make the microcontroller communicate with the external
 /// world.
 pub trait Communicator
