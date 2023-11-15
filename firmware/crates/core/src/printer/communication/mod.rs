@@ -32,7 +32,10 @@ use crate::printer::{
 
 pub mod communicator;
 pub mod http;
+mod multi_thread;
 pub mod security;
+
+pub use multi_thread::*;
 
 use super::components::{
 	drivers::spi_flash_memory::FlashMemoryChip,
