@@ -21,7 +21,7 @@ pub struct ResourcesImpl<P: Peripherals>
 {
 	pub system_time: Option<P::SystemTime>,
 	pub file_system: FileSystem<P::FlashChip, P::FlashSpi>,
-	pub security: Security,
+	pub security: Option<Security>,
 	pub command_sender: CommandsSender<P>,
 	pub print_process: PrintProcess<P>,
 
@@ -39,7 +39,7 @@ impl<P: Peripherals> Resources<P>
 		Self(Arc::new(Mutex::new(ResourcesImpl {
 			system_time,
 			file_system,
-			security,
+			security: Some(security),
 			command_sender,
 			print_process,
 			g_code_history: GCodeHistory::new(),
@@ -51,6 +51,23 @@ impl<P: Peripherals> Resources<P>
 	pub fn try_lock(&self) -> Option<MutexGuard<'_, ResourcesImpl<P>>>
 	{
 		self.0.try_lock()
+	}
+
+	/// Blocks the thread until the mutex is unlocked and returns a [`MutexGuard`] with the protected value
+	/// (ResourcesImpl).
+	pub fn lock(&self) -> MutexGuard<'_, ResourcesImpl<P>>
+	{
+		self.0.lock()
+	}
+}
+
+impl<P: Peripherals> ResourcesImpl<P>
+{
+	pub fn get_file_system_and_print_process(
+		&mut self,
+	) -> (&mut FileSystem<P::FlashChip, P::FlashSpi>, &mut PrintProcess<P>)
+	{
+		(&mut self.file_system, &mut self.print_process)
 	}
 }
 
