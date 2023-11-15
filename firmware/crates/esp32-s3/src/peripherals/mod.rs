@@ -1,4 +1,5 @@
 pub mod adc;
+mod http_server;
 pub mod interrupt;
 pub mod pwm;
 pub mod system_time;
