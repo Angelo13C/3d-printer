@@ -1,3 +1,4 @@
+pub mod communication;
 pub mod components;
 
 use components::{config::ComponentsConfig, Peripherals, Printer3DComponents};
