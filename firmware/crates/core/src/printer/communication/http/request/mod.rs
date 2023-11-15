@@ -7,7 +7,7 @@ use embedded_svc::http::{
 use strum::{EnumCount, EnumIter};
 
 use super::resources::Resources;
-use crate::printer::components::{drivers::spi_flash_memory::FlashMemoryChip, Peripherals};
+use crate::printer::components::Peripherals;
 
 #[derive(EnumIter, EnumCount, Clone, Copy)]
 /// A possible request that the HTTP server in this firmware can handle. Each request has a [`method`], an [`URI`]

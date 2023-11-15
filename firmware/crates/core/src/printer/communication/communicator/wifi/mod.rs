@@ -2,20 +2,13 @@ mod http_server;
 
 use std::{fmt::Debug, marker::PhantomData};
 
-use embedded_hal::spi::SpiDevice;
-use embedded_svc::{
-	http::{
-		server::{Connection, HandlerError, HandlerResult, Request},
-		Method,
-	},
-	wifi::{asynch::Wifi, ClientConfiguration, Configuration},
-};
+use embedded_svc::wifi::{asynch::Wifi, ClientConfiguration, Configuration};
 pub use http_server::*;
 
 use super::Communicator;
 use crate::printer::{
 	communication::http::{request::HttpRequest, resources::Resources},
-	components::{drivers::spi_flash_memory::FlashMemoryChip, Peripherals},
+	components::Peripherals,
 };
 
 /// A way to communicate with the external world using WiFi.
