@@ -1,6 +1,10 @@
 //! Check [`PrintProcess`].
 
-use std::{string::FromUtf8Error, time::Duration};
+use std::{
+	string::FromUtf8Error,
+	sync::atomic::{AtomicU16, Ordering},
+	time::Duration,
+};
 
 use embedded_hal::spi::SpiDevice;
 
@@ -19,6 +23,20 @@ use super::{
 	},
 	Peripherals,
 };
+
+static COMMANDS_IN_BUFFER: AtomicU16 = AtomicU16::new(0);
+pub fn add_commands_in_buffer_count(added_commands_count: u16)
+{
+	COMMANDS_IN_BUFFER.fetch_add(added_commands_count, Ordering::Relaxed);
+}
+pub fn remove_commands_in_buffer_count(removed_commands_count: u16)
+{
+	COMMANDS_IN_BUFFER.fetch_sub(removed_commands_count, Ordering::Relaxed);
+}
+pub fn get_commands_in_buffer_count() -> u16
+{
+	COMMANDS_IN_BUFFER.load(Ordering::Relaxed)
+}
 
 /// This struct controls the process of printing a file, by parsing the content of the
 /// file to [`G-code commmands`].

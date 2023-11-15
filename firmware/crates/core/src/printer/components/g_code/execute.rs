@@ -2,7 +2,7 @@ use std::collections::VecDeque;
 
 use super::{GCodeCommand, Status};
 use crate::{
-	printer::components::{Peripherals, Printer3DComponents},
+	printer::components::{print_process, Peripherals, Printer3DComponents},
 	utils::{
 		math::vectors::*,
 		measurement::distance::{Distance, Units},
@@ -54,7 +54,7 @@ impl<P: Peripherals> GCodeExecuter<P>
 			match status
 			{
 				Status::Working => self.current_command = Some(command),
-				Status::Finished => (),
+				Status::Finished => print_process::remove_commands_in_buffer_count(1),
 				Status::Error(error) => return Err(TickError::ExecutingCommand { error }),
 			}
 		}

@@ -4,7 +4,7 @@ mod sender_and_receiver;
 
 pub use sender_and_receiver::*;
 
-use crate::printer::components::{g_code::GCodeCommand, Peripherals, Printer3DComponents};
+use crate::printer::components::{g_code::GCodeCommand, print_process, Peripherals, Printer3DComponents};
 
 /// A command sent from the `Communication` thread to the `Components` thread to be [`executed`].
 ///
@@ -22,6 +22,8 @@ impl<P: Peripherals> Command<P>
 		{
 			Command::AddGCodeCommandsToBuffer(commands) =>
 			{
+				print_process::add_commands_in_buffer_count(commands.len() as u16);
+
 				for command in commands
 				{
 					if let Some(g_code_executer) = components.g_code_executer.as_mut()
