@@ -40,6 +40,7 @@ fn create_printer() -> Result<Printer3D<Peripherals>, CreatePrinterError>
 	Printer3D::new(
 		peripherals,
 		config::components::configuration(),
+		config::communication::configuration(),
 	)
 	.map_err(CreatePrinterError::Printer3DCreation)
 }
