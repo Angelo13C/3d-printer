@@ -27,6 +27,7 @@ use self::{
 	temperature::{safety::TemperatureSafety, TemperaturePidController},
 	time::Clock,
 };
+use super::communication::http::other::printer_state;
 
 pub struct Printer3DComponents<P: Peripherals>
 {
@@ -219,6 +220,8 @@ impl<P: Peripherals> Printer3DComponents<P>
 		self.hotend_pid_controller
 			.tick(delta_time, &mut self.adc)
 			.map_err(TickError::HotendPidController)?;
+
+		printer_state::tick::<P>(&self.hotend_pid_controller, &self.heated_bed_pid_controller);
 
 		self.motion_controller
 			.set_paused(pauser::is_paused())
