@@ -11,9 +11,14 @@ use std::fmt::Debug;
 use esp_idf_hal::{
 	adc::{AdcChannelDriver, AdcDriver, ADC1},
 	gpio::*,
+	io::EspIOError,
 	ledc::{LedcDriver, LedcTimerDriver},
 	spi::SpiSingleDeviceDriver,
 	uart::UartDriver,
+};
+use esp_idf_svc::{
+	eventloop::EspSystemEventLoop, http::server::EspHttpServer, nvs::EspDefaultNvsPartition,
+	timer::EspTaskTimerService, wifi::*,
 };
 use esp_idf_sys::EspError;
 use firmware_core::printer::components::{
@@ -24,6 +29,7 @@ use firmware_core::printer::components::{
 
 use self::{
 	adc::{Adc, AdcPin},
+	http_server::HttpServer,
 	interrupt::InputPin,
 	pwm::LedcPwmPin,
 	system_time::SystemTime,
@@ -69,6 +75,11 @@ pub struct Peripherals
 	adc: Option<<Self as PeripheralsTrait>::Adc>,
 
 	system_time: Option<<Self as PeripheralsTrait>::SystemTime>,
+
+	wifi: Option<<Self as PeripheralsTrait>::WifiDriver>,
+	server: Option<
+		Box<dyn FnOnce() -> Result<<Self as PeripheralsTrait>::Server, <Self as PeripheralsTrait>::ServerError> + Send>,
+	>,
 }
 
 impl PeripheralsTrait for Peripherals
@@ -105,6 +116,16 @@ impl PeripheralsTrait for Peripherals
 	type Adc = Adc<'static, ADC1>;
 
 	type SystemTime = SystemTime;
+
+	type WifiDriver = AsyncWifi<WifiDriver<'static>>;
+
+	type Server = HttpServer<'static>;
+	type ServerError = EspIOError;
+
+	#[cfg(feature = "usb")]
+	type UsbSensePin = InputPin<'static, Gpio20>;
+	#[cfg(feature = "usb")]
+	type UsbBus = firmware_core::printer::components::mock::MockUsbBus;
 
 	fn take_stepper_ticker_timer(&mut self) -> Option<Self::StepperTickerTimer>
 	{
@@ -225,12 +246,37 @@ impl PeripheralsTrait for Peripherals
 	{
 		self.system_time.clone().take()
 	}
+
+	fn take_wifi_driver(&mut self) -> Option<Self::WifiDriver>
+	{
+		self.wifi.take()
+	}
+
+	fn take_http_server(&mut self) -> Option<Box<dyn FnOnce() -> Result<Self::Server, Self::ServerError> + Send>>
+	{
+		self.server.take()
+	}
+
+	#[cfg(feature = "usb")]
+	fn take_usb_sense_pin(&mut self) -> Option<Self::UsbSensePin>
+	{
+		todo!()
+	}
+
+	#[cfg(feature = "usb")]
+	fn take_usb_bus(&mut self) -> Option<Self::UsbBus>
+	{
+		todo!()
+	}
 }
 
 impl Peripherals
 {
 	pub fn from_esp_peripherals(peripherals: esp_idf_hal::peripherals::Peripherals) -> Result<Self, EspError>
 	{
+		let sys_loop = EspSystemEventLoop::take()?;
+		let nvs = EspDefaultNvsPartition::take()?;
+		let http_server_config = crate::config::communication::HTTP_SERVER_CONFIG;
 		let fans_timer_driver =
 			LedcTimerDriver::new(peripherals.ledc.timer0, &crate::config::components::FANS_PWM_TIMER)?;
 
@@ -309,6 +355,14 @@ impl Peripherals
 			)?)),
 			hotend_thermistor_pin: Some(AdcPin::new(AdcChannelDriver::new(peripherals.pins.gpio2)?)),
 			adc: Some(Adc(AdcDriver::new(peripherals.adc1, &ADC_CONFIG)?)),
+			wifi: Some(AsyncWifi::wrap(
+				WifiDriver::new(peripherals.modem, sys_loop.clone(), Some(nvs))?,
+				sys_loop,
+				EspTaskTimerService::new()?,
+			)?),
+			server: Some(Box::new(move || {
+				Ok(HttpServer(EspHttpServer::new(&http_server_config)?))
+			})),
 		})
 	}
 }

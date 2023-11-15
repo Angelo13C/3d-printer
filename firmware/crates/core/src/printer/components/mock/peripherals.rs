@@ -1,10 +1,12 @@
 use super::{
 	adc::{MockAdc, MockAdcPin},
+	connection::*,
+	input::MockInputPin,
 	pwm::MockPwmPin,
 	time::MockSystemTime,
 	uart::MockUart,
 	z_axis_probe::MockZAxisProbe,
-	MockOutputPin, MockSpi, MockTimer,
+	MockError, MockOutputPin, MockSpi, MockTimer,
 };
 use crate::printer::components::{
 	drivers::spi_flash_memory::MT29F2G01ABAGDWB,
@@ -50,6 +52,14 @@ impl Peripherals for MockPeripherals
 	type FanPin = MockPwmPin;
 
 	type SystemTime = MockSystemTime;
+
+	type WifiDriver = MockWifiDriver;
+	type Server = MockHttpServer;
+
+	#[cfg(feature = "usb")]
+	type UsbSensePin = MockInputPin;
+	#[cfg(feature = "usb")]
+	type UsbBus = MockUsbBus;
 
 	fn take_x_axis_endstop(&mut self) -> Option<Self::XAxisEndstop>
 	{
@@ -170,4 +180,28 @@ impl Peripherals for MockPeripherals
 	{
 		todo!()
 	}
+
+	fn take_wifi_driver(&mut self) -> Option<Self::WifiDriver>
+	{
+		todo!()
+	}
+
+	fn take_http_server(&mut self) -> Option<Box<dyn FnOnce() -> Result<Self::Server, Self::ServerError> + Send>>
+	{
+		todo!()
+	}
+
+	#[cfg(feature = "usb")]
+	fn take_usb_sense_pin(&mut self) -> Option<Self::UsbSensePin>
+	{
+		todo!()
+	}
+
+	#[cfg(feature = "usb")]
+	fn take_usb_bus(&mut self) -> Option<Self::UsbBus>
+	{
+		todo!()
+	}
+
+	type ServerError = MockError;
 }

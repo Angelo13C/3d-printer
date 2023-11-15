@@ -1,4 +1,11 @@
+use std::fmt::Debug;
+
+#[cfg(feature = "usb")]
+use embedded_hal::digital::InputPin;
 use embedded_hal::{digital::OutputPin, spi::SpiDevice};
+use embedded_svc::wifi::asynch::Wifi;
+#[cfg(feature = "usb")]
+use usb_device::class_prelude::UsbBus;
 
 use super::{
 	drivers::spi_flash_memory::FlashMemoryChip,
@@ -11,6 +18,7 @@ use super::{
 	motion::{bed_leveling::ZAxisProbe, homing::endstop::Endstop, kinematics::Kinematics},
 	time::SystemTime,
 };
+use crate::printer::communication::communicator::wifi::HttpServer;
 
 pub trait Peripherals
 {
@@ -47,6 +55,15 @@ pub trait Peripherals
 
 	type SystemTime: SystemTime + Send;
 
+	type WifiDriver: Wifi + Send + 'static;
+	type Server: HttpServer + 'static;
+	type ServerError: Debug;
+
+	#[cfg(feature = "usb")]
+	type UsbSensePin: InputPin + Send + 'static;
+	#[cfg(feature = "usb")]
+	type UsbBus: UsbBus + Send + 'static;
+
 	fn take_kinematics(&mut self) -> Option<Self::Kinematics>;
 	fn take_stepper_ticker_timer(&mut self) -> Option<Self::StepperTickerTimer>;
 
@@ -79,4 +96,12 @@ pub trait Peripherals
 	fn take_hotend_fan_pin(&mut self) -> Option<Self::FanPin>;
 
 	fn take_system_time(&mut self) -> Option<Self::SystemTime>;
+
+	fn take_wifi_driver(&mut self) -> Option<Self::WifiDriver>;
+	fn take_http_server(&mut self) -> Option<Box<dyn FnOnce() -> Result<Self::Server, Self::ServerError> + Send>>;
+
+	#[cfg(feature = "usb")]
+	fn take_usb_sense_pin(&mut self) -> Option<Self::UsbSensePin>;
+	#[cfg(feature = "usb")]
+	fn take_usb_bus(&mut self) -> Option<Self::UsbBus>;
 }
