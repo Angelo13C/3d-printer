@@ -21,7 +21,7 @@ impl GCodeHistory
 	///
 	/// for i in 0..10_000
 	/// {
-	/// 	assert_eq!(history.get_lines_from_history(i), "");
+	/// 	assert_eq!(history.get_lines_from_history(i), None);
 	/// }
 	/// ```
 	pub fn new() -> Self
@@ -47,9 +47,9 @@ impl GCodeHistory
 	/// let mut history = GCodeHistory::new();
 	///
 	/// history.add_read_lines("G1 X0".to_string());
-	/// assert_eq!(history.get_lines_from_history(0), "G1 X0");
+	/// assert_eq!(history.get_lines_from_history(0), Some(("G1 X0", 0)));
 	/// history.add_read_lines("G0 Y10".to_string());
-	/// assert!(history.get_lines_from_history(0) != "G1 X0");
+	/// assert!(history.get_lines_from_history(0).unwrap().0 != "G1 X0");
 	/// ```
 	pub fn add_read_lines(&mut self, lines: String)
 	{
@@ -69,11 +69,16 @@ impl GCodeHistory
 	/// let mut history = GCodeHistory::new();
 	///
 	/// history.add_read_lines("G1 X0\nG1 Y10".to_string());
-	/// assert_eq!(history.get_lines_from_history(0), "G1 X0\nG1 Y10");
-	/// assert_eq!(history.get_lines_from_history(1), "G1 Y10");
+	/// assert_eq!(history.get_lines_from_history(0), Some(("G1 X0\nG1 Y10", 0)));
+	/// assert_eq!(history.get_lines_from_history(1), Some(("G1 Y10", 1)));
 	/// ```
-	pub fn get_lines_from_history(&self, start_line_number: u32) -> &str
+	pub fn get_lines_from_history(&self, start_line_number: u32) -> Option<(&str, u32)>
 	{
+		if self.history_lines_bounds == (0..0)
+		{
+			return None;
+		}
+
 		let line_offset = start_line_number.saturating_sub(self.history_lines_bounds.start);
 		let character_offset = match line_offset == 0
 		{
@@ -86,11 +91,14 @@ impl GCodeHistory
 				}
 				else
 				{
-					return "";
+					return None;
 				}
 			},
 		};
 
-		&self.history[character_offset..]
+		Some((
+			&self.history[character_offset..],
+			line_offset + self.history_lines_bounds.start,
+		))
 	}
 }
