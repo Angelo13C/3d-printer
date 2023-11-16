@@ -3,7 +3,6 @@ pub mod components;
 
 use communication::CommunicationConfig;
 use components::{config::ComponentsConfig, Peripherals, Printer3DComponents};
-use embedded_svc::wifi::asynch::Wifi;
 
 use self::communication::{MultiThreadCommunication, SendablePeripherals};
 

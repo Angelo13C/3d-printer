@@ -1,8 +1,8 @@
 use std::str::FromStr;
 
 use argon2::{
-	password_hash::{rand_core::block::BlockRng, PasswordHashString, SaltString},
-	Argon2, PasswordHash, PasswordHasher, PasswordVerifier,
+	password_hash::{PasswordHashString, SaltString},
+	PasswordHasher, PasswordVerifier,
 };
 pub use brute_force::BruteForceProtection;
 
@@ -81,7 +81,7 @@ impl<'a> ProtectionInput<'a> for PasswordAttempt<'a>
 
 mod algorithm
 {
-	use std::{iter::Map, slice::Split, str::Lines};
+	use std::str::Lines;
 
 	use argon2::*;
 	use rand_core::{OsRng, RngCore};

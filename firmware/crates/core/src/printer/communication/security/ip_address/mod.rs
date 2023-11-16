@@ -5,10 +5,7 @@ use embedded_svc::http::server::{Connection, Request};
 
 use super::ProtectionInput;
 use crate::{
-	printer::{
-		communication::http::resources::{Resources, ResourcesImpl},
-		components::Peripherals,
-	},
+	printer::{communication::http::resources::ResourcesImpl, components::Peripherals},
 	utils::mutex::MutexGuard,
 };
 

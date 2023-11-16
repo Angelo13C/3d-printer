@@ -1,6 +1,6 @@
 mod http_server;
 
-use std::{fmt::Debug, marker::PhantomData};
+use std::fmt::Debug;
 
 use embedded_svc::wifi::{asynch::Wifi, ClientConfiguration, Configuration};
 pub use http_server::*;

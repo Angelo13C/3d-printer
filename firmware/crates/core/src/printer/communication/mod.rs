@@ -18,7 +18,7 @@ use usb_device::class_prelude::UsbBus as UsbBusTrait;
 #[cfg(feature = "usb")]
 use self::communicator::usb::{CreationConfig as UsbCreationConfig, UsbCommunicator};
 use self::{
-	communicator::wifi::{CreationConfig as WifiCreationConfig, HttpServer, WifiCommunicator},
+	communicator::wifi::{CreationConfig as WifiCreationConfig, WifiCommunicator},
 	http::{
 		command::{Command, CommandsSender},
 		resources::Resources,
@@ -38,7 +38,6 @@ pub mod security;
 pub use multi_thread::*;
 
 use super::components::{
-	drivers::spi_flash_memory::FlashMemoryChip,
 	file_system::{self, regions::RegionsConfig, FileSystem},
 	print_process::{self, PrintProcessError},
 	Peripherals,

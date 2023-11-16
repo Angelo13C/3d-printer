@@ -3,7 +3,7 @@ use std::time::Duration;
 use embedded_svc::http::server::{Connection, Request};
 use password::{BruteForceProtection, PasswordProtection};
 
-use super::http::resources::{Resources, ResourcesImpl};
+use super::http::resources::ResourcesImpl;
 use crate::{printer::components::Peripherals, utils::mutex::MutexGuard};
 
 mod ip_address;

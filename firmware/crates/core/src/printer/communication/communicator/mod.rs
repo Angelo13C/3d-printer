@@ -1,14 +1,9 @@
 use std::fmt::Debug;
 
-use embedded_hal::spi::SpiDevice;
-use embedded_svc::http::{
-	server::{Connection, HandlerResult, Request},
-	Method,
-};
 use strum::IntoEnumIterator;
 
 use super::http::{request::HttpRequest, resources::Resources};
-use crate::printer::components::{drivers::spi_flash_memory::FlashMemoryChip, Peripherals};
+use crate::printer::components::Peripherals;
 
 #[cfg(feature = "usb")]
 pub mod usb;

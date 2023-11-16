@@ -1,9 +1,5 @@
-use embedded_hal::spi::SpiDevice;
 use embedded_svc::{
-	http::{
-		server::{Connection, HandlerResult, Request},
-		Headers, Query,
-	},
+	http::{server::Connection, Headers, Query},
 	io::{ErrorType, Read, Write},
 	wifi::asynch::Wifi,
 };
@@ -13,7 +9,7 @@ use crate::printer::{
 		communicator::wifi::HttpServer,
 		http::{request::HttpRequest, resources::Resources},
 	},
-	components::{drivers::spi_flash_memory::FlashMemoryChip, mock::MockError, Peripherals},
+	components::{mock::MockError, Peripherals},
 };
 
 pub struct MockWifiDriver;

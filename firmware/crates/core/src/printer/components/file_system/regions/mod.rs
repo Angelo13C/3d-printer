@@ -1,4 +1,4 @@
-use std::{marker::PhantomData, ops::RangeInclusive};
+use std::ops::RangeInclusive;
 
 use crate::printer::components::drivers::spi_flash_memory::*;
 

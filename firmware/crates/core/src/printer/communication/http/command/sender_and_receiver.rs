@@ -1,4 +1,4 @@
-use std::sync::mpsc::{channel, Receiver, SendError, Sender, TryIter};
+use std::sync::mpsc::{Receiver, SendError, Sender, TryIter};
 
 use super::Command;
 use crate::printer::components::Peripherals;

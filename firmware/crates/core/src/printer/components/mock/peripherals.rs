@@ -1,7 +1,8 @@
+#[cfg(feature = "usb")]
+use super::input::MockInputPin;
 use super::{
 	adc::{MockAdc, MockAdcPin},
 	connection::*,
-	input::MockInputPin,
 	pwm::MockPwmPin,
 	time::MockSystemTime,
 	uart::MockUart,
