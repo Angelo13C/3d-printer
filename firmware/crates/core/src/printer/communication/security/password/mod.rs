@@ -92,8 +92,7 @@ mod algorithm
 	}
 	impl AlgorithmIter
 	{
-		const POSSIBLE_PEPPERS: &'static str =
-			include_str!("../../../../../../../../private/Secrets/Password/Peppers.txt");
+		const POSSIBLE_PEPPERS: &'static str = env!("PRINTER_PASSWORD_PEPPERS");
 
 		pub fn get_random() -> Argon2<'static>
 		{

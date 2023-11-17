@@ -20,10 +20,10 @@ pub fn configuration() -> CommunicationConfig
 	CommunicationConfig {
 		wifi: WifiCreationConfig {
 			wifi_client_configuration: ClientConfiguration {
-				ssid: include_str!("../../../../../../private/Secrets/WiFi/SSID.txt").into(),
+				ssid: env!("WIFI_SSID").into(),
 				bssid: None,
 				auth_method: AuthMethod::WPA2Personal,
-				password: include_str!("../../../../../../private/Secrets/WiFi/Password.txt").into(),
+				password: env!("WIFI_PASSWORD").into(),
 				channel: None,
 			},
 		},
@@ -31,7 +31,7 @@ pub fn configuration() -> CommunicationConfig
 		usb: todo!(),
 		security: security::Configuration {
 			password: PasswordConfiguration::PasswordAndBruteforce {
-				password: include_str!("../../../../../../private/Secrets/Password/Password.txt"),
+				password: env!("PRINTER_PASSWORD"),
 				delays_and_wrong_attempts_count_for_it: vec![(3, Duration::from_secs(1))],
 			},
 		},
