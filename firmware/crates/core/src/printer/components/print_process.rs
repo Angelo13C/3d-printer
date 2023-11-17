@@ -205,7 +205,7 @@ impl<P: Peripherals> PrintProcess<P>
 
 	/// Returns the command and the comment present in the provided `line` (if they are present),
 	/// or `Err(())` if the line is a [`GCodeLine::Error`].
-	fn parse_line_to_execute<'a>(&mut self, line: &'a str) -> Result<LineToExecuteParsed<'a, P>, ()>
+	pub fn parse_line_to_execute<'a>(&mut self, line: &'a str) -> Result<LineToExecuteParsed<'a, P>, ()>
 	{
 		match self.g_code_parser.parse_line(&line)
 		{
@@ -267,8 +267,8 @@ pub enum PrintProcessError<Spi: SpiDevice<u8>>
 	CouldntParseLine,
 }
 
-struct LineToExecuteParsed<'a, P: Peripherals>
+pub struct LineToExecuteParsed<'a, P: Peripherals>
 {
-	comment: Option<&'a str>,
-	command: Option<Box<dyn GCodeCommand<P>>>,
+	pub comment: Option<&'a str>,
+	pub command: Option<Box<dyn GCodeCommand<P>>>,
 }
