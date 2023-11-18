@@ -17,9 +17,13 @@ fn set_environment_variables()
 
 	fn set_environment_variable(relative_path: &str, environment_variable_key: &str)
 	{
-		if let Ok(environment_variable_value) = std::fs::read_to_string(Path::new(DIRECTORY_PATH).join(Path::new(relative_path)))
+		if let Ok(environment_variable_value) =
+			std::fs::read_to_string(Path::new(DIRECTORY_PATH).join(Path::new(relative_path)))
 		{
-			println!("cargo:rustc-env={}={}", environment_variable_key, environment_variable_value);
+			println!(
+				"cargo:rustc-env={}={}",
+				environment_variable_key, environment_variable_value
+			);
 		}
 	}
 

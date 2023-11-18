@@ -5,7 +5,10 @@ pub mod panic_handler;
 use communication::CommunicationConfig;
 use components::{config::ComponentsConfig, Peripherals, Printer3DComponents};
 
-use self::{communication::{MultiThreadCommunication, SendablePeripherals}, panic_handler::PanicHandler};
+use self::{
+	communication::{MultiThreadCommunication, SendablePeripherals},
+	panic_handler::PanicHandler,
+};
 
 pub struct Printer3D<P: Peripherals + 'static>
 {
@@ -17,7 +20,7 @@ impl<P: Peripherals + 'static> Printer3D<P>
 {
 	pub fn new(
 		mut peripherals: P, components_config: ComponentsConfig, communication_config: CommunicationConfig,
-		panic_handler: PanicHandler
+		panic_handler: PanicHandler,
 	) -> Result<Self, CreationError<P>>
 	{
 		panic_handler::register_panic_handler(panic_handler);
