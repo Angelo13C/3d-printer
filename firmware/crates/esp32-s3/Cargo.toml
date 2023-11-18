@@ -7,6 +7,9 @@ resolver = "2"
 rust-version = "1.72"
 description = "ESP32-S3 specific code for the 3D printer's firmware"
 
+[package.metadata.espflash]
+partition_table = "partitions.csv" # Supports CSV and binary formats
+
 [profile.release]
 opt-level = "s"
 
