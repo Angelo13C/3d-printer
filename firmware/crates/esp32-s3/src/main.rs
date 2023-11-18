@@ -1,9 +1,10 @@
 pub mod config;
 pub mod peripherals;
+pub mod emergency;
 
 use esp_idf_hal::{cpu::Core, peripherals::Peripherals as EspPeripherals};
 use esp_idf_sys::{self as _, EspError}; // If using the `binstart` feature of `esp-idf-sys`, always keep this module imported
-use firmware_core::printer::Printer3D;
+use firmware_core::printer::{Printer3D, panic_handler::PanicHandler};
 use peripherals::Peripherals;
 
 fn main()
@@ -41,6 +42,7 @@ fn create_printer() -> Result<Printer3D<Peripherals>, CreatePrinterError>
 		peripherals,
 		config::components::configuration(),
 		config::communication::configuration(),
+		PanicHandler(emergency::disable_all_pins_function)
 	)
 	.map_err(CreatePrinterError::Printer3DCreation)
 }
