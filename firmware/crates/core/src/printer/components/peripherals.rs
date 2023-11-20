@@ -14,6 +14,7 @@ use super::{
 		pwm::PwmPin,
 		timer::Timer,
 		uart::Uart,
+		watchdog::{Watchdog, WatchdogCreator},
 	},
 	motion::{bed_leveling::ZAxisProbe, homing::endstop::Endstop, kinematics::Kinematics},
 	time::SystemTime,
@@ -22,6 +23,8 @@ use crate::printer::communication::communicator::wifi::HttpServer;
 
 pub trait Peripherals
 {
+	type WatchdogCreator: WatchdogCreator;
+
 	type Kinematics: Kinematics;
 	type StepperTickerTimer: Timer;
 
@@ -63,6 +66,8 @@ pub trait Peripherals
 	type UsbSensePin: InputPin + Send + 'static;
 	#[cfg(feature = "usb")]
 	type UsbBus: UsbBus + Send + 'static;
+
+	fn take_watchdog_creator(&mut self) -> Option<Self::WatchdogCreator>;
 
 	fn take_kinematics(&mut self) -> Option<Self::Kinematics>;
 	fn take_stepper_ticker_timer(&mut self) -> Option<Self::StepperTickerTimer>;

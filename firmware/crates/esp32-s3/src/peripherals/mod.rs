@@ -5,15 +5,18 @@ pub mod pwm;
 pub mod system_time;
 pub mod timer;
 pub mod uart;
+pub mod watchdog;
 
-use std::fmt::Debug;
+use std::{fmt::Debug, time::Duration};
 
+use enumset::EnumSet;
 use esp_idf_hal::{
 	adc::{AdcChannelDriver, AdcDriver, ADC1},
 	gpio::*,
 	io::EspIOError,
 	ledc::{LedcDriver, LedcTimerDriver},
 	spi::SpiSingleDeviceDriver,
+	task::watchdog::*,
 	uart::UartDriver,
 };
 use esp_idf_svc::{
@@ -34,6 +37,7 @@ use self::{
 	pwm::LedcPwmPin,
 	system_time::SystemTime,
 	timer::Timer,
+	watchdog::WatchdogCreator,
 };
 use crate::{
 	config::components::{ADC_CONFIG, FLASH_SPI_CONFIG, FLASH_SPI_DRIVER_CONFIG},
@@ -80,10 +84,14 @@ pub struct Peripherals
 	server: Option<
 		Box<dyn FnOnce() -> Result<<Self as PeripheralsTrait>::Server, <Self as PeripheralsTrait>::ServerError> + Send>,
 	>,
+
+	watchdog_creator: <Self as PeripheralsTrait>::WatchdogCreator,
 }
 
 impl PeripheralsTrait for Peripherals
 {
+	type WatchdogCreator = WatchdogCreator;
+
 	type StepperTickerTimer = Timer;
 	type Kinematics = CoreXYKinematics;
 
@@ -126,6 +134,11 @@ impl PeripheralsTrait for Peripherals
 	type UsbSensePin = InputPin<'static, Gpio20>;
 	#[cfg(feature = "usb")]
 	type UsbBus = firmware_core::printer::components::mock::MockUsbBus;
+
+	fn take_watchdog_creator(&mut self) -> Option<Self::WatchdogCreator>
+	{
+		Some(self.watchdog_creator.clone())
+	}
 
 	fn take_stepper_ticker_timer(&mut self) -> Option<Self::StepperTickerTimer>
 	{
@@ -281,6 +294,14 @@ impl Peripherals
 			LedcTimerDriver::new(peripherals.ledc.timer0, &crate::config::components::FANS_PWM_TIMER)?;
 
 		Ok(Self {
+			watchdog_creator: WatchdogCreator(TWDTDriver::new(
+				peripherals.twdt,
+				&TWDTConfig {
+					duration: Duration::from_secs(10),
+					panic_on_trigger: true,
+					subscribed_idle_tasks: EnumSet::EMPTY,
+				},
+			)?),
 			system_time: Some(SystemTime::new()?),
 			uart_driver: Some(UARTDriver(UartDriver::new(
 				peripherals.uart2,
