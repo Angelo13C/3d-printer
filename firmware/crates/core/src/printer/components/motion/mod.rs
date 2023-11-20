@@ -1,4 +1,4 @@
-use std::time::Duration;
+use std::{fmt::Debug, time::Duration};
 
 use embedded_hal::digital::OutputPin;
 pub use linear::*;
@@ -410,11 +410,22 @@ pub enum CreationError<Timer: TimerTrait, ZEndstop: ZAxisProbe, Uart: UartTrait>
 /// An error that can occur when you [`pause or resume`] a [`MotionController`].
 ///
 /// [`pause or resume`]: MotionController::set_paused
-#[derive(Debug)]
 pub enum SetPausedError<Timer: TimerTrait>
 {
 	TryingToPause(Timer::Error),
 	TryingToResume(ticker::EnableError<Timer>),
+}
+
+impl<Timer: TimerTrait> Debug for SetPausedError<Timer>
+{
+	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result
+	{
+		match self
+		{
+			Self::TryingToPause(arg0) => f.debug_tuple("TryingToPause").field(arg0).finish(),
+			Self::TryingToResume(arg0) => f.debug_tuple("TryingToResume").field(arg0).finish(),
+		}
+	}
 }
 
 fn calculate_microsteps_per_mm(
