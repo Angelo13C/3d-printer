@@ -26,7 +26,7 @@ fn main()
 fn create_printer() -> Result<Printer3D<Peripherals>, CreatePrinterError>
 {
 	esp_idf_hal::task::thread::ThreadSpawnConfiguration {
-		name: Some(b"Communication thread"),
+		name: Some(b"Communication\0"),
 		stack_size: 10_000,
 		priority: 10,
 		inherit: false,
