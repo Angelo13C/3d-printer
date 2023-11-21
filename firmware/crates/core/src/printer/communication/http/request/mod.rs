@@ -78,16 +78,16 @@ impl HttpRequest
 	{
 		match self
 		{
-			HttpRequest::ListFiles => "list-files",
-			HttpRequest::DeleteFile => "delete-file",
-			HttpRequest::PrintFile => "print-file",
-			HttpRequest::SendFile => "send-file",
-			HttpRequest::GetPrintStatus => "print-status",
-			HttpRequest::PauseOrResume => "pause-or-resume",
-			HttpRequest::PrinterState => "printer-state",
-			HttpRequest::Move => "move",
-			HttpRequest::ListGCodeCommandsInMemory => "list-gcode-commands-in-memory",
-			HttpRequest::SendGCodeCommands => "send-gcode-commands",
+			HttpRequest::ListFiles => "/list-files",
+			HttpRequest::DeleteFile => "/delete-file",
+			HttpRequest::PrintFile => "/print-file",
+			HttpRequest::SendFile => "/send-file",
+			HttpRequest::GetPrintStatus => "/print-status",
+			HttpRequest::PauseOrResume => "/pause-or-resume",
+			HttpRequest::PrinterState => "/printer-state",
+			HttpRequest::Move => "/move",
+			HttpRequest::ListGCodeCommandsInMemory => "/list-gcode-commands-in-memory",
+			HttpRequest::SendGCodeCommands => "/send-gcode-commands",
 		}
 	}
 
