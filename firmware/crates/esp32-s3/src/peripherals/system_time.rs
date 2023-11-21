@@ -26,6 +26,6 @@ impl SystemTimeTrait for SystemTime
 	fn delay(&self, duration: Duration)
 	{
 		// Delay at least 1us even if the duration is only 10ns
-		Delay::new(u32::MAX).delay_us(duration.subsec_micros().max(1))
+		Delay::new_default().delay_us(duration.subsec_micros().max(1))
 	}
 }
