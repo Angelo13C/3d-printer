@@ -9,6 +9,7 @@ use super::{
 };
 use crate::printer::components::{
 	hal::watchdog::{Watchdog, WatchdogCreator},
+	time::SystemTime,
 	Peripherals, Printer3DComponents,
 };
 
@@ -26,6 +27,9 @@ impl<P: Peripherals + 'static> MultiThreadCommunication<P>
 		let (command_sender, command_receiver) = CommandsSender::new();
 
 		let mut sendable_peripherals = SendablePeripherals::<P>::of_communication_thread(peripherals);
+
+		let system_time = peripherals.take_system_time();
+		let delay_between_ticks = configuration.delay_between_ticks;
 
 		let join_handle = std::thread::Builder::new()
 			.stack_size(15_000)
@@ -47,6 +51,11 @@ impl<P: Peripherals + 'static> MultiThreadCommunication<P>
 					}
 
 					communication.tick();
+
+					if let Some(system_time) = system_time.as_ref()
+					{
+						system_time.delay(delay_between_ticks);
+					}
 				}
 			})?;
 

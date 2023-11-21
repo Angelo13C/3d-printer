@@ -7,7 +7,7 @@
 //! The data exchange with the external world is used to monitor the printer's status, make it execute commands
 //! (like start printing a 3D model)...
 
-use std::{fmt::Debug, sync::mpsc::SendError};
+use std::{fmt::Debug, sync::mpsc::SendError, time::Duration};
 
 use cassette::{pin_mut, Cassette};
 use embedded_hal::spi::SpiDevice;
@@ -197,4 +197,5 @@ pub struct CommunicationConfig
 	pub security: security::Configuration,
 
 	pub max_commands_in_buffer_before_reading_new: u16,
+	pub delay_between_ticks: Duration,
 }

@@ -37,5 +37,6 @@ pub fn configuration() -> CommunicationConfig
 		},
 		file_system: RegionsConfig::default::<<Peripherals as PeripheralsTrait>::FlashChip>(),
 		max_commands_in_buffer_before_reading_new: 20,
+		delay_between_ticks: Duration::from_millis(100),
 	}
 }
