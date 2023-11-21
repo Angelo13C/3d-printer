@@ -1,4 +1,4 @@
-use std::ops::RangeInclusive;
+use std::ops::{RangeInclusive, Range};
 
 use embedded_hal::spi::{ErrorType, SpiDevice};
 
@@ -150,7 +150,7 @@ impl<Chip: FlashMemoryChip, Spi: SpiDevice<u8>> SpiFlashMemory<Chip, Spi>
 			}
 			.execute(&mut self.spi)?;
 
-			let row_address = RowAddress::from_memory_address(to_start_address + *parameters.data_range.start() as u32);
+			let row_address = RowAddress::from_memory_address(to_start_address + parameters.data_range.start as u32);
 			Command::ProgramExecute::<Chip> { row_address }.execute(&mut self.spi)?;
 
 			self.wait_for_operation_to_finish()?;
@@ -308,7 +308,7 @@ impl<Chip: FlashMemoryChip, Spi: SpiDevice<u8>> SpiFlashMemory<Chip, Spi>
 			}
 
 			(callback)(CyclePageParameters {
-				data_range: data_range_start..=(data_range_start + data_range_length),
+				data_range: data_range_start..(data_range_start + data_range_length),
 				column_address: ColumnAddress::new(column_address, plane_index),
 				row_address,
 			})?;
@@ -323,7 +323,7 @@ impl<Chip: FlashMemoryChip, Spi: SpiDevice<u8>> SpiFlashMemory<Chip, Spi>
 
 struct CyclePageParameters<Chip: FlashMemoryChip>
 {
-	data_range: RangeInclusive<usize>,
+	data_range: Range<usize>,
 	row_address: RowAddress<Chip>,
 	column_address: ColumnAddress,
 }
