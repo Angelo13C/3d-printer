@@ -16,16 +16,11 @@ impl BadBlockTable
 		spi_flash_memory: &mut SpiFlashMemory<Chip, Spi>,
 	) -> Result<Self, <Spi as ErrorType>::Error>
 	{
-		let mut page_data = Vec::with_capacity(Chip::PAGE_SIZE as usize);
-		unsafe { page_data.set_len(page_data.capacity()) };
 
 		let mut bad_blocks_indices = Vec::with_capacity(10);
 
-		for page_index in 0..(Chip::MEMORY_SIZE / Chip::PAGE_SIZE)
+		for block_index in 0..(Chip::MEMORY_SIZE / Chip::BLOCK_SIZE) as u16
 		{
-			spi_flash_memory.read(page_index * Chip::PAGE_SIZE, &mut page_data)?;
-
-			let block_index = (page_index / Chip::PAGES_PER_BLOCK) as u16;
 			let is_block_valid = Chip::contains_bad_block_mark(block_index, spi_flash_memory)?;
 			if !is_block_valid
 			{
