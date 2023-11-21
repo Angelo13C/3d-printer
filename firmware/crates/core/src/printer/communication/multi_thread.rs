@@ -1512,4 +1512,9 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 			} => usb_bus.take(),
 		}
 	}
+
+	fn get_ip_address_from_wifi_driver_function() -> fn(&Self::WifiDriver) -> Option<std::net::IpAddr>
+	{
+		P::get_ip_address_from_wifi_driver_function()
+	}
 }

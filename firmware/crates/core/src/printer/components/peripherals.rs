@@ -1,4 +1,4 @@
-use std::fmt::Debug;
+use std::{fmt::Debug, net::IpAddr};
 
 #[cfg(feature = "usb")]
 use embedded_hal::digital::InputPin;
@@ -103,6 +103,7 @@ pub trait Peripherals
 	fn take_system_time(&mut self) -> Option<Self::SystemTime>;
 
 	fn take_wifi_driver(&mut self) -> Option<Self::WifiDriver>;
+	fn get_ip_address_from_wifi_driver_function() -> fn(&Self::WifiDriver) -> Option<IpAddr>;
 	fn take_http_server(&mut self) -> Option<Box<dyn FnOnce() -> Result<Self::Server, Self::ServerError> + Send>>;
 
 	#[cfg(feature = "usb")]

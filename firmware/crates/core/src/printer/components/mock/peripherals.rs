@@ -1,3 +1,5 @@
+use std::net::IpAddr;
+
 #[cfg(feature = "usb")]
 use super::input::MockInputPin;
 use super::{
@@ -190,6 +192,11 @@ impl Peripherals for MockPeripherals
 	}
 
 	fn take_wifi_driver(&mut self) -> Option<Self::WifiDriver>
+	{
+		todo!()
+	}
+
+	fn get_ip_address_from_wifi_driver_function() -> fn(&Self::WifiDriver) -> Option<IpAddr>
 	{
 		todo!()
 	}

@@ -7,7 +7,7 @@ pub mod timer;
 pub mod uart;
 pub mod watchdog;
 
-use std::{fmt::Debug, time::Duration};
+use std::{fmt::Debug, net::IpAddr, time::Duration};
 
 use enumset::EnumSet;
 use esp_idf_hal::{
@@ -125,7 +125,7 @@ impl PeripheralsTrait for Peripherals
 
 	type SystemTime = SystemTime;
 
-	type WifiDriver = AsyncWifi<WifiDriver<'static>>;
+	type WifiDriver = AsyncWifi<EspWifi<'static>>;
 
 	type Server = HttpServer<'static>;
 	type ServerError = EspIOError;
@@ -265,6 +265,18 @@ impl PeripheralsTrait for Peripherals
 		self.wifi.take()
 	}
 
+	fn get_ip_address_from_wifi_driver_function() -> fn(&Self::WifiDriver) -> Option<IpAddr>
+	{
+		|wifi_driver| {
+			wifi_driver
+				.wifi()
+				.sta_netif()
+				.get_ip_info()
+				.ok()
+				.map(|info| IpAddr::V4(info.ip))
+		}
+	}
+
 	fn take_http_server(&mut self) -> Option<Box<dyn FnOnce() -> Result<Self::Server, Self::ServerError> + Send>>
 	{
 		self.server.take()
@@ -377,7 +389,7 @@ impl Peripherals
 			hotend_thermistor_pin: Some(AdcPin::new(AdcChannelDriver::new(peripherals.pins.gpio2)?)),
 			adc: Some(Adc(AdcDriver::new(peripherals.adc1, &ADC_CONFIG)?)),
 			wifi: Some(AsyncWifi::wrap(
-				WifiDriver::new(peripherals.modem, sys_loop.clone(), Some(nvs))?,
+				EspWifi::wrap(WifiDriver::new(peripherals.modem, sys_loop.clone(), Some(nvs))?)?,
 				sys_loop,
 				EspTaskTimerService::new()?,
 			)?),
