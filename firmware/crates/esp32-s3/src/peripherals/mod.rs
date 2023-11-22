@@ -20,7 +20,7 @@ use esp_idf_hal::{
 	uart::UartDriver,
 };
 use esp_idf_svc::{
-	eventloop::EspSystemEventLoop, http::server::EspHttpServer, nvs::EspDefaultNvsPartition,
+	eventloop::EspSystemEventLoop, http::server::EspHttpServer, nvs::EspDefaultNvsPartition, ota::*,
 	timer::EspTaskTimerService, wifi::*,
 };
 use esp_idf_sys::EspError;
@@ -85,6 +85,8 @@ pub struct Peripherals
 		Box<dyn FnOnce() -> Result<<Self as PeripheralsTrait>::Server, <Self as PeripheralsTrait>::ServerError> + Send>,
 	>,
 
+	ota: Option<<Self as PeripheralsTrait>::Ota>,
+
 	watchdog_creator: <Self as PeripheralsTrait>::WatchdogCreator,
 }
 
@@ -129,6 +131,8 @@ impl PeripheralsTrait for Peripherals
 
 	type Server = HttpServer<'static>;
 	type ServerError = EspIOError;
+
+	type Ota = EspOta;
 
 	#[cfg(feature = "usb")]
 	type UsbSensePin = InputPin<'static, Gpio20>;
@@ -282,6 +286,16 @@ impl PeripheralsTrait for Peripherals
 		self.server.take()
 	}
 
+	fn take_ota(&mut self) -> Option<Self::Ota>
+	{
+		self.ota.take()
+	}
+
+	fn reboot_fn() -> fn()
+	{
+		esp_idf_hal::reset::restart
+	}
+
 	#[cfg(feature = "usb")]
 	fn take_usb_sense_pin(&mut self) -> Option<Self::UsbSensePin>
 	{
@@ -396,6 +410,7 @@ impl Peripherals
 			server: Some(Box::new(move || {
 				Ok(HttpServer(EspHttpServer::new(&http_server_config)?))
 			})),
+			ota: Some(EspOta::new()?),
 		})
 	}
 }

@@ -3,7 +3,7 @@ use std::{fmt::Debug, net::IpAddr};
 #[cfg(feature = "usb")]
 use embedded_hal::digital::InputPin;
 use embedded_hal::{digital::OutputPin, spi::SpiDevice};
-use embedded_svc::wifi::asynch::Wifi;
+use embedded_svc::{ota::Ota, wifi::asynch::Wifi};
 #[cfg(feature = "usb")]
 use usb_device::class_prelude::UsbBus;
 
@@ -62,6 +62,8 @@ pub trait Peripherals
 	type Server: HttpServer + 'static;
 	type ServerError: Debug;
 
+	type Ota: Ota + Send + 'static;
+
 	#[cfg(feature = "usb")]
 	type UsbSensePin: InputPin + Send + 'static;
 	#[cfg(feature = "usb")]
@@ -105,6 +107,10 @@ pub trait Peripherals
 	fn take_wifi_driver(&mut self) -> Option<Self::WifiDriver>;
 	fn get_ip_address_from_wifi_driver_function() -> fn(&Self::WifiDriver) -> Option<IpAddr>;
 	fn take_http_server(&mut self) -> Option<Box<dyn FnOnce() -> Result<Self::Server, Self::ServerError> + Send>>;
+
+	fn take_ota(&mut self) -> Option<Self::Ota>;
+	/// Returns a function pointer that reboots the microcontroller.
+	fn reboot_fn() -> fn();
 
 	#[cfg(feature = "usb")]
 	fn take_usb_sense_pin(&mut self) -> Option<Self::UsbSensePin>;

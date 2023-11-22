@@ -128,6 +128,8 @@ pub enum SendablePeripherals<P: Peripherals>
 		flash_spi: Option<P::FlashSpi>,
 		wifi_driver: Option<P::WifiDriver>,
 		server: Option<Box<dyn FnOnce() -> Result<P::Server, P::ServerError> + Send>>,
+		ota: Option<P::Ota>,
+
 		#[cfg(feature = "usb")]
 		usb_bus: Option<P::UsbBus>,
 		#[cfg(feature = "usb")]
@@ -148,6 +150,7 @@ impl<P: Peripherals> SendablePeripherals<P>
 			flash_spi: peripherals.take_flash_spi(),
 			wifi_driver: peripherals.take_wifi_driver(),
 			server: peripherals.take_http_server(),
+			ota: peripherals.take_ota(),
 			#[cfg(feature = "usb")]
 			usb_bus: peripherals.take_usb_bus(),
 			#[cfg(feature = "usb")]
@@ -229,6 +232,8 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 	type Server = P::Server;
 	type ServerError = P::ServerError;
 
+	type Ota = P::Ota;
+
 	#[cfg(feature = "usb")]
 	type UsbSensePin = P::UsbSensePin;
 
@@ -271,6 +276,7 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 				flash_spi,
 				wifi_driver,
 				server,
+				ota,
 				#[cfg(feature = "usb")]
 				usb_bus,
 				#[cfg(feature = "usb")]
@@ -315,6 +321,7 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 				flash_spi,
 				wifi_driver,
 				server,
+				ota,
 				#[cfg(feature = "usb")]
 				usb_bus,
 				#[cfg(feature = "usb")]
@@ -359,6 +366,7 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 				flash_spi,
 				wifi_driver,
 				server,
+				ota,
 				#[cfg(feature = "usb")]
 				usb_bus,
 				#[cfg(feature = "usb")]
@@ -403,6 +411,7 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 				flash_spi,
 				wifi_driver,
 				server,
+				ota,
 				#[cfg(feature = "usb")]
 				usb_bus,
 				#[cfg(feature = "usb")]
@@ -447,6 +456,7 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 				flash_spi,
 				wifi_driver,
 				server,
+				ota,
 				#[cfg(feature = "usb")]
 				usb_bus,
 				#[cfg(feature = "usb")]
@@ -491,6 +501,7 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 				flash_spi,
 				wifi_driver,
 				server,
+				ota,
 				#[cfg(feature = "usb")]
 				usb_bus,
 				#[cfg(feature = "usb")]
@@ -535,6 +546,7 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 				flash_spi,
 				wifi_driver,
 				server,
+				ota,
 				#[cfg(feature = "usb")]
 				usb_bus,
 				#[cfg(feature = "usb")]
@@ -579,6 +591,7 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 				flash_spi,
 				wifi_driver,
 				server,
+				ota,
 				#[cfg(feature = "usb")]
 				usb_bus,
 				#[cfg(feature = "usb")]
@@ -623,6 +636,7 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 				flash_spi,
 				wifi_driver,
 				server,
+				ota,
 				#[cfg(feature = "usb")]
 				usb_bus,
 				#[cfg(feature = "usb")]
@@ -667,6 +681,7 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 				flash_spi,
 				wifi_driver,
 				server,
+				ota,
 				#[cfg(feature = "usb")]
 				usb_bus,
 				#[cfg(feature = "usb")]
@@ -711,6 +726,7 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 				flash_spi,
 				wifi_driver,
 				server,
+				ota,
 				#[cfg(feature = "usb")]
 				usb_bus,
 				#[cfg(feature = "usb")]
@@ -755,6 +771,7 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 				flash_spi,
 				wifi_driver,
 				server,
+				ota,
 				#[cfg(feature = "usb")]
 				usb_bus,
 				#[cfg(feature = "usb")]
@@ -799,6 +816,7 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 				flash_spi,
 				wifi_driver,
 				server,
+				ota,
 				#[cfg(feature = "usb")]
 				usb_bus,
 				#[cfg(feature = "usb")]
@@ -843,6 +861,7 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 				flash_spi,
 				wifi_driver,
 				server,
+				ota,
 				#[cfg(feature = "usb")]
 				usb_bus,
 				#[cfg(feature = "usb")]
@@ -887,6 +906,7 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 				flash_spi,
 				wifi_driver,
 				server,
+				ota,
 				#[cfg(feature = "usb")]
 				usb_bus,
 				#[cfg(feature = "usb")]
@@ -931,6 +951,7 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 				flash_spi,
 				wifi_driver,
 				server,
+				ota,
 				#[cfg(feature = "usb")]
 				usb_bus,
 				#[cfg(feature = "usb")]
@@ -975,6 +996,7 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 				flash_spi,
 				wifi_driver,
 				server,
+				ota,
 				#[cfg(feature = "usb")]
 				usb_bus,
 				#[cfg(feature = "usb")]
@@ -1019,6 +1041,7 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 				flash_spi,
 				wifi_driver,
 				server,
+				ota,
 				#[cfg(feature = "usb")]
 				usb_bus,
 				#[cfg(feature = "usb")]
@@ -1063,6 +1086,7 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 				flash_spi,
 				wifi_driver,
 				server,
+				ota,
 				#[cfg(feature = "usb")]
 				usb_bus,
 				#[cfg(feature = "usb")]
@@ -1107,6 +1131,7 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 				flash_spi,
 				wifi_driver,
 				server,
+				ota,
 				#[cfg(feature = "usb")]
 				usb_bus,
 				#[cfg(feature = "usb")]
@@ -1151,6 +1176,7 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 				flash_spi,
 				wifi_driver,
 				server,
+				ota,
 				#[cfg(feature = "usb")]
 				usb_bus,
 				#[cfg(feature = "usb")]
@@ -1195,6 +1221,7 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 				flash_spi,
 				wifi_driver,
 				server,
+				ota,
 				#[cfg(feature = "usb")]
 				usb_bus,
 				#[cfg(feature = "usb")]
@@ -1239,6 +1266,7 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 				flash_spi,
 				wifi_driver,
 				server,
+				ota,
 				#[cfg(feature = "usb")]
 				usb_bus,
 				#[cfg(feature = "usb")]
@@ -1283,6 +1311,7 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 				flash_spi,
 				wifi_driver,
 				server,
+				ota,
 				#[cfg(feature = "usb")]
 				usb_bus,
 				#[cfg(feature = "usb")]
@@ -1327,6 +1356,7 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 				flash_spi,
 				wifi_driver,
 				server,
+				ota,
 				#[cfg(feature = "usb")]
 				usb_bus,
 				#[cfg(feature = "usb")]
@@ -1371,6 +1401,7 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 				flash_spi,
 				wifi_driver,
 				server,
+				ota,
 				#[cfg(feature = "usb")]
 				usb_bus,
 				#[cfg(feature = "usb")]
@@ -1415,12 +1446,63 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 				flash_spi,
 				wifi_driver,
 				server,
+				ota,
 				#[cfg(feature = "usb")]
 				usb_bus,
 				#[cfg(feature = "usb")]
 				usb_sense_pin,
 			} => server.take(),
 		}
+	}
+
+	fn take_ota(&mut self) -> Option<Self::Ota>
+	{
+		match self
+		{
+			SendablePeripherals::ComponentsThread {
+				watchdog_creator,
+				stepper_ticker_timer,
+				kinematics,
+				left_motor_dir_pin,
+				left_motor_step_pin,
+				right_motor_dir_pin,
+				right_motor_step_pin,
+				z_axis_motor_dir_pin,
+				z_axis_motor_step_pin,
+				extruder_motor_dir_pin,
+				extruder_motor_step_pin,
+				uart_driver,
+				x_axis_endstop,
+				y_axis_endstop,
+				z_axis_endstop,
+				layer_fan_pin,
+				hotend_fan_pin,
+				bed_cartridge_heater_pin,
+				bed_thermistor_pin,
+				hotend_cartridge_heater_pin,
+				hotend_thermistor_pin,
+				adc,
+				system_time,
+			} => None,
+			SendablePeripherals::CommunicationThread {
+				watchdog_creator,
+				system_time,
+				flash_chip,
+				flash_spi,
+				wifi_driver,
+				server,
+				ota,
+				#[cfg(feature = "usb")]
+				usb_bus,
+				#[cfg(feature = "usb")]
+				usb_sense_pin,
+			} => ota.take(),
+		}
+	}
+
+	fn reboot_fn() -> fn()
+	{
+		P::reboot_fn()
 	}
 
 	#[cfg(feature = "usb")]
@@ -1460,6 +1542,7 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 				flash_spi,
 				wifi_driver,
 				server,
+				ota,
 				#[cfg(feature = "usb")]
 				usb_bus,
 				#[cfg(feature = "usb")]
@@ -1505,6 +1588,7 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 				flash_spi,
 				wifi_driver,
 				server,
+				ota,
 				#[cfg(feature = "usb")]
 				usb_bus,
 				#[cfg(feature = "usb")]

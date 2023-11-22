@@ -61,6 +61,8 @@ impl Peripherals for MockPeripherals
 	type WifiDriver = MockWifiDriver;
 	type Server = MockHttpServer;
 
+	type Ota = MockOta;
+
 	#[cfg(feature = "usb")]
 	type UsbSensePin = MockInputPin;
 	#[cfg(feature = "usb")]
@@ -202,6 +204,16 @@ impl Peripherals for MockPeripherals
 	}
 
 	fn take_http_server(&mut self) -> Option<Box<dyn FnOnce() -> Result<Self::Server, Self::ServerError> + Send>>
+	{
+		todo!()
+	}
+
+	fn take_ota(&mut self) -> Option<Self::Ota>
+	{
+		todo!()
+	}
+
+	fn reboot_fn() -> fn()
 	{
 		todo!()
 	}

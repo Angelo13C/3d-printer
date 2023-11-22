@@ -8,9 +8,9 @@ pub const HTTP_SERVER_CONFIG: Configuration = Configuration {
 	max_sessions: 2,
 	session_timeout: Duration::from_secs(20 * 60),
 	#[cfg(not(esp_idf_esp_https_server_enable))]
-	stack_size: 6144,
+	stack_size: 6144 + firmware_core::printer::communication::http::request::STACK_SIZE,
 	#[cfg(esp_idf_esp_https_server_enable)]
-	stack_size: 10240,
+	stack_size: 10240 + firmware_core::printer::communication::http::request::STACK_SIZE,
 	max_open_sockets: 2,
 	max_uri_handlers: firmware_core::printer::communication::http::request::http_request_handlers_count(),
 	max_resp_handlers: 8,

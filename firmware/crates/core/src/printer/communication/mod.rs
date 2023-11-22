@@ -26,13 +26,14 @@ use self::{
 	security::Security,
 };
 use crate::printer::{
-	communication::communicator::Communicator,
+	communication::{communicator::Communicator, ota::OverTheAirUpdater},
 	components::{drivers::spi_flash_memory::SpiFlashMemory, print_process::PrintProcess},
 };
 
 pub mod communicator;
 pub mod http;
 mod multi_thread;
+pub mod ota;
 pub mod security;
 
 pub use multi_thread::*;
@@ -102,6 +103,12 @@ impl<P: Peripherals + 'static> Communication<P>
 		let http_handler_resources = http::resources::Resources::<P>::new(
 			peripherals.take_system_time(),
 			file_system,
+			OverTheAirUpdater::new(
+				peripherals
+					.take_ota()
+					.ok_or(CreationError::PeripheralMissing { name: "OTA" })?,
+				P::reboot_fn(),
+			),
 			Security::new(configuration.security).map_err(CreationError::Security)?,
 			command_sender,
 			PrintProcess::new(configuration.max_commands_in_buffer_before_reading_new),

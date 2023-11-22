@@ -1,4 +1,8 @@
-use embedded_svc::http::server::{Connection, HandlerError, Request};
+use embedded_svc::{
+	http::server::{Connection, HandlerError, Request},
+	io::Write,
+	ota::OtaUpdate,
+};
 use serde::{Deserialize, Serialize};
 
 use crate::{
@@ -246,6 +250,38 @@ pub fn move_<C: Connection, P: Peripherals>(
 ) -> Result<(), HandlerError>
 {
 	todo!()
+}
+
+pub fn ota_update<C: Connection, P: Peripherals>(
+	mut request: Request<&mut C>, resources: Resources<P>,
+) -> Result<(), HandlerError>
+{
+	let mut resources = get_resources(&resources)?;
+	let _ = check_security(&mut request, &mut resources)?;
+
+	let mut update = resources
+		.ota_updater
+		.initiate_update()
+		.map_err(|error| HandlerError::new(&format!("{:#?}", error)))?;
+
+	let mut buffer = [0; super::STACK_SIZE];
+	while let Ok(read_bytes) = request.read(&mut buffer)
+	{
+		if read_bytes == 0
+		{
+			break;
+		}
+
+		if let Err(error) = update.write(&buffer[0..read_bytes])
+		{
+			update.abort();
+			return Err(HandlerError::new(&format!("{:#?}", error)));
+		}
+	}
+
+	update.complete()?;
+
+	Ok(())
 }
 
 pub fn list_g_code_commands_in_memory<C: Connection, P: Peripherals>(
