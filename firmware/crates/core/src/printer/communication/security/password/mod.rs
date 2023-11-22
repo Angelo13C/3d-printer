@@ -123,7 +123,7 @@ mod algorithm
 				secret.as_bytes(),
 				Algorithm::default(),
 				Version::default(),
-				Params::default(),
+				Params::new(8, 2, 1, Some(32)).unwrap(),
 			)
 			.ok()
 		}
