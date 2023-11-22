@@ -12,6 +12,7 @@ usb = ["dep:usb-device", "dep:usbd-serial"]
 [dependencies]
 embedded-hal = "1.0.0-rc.1"
 embedded-svc = { version = "0.26", features = ["nightly"] }
+embedded-io = "0.6"
 
 pid_control = "0.7.2"
 
