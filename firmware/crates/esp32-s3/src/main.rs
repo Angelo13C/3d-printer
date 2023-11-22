@@ -17,12 +17,27 @@ fn main()
 
 	esp_idf_sys::esp!(unsafe { esp_idf_sys::esp_netif_init() }).unwrap();
 
-	let mut printer_3d = create_printer().unwrap();
-
-	loop
-	{
-		printer_3d.tick().unwrap();
+	esp_idf_hal::task::thread::ThreadSpawnConfiguration {
+		name: Some(b"Components\0"),
+		stack_size: 14_000,
+		priority: 10,
+		inherit: false,
+		pin_to_core: Some(Core::Core0),
 	}
+	.set()
+	.unwrap();
+	std::thread::Builder::new()
+		.stack_size(14_000)
+		.name("Components".to_string())
+		.spawn(|| {
+			let mut printer_3d = create_printer().unwrap();
+
+			loop
+			{
+				printer_3d.tick().unwrap();
+			}
+		})
+		.unwrap();
 }
 
 fn create_printer() -> Result<Printer3D<Peripherals>, CreatePrinterError>
