@@ -81,14 +81,14 @@ impl<'a> ProtectionInput<'a> for PasswordAttempt<'a>
 
 mod algorithm
 {
-	use std::str::Lines;
+	use std::str::SplitWhitespace;
 
 	use argon2::*;
 	use rand_core::{OsRng, RngCore};
 
 	pub struct AlgorithmIter
 	{
-		peppers: Lines<'static>,
+		peppers: SplitWhitespace<'static>,
 	}
 	impl AlgorithmIter
 	{
@@ -113,7 +113,7 @@ mod algorithm
 		pub fn start_iterating() -> Self
 		{
 			Self {
-				peppers: Self::POSSIBLE_PEPPERS.lines(),
+				peppers: Self::POSSIBLE_PEPPERS.split_whitespace(),
 			}
 		}
 
