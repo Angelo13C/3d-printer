@@ -14,7 +14,7 @@ use super::{
 		pwm::PwmPin,
 		timer::Timer,
 		uart::Uart,
-		watchdog::{Watchdog, WatchdogCreator},
+		watchdog::WatchdogCreator,
 	},
 	motion::{bed_leveling::ZAxisProbe, homing::endstop::Endstop, kinematics::Kinematics},
 	time::SystemTime,

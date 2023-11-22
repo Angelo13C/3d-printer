@@ -9,7 +9,7 @@ use super::{
 	time::MockSystemTime,
 	uart::MockUart,
 	z_axis_probe::MockZAxisProbe,
-	MockError, MockOutputPin, MockSpi, MockTimer, MockWatchdog, MockWatchdogCreator,
+	MockError, MockOutputPin, MockSpi, MockTimer, MockWatchdogCreator,
 };
 use crate::printer::components::{
 	drivers::spi_flash_memory::MT29F2G01ABAGDWB,

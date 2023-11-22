@@ -1,4 +1,4 @@
-use std::ops::{RangeInclusive, Range};
+use std::ops::{Range, RangeInclusive};
 
 use embedded_hal::spi::{ErrorType, SpiDevice};
 
