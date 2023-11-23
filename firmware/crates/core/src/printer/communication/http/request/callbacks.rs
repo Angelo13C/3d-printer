@@ -289,10 +289,19 @@ pub fn ota_update<C: Connection, P: Peripherals>(
 	let mut resources = get_resources(&resources)?;
 	let _ = check_security(&mut request, &mut resources)?;
 
+	let ota_length = request
+		.header("Content-Length")
+		.ok_or(HandlerError::new("The request doesn't have a `Content-Length` header"))?;
+	let ota_length = ota_length
+		.parse::<usize>()
+		.map_err(|_| HandlerError::new("The `Content-Length` header is not a valid number"))?;
+
+	log::info!("Receiving OTA update of {ota_length} bytes");
+
 	let mut update = resources
 		.ota_updater
-		.initiate_update()
-		.map_err(|error| HandlerError::new(&format!("{:#?}", error)))?;
+		.initiate_update(ota_length)
+		.map_err(|error| HandlerError::new(&format!("Initiate: {:#?}", error)))?;
 
 	let mut buffer = [0; super::STACK_SIZE];
 	while let Ok(read_bytes) = request.read(&mut buffer)
@@ -302,14 +311,20 @@ pub fn ota_update<C: Connection, P: Peripherals>(
 			break;
 		}
 
-		if let Err(error) = update.write(&buffer[0..read_bytes])
+		match update.write(&buffer[0..read_bytes])
 		{
-			update.abort();
-			return Err(HandlerError::new(&format!("{:#?}", error)));
+			Ok(written_percentage) => log::info!("OTA update {written_percentage}"),
+			Err(error) =>
+			{
+				update.abort();
+				return Err(HandlerError::new(&format!("Write: {:#?}", error)));
+			},
 		}
 	}
 
-	update.complete()?;
+	update
+		.complete()
+		.map_err(|error| HandlerError::new(&format!("Complete: {:#?}", error)))?;
 
 	log::info!("Successfully handled `ota-update` HTTP request");
 

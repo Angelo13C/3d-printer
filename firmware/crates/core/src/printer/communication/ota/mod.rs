@@ -1,6 +1,5 @@
 use embedded_svc::ota::Ota as OtaTrait;
-
-pub use self::update::OverTheAirUpdate;
+pub use update::*;
 
 mod update;
 
@@ -24,9 +23,13 @@ impl<Ota: OtaTrait> OverTheAirUpdater<Ota>
 	}
 
 	/// Starts an [`OverTheAirUpdate`].
-	pub fn initiate_update(&mut self) -> Result<OverTheAirUpdate<'_, Ota>, Ota::Error>
+	pub fn initiate_update(&mut self, update_size_in_bytes: usize) -> Result<OverTheAirUpdate<'_, Ota>, Ota::Error>
 	{
-		self.ota.initiate_update().map(|ota| OverTheAirUpdate(ota))
+		self.ota.initiate_update().map(|ota| OverTheAirUpdate {
+			update: ota,
+			update_size_in_bytes,
+			current_written_bytes: 0,
+		})
 	}
 
 	/// Returns `true` if you [`initiated an update`] before and it has [`completed`], otherwise
