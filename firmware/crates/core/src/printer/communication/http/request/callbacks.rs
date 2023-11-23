@@ -251,10 +251,12 @@ pub fn pause_or_resume<C: Connection, P: Peripherals>(
 }
 
 pub fn printer_state<C: Connection, P: Peripherals>(
-	request: Request<&mut C>, _: Resources<P>,
+	mut request: Request<&mut C>, resources: Resources<P>,
 ) -> Result<(), HandlerError>
 {
 	log::info!("Start handling `printer-state` HTTP request");
+
+	let _ = check_security(&mut request, &mut resources.lock())?;
 
 	let mut response = request.into_ok_response()?;
 	send_response!(
