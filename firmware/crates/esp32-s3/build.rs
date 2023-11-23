@@ -7,6 +7,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>>
 	embuild::build::LinkArgs::output_propagated("ESP_IDF")?;
 
 	set_environment_variables();
+	copy_partition_table();
 
 	Ok(())
 }
@@ -31,4 +32,14 @@ fn set_environment_variables()
 	set_environment_variable("WiFi/Password.txt", "WIFI_PASSWORD");
 	set_environment_variable("Password/Password.txt", "PRINTER_PASSWORD");
 	set_environment_variable("Password/Peppers.txt", "PRINTER_PASSWORD_PEPPERS");
+}
+
+fn copy_partition_table()
+{
+	const PARTITION_TABLE_PATH: &str = "partitions.csv";
+	let output_directory_path = std::env::var("OUT_DIR").unwrap();
+	let output_file_path = Path::new(&output_directory_path).parent().unwrap().parent().unwrap().parent().unwrap().join(Path::new(PARTITION_TABLE_PATH));
+	
+	std::fs::File::create(output_file_path.clone()).unwrap();
+	std::fs::copy(PARTITION_TABLE_PATH, output_file_path).unwrap();
 }
