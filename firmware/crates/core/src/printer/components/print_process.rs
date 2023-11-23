@@ -66,6 +66,10 @@ impl<P: Peripherals> PrintProcess<P>
 	/// Use [`Self::print_file`] to start the process of printing.
 	pub fn new(max_commands_in_buffer_before_reading_new: u16) -> Self
 	{
+		log::info!(
+			"Create the print process with this configuration: {}",
+			max_commands_in_buffer_before_reading_new
+		);
 		Self {
 			g_code_parser: GCodeParser::default(),
 			file_id_to_print: None,

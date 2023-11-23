@@ -38,6 +38,8 @@ impl<P: Peripherals> Resources<P>
 		print_process: PrintProcess<P>,
 	) -> Self
 	{
+		log::info!("Create the resources used in the HTTP uri handlers");
+
 		Self(Arc::new(Mutex::new(ResourcesImpl {
 			system_time,
 			file_system,

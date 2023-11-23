@@ -56,6 +56,11 @@ impl Security
 {
 	pub fn new(configuration: Configuration) -> Result<Self, CreationError>
 	{
+		log::info!(
+			"Start the communication security with configuration: {:#?}",
+			configuration
+		);
+
 		let (password_protection, brute_force_protection) = match configuration.password
 		{
 			PasswordConfiguration::None => (None, None),
@@ -99,10 +104,13 @@ pub enum CreationError
 	BruteForceProtection(argon2::password_hash::errors::Error),
 }
 
+#[derive(Debug)]
 pub struct Configuration
 {
 	pub password: PasswordConfiguration,
 }
+
+#[derive(Debug)]
 pub enum PasswordConfiguration
 {
 	None,

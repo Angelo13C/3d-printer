@@ -114,8 +114,12 @@ impl<P: Peripherals + 'static> Communication<P>
 			PrintProcess::new(configuration.max_commands_in_buffer_before_reading_new),
 		);
 
+		log::info!("Register all the HTTP uri handlers");
+
 		wifi.register_all_requests(http_handler_resources.clone())
 			.map_err(CreationError::WifiRegisterRequests)?;
+
+		log::info!("Finished creating the Communication struct");
 
 		Ok(Self {
 			wifi,

@@ -16,6 +16,7 @@ impl BadBlockTable
 		spi_flash_memory: &mut SpiFlashMemory<Chip, Spi>,
 	) -> Result<Self, <Spi as ErrorType>::Error>
 	{
+		log::info!("Create a bad block table from the first powerup");
 
 		let mut bad_blocks_indices = Vec::with_capacity(10);
 
@@ -25,8 +26,12 @@ impl BadBlockTable
 			if !is_block_valid
 			{
 				bad_blocks_indices.push(block_index);
+
+				log::info!("Found invalid block: {}", block_index);
 			}
 		}
+
+		log::info!("Finished creating the bad block table");
 
 		Ok(Self { bad_blocks_indices })
 	}
