@@ -44,7 +44,7 @@ pub fn list_files<C: Connection, P: Peripherals>(
 	mut request: Request<&mut C>, resources: Resources<P>,
 ) -> Result<(), HandlerError>
 {
-	log::info!("Handle `list_files` HTTP request");
+	log::info!("Start handling `list-files` HTTP request");
 
 	let mut resources = get_resources(&resources)?;
 	let _ = check_security(&mut request, &mut resources)?;
@@ -92,6 +92,8 @@ pub fn list_files<C: Connection, P: Peripherals>(
 		response
 	);
 
+	log::info!("Successfully handled `list-files` HTTP request");
+
 	Ok(())
 }
 
@@ -99,7 +101,7 @@ pub fn delete_file<C: Connection, P: Peripherals>(
 	mut request: Request<&mut C>, resources: Resources<P>,
 ) -> Result<(), HandlerError>
 {
-	log::info!("Handle `delete_file` HTTP request");
+	log::info!("Start handling `delete-file` HTTP request");
 
 	let mut resources = get_resources(&resources)?;
 	let _ = check_security(&mut request, &mut resources)?;
@@ -119,6 +121,8 @@ pub fn delete_file<C: Connection, P: Peripherals>(
 		.delete_file(file_id)
 		.map_err(|_| HandlerError::new("Unable to delete a file from the file system"))?;
 
+	log::info!("Successfully handled `delete-file` HTTP request");
+
 	Ok(())
 }
 
@@ -126,7 +130,7 @@ pub fn print_file<C: Connection, P: Peripherals>(
 	mut request: Request<&mut C>, resources: Resources<P>,
 ) -> Result<(), HandlerError>
 {
-	log::info!("Handle `print_file` HTTP request");
+	log::info!("Start handling `print-file` HTTP request");
 
 	let mut resources = get_resources(&resources)?;
 	let _ = check_security(&mut request, &mut resources)?;
@@ -143,6 +147,8 @@ pub fn print_file<C: Connection, P: Peripherals>(
 	let current_time = resources.system_time.as_ref().map(|time| time.now());
 	resources.print_process.print_file(file_id, current_time);
 
+	log::info!("Successfully handled `print-file` HTTP request");
+
 	Ok(())
 }
 
@@ -157,7 +163,7 @@ pub fn get_print_status<C: Connection, P: Peripherals>(
 	mut request: Request<&mut C>, resources: Resources<P>,
 ) -> Result<(), HandlerError>
 {
-	log::info!("Handle `get_print_status` HTTP request");
+	log::info!("Start handling `get-print-status` HTTP request");
 
 	let mut resources = get_resources(&resources)?;
 	let _ = check_security(&mut request, &mut resources)?;
@@ -221,6 +227,8 @@ pub fn get_print_status<C: Connection, P: Peripherals>(
 		response
 	);
 
+	log::info!("Successfully handled `get-print-status` HTTP request");
+
 	Ok(())
 }
 
@@ -228,7 +236,7 @@ pub fn pause_or_resume<C: Connection, P: Peripherals>(
 	mut request: Request<&mut C>, resources: Resources<P>,
 ) -> Result<(), HandlerError>
 {
-	log::info!("Handle `pause_or_resume` HTTP request");
+	log::info!("Start handling `pause-or-resume` HTTP request");
 
 	let _ = check_security(&mut request, &mut get_resources(&resources)?)?;
 
@@ -237,6 +245,8 @@ pub fn pause_or_resume<C: Connection, P: Peripherals>(
 	let mut response = request.into_ok_response()?;
 	response.flush()?;
 
+	log::info!("Successfully handled `pause-or-resume` HTTP request");
+
 	Ok(())
 }
 
@@ -244,7 +254,7 @@ pub fn printer_state<C: Connection, P: Peripherals>(
 	request: Request<&mut C>, _: Resources<P>,
 ) -> Result<(), HandlerError>
 {
-	log::info!("Handle `printer_state` HTTP request");
+	log::info!("Start handling `printer-state` HTTP request");
 
 	let mut response = request.into_ok_response()?;
 	send_response!(
@@ -254,6 +264,8 @@ pub fn printer_state<C: Connection, P: Peripherals>(
 		response
 	);
 
+	log::info!("Successfully handled `printer-state` HTTP request");
+
 	Ok(())
 }
 
@@ -261,7 +273,7 @@ pub fn move_<C: Connection, P: Peripherals>(
 	request: Request<&mut C>, resources: Resources<P>,
 ) -> Result<(), HandlerError>
 {
-	log::info!("Handle `move` HTTP request");
+	log::info!("Start handling `move` HTTP request");
 
 	todo!()
 }
@@ -270,7 +282,7 @@ pub fn ota_update<C: Connection, P: Peripherals>(
 	mut request: Request<&mut C>, resources: Resources<P>,
 ) -> Result<(), HandlerError>
 {
-	log::info!("Handle `ota_update` HTTP request");
+	log::info!("Start handling `ota-update` HTTP request");
 
 	let mut resources = get_resources(&resources)?;
 	let _ = check_security(&mut request, &mut resources)?;
@@ -297,6 +309,8 @@ pub fn ota_update<C: Connection, P: Peripherals>(
 
 	update.complete()?;
 
+	log::info!("Successfully handled `ota-update` HTTP request");
+
 	Ok(())
 }
 
@@ -304,7 +318,7 @@ pub fn list_g_code_commands_in_memory<C: Connection, P: Peripherals>(
 	mut request: Request<&mut C>, resources: Resources<P>,
 ) -> Result<(), HandlerError>
 {
-	log::info!("Handle `list_g_code_commands_in_memory` HTTP request");
+	log::info!("Start handling `list-gcode-commands-in-memory` HTTP request");
 
 	let mut resources = get_resources(&resources)?;
 	let _ = check_security(&mut request, &mut resources)?;
@@ -348,6 +362,8 @@ pub fn list_g_code_commands_in_memory<C: Connection, P: Peripherals>(
 		response
 	);
 
+	log::info!("Successfully handled `list-gcode-commands-in-memory` HTTP request");
+
 	Ok(())
 }
 
@@ -355,7 +371,7 @@ pub fn send_g_code_commands<C: Connection, P: Peripherals>(
 	mut request: Request<&mut C>, resources: Resources<P>,
 ) -> Result<(), HandlerError>
 {
-	log::info!("Handle `send_g_code_commands` HTTP request");
+	log::info!("Start handling `send-gcode-commands` HTTP request");
 
 	let mut resources = get_resources(&resources)?;
 	let _ = check_security(&mut request, &mut resources)?;
@@ -390,6 +406,8 @@ pub fn send_g_code_commands<C: Connection, P: Peripherals>(
 		.command_sender
 		.send_command(Command::AddGCodeCommandsToBuffer(commands))
 		.map_err(|_| HandlerError::new("Coudln't send a Command::AddGCodeCommandsToBuffer"))?;
+
+	log::info!("Successfully handled `send-gcode-commands` HTTP request");
 
 	Ok(())
 }
