@@ -25,6 +25,10 @@ pub enum Commands
 		/// Requires `--ota`. IP address of the device that should be flashed. If no IP is provided, the one that you provided the last time will be used.
 		#[arg(long, requires = "ota")]
 		ip: Option<String>,
+		
+		/// Requires `--ota`. Password required by the firmware to accept OTA updates.
+		#[arg(long, requires = "ota")]
+		password: Option<String>,
 	},
 }
 
@@ -39,6 +43,7 @@ impl Commands
 				partition_table,
 				ota,
 				ip,
+				password
 			} =>
 			{
 				if ota
@@ -68,6 +73,7 @@ impl Commands
 
 					let response = client
 						.post(format!("{METHOD}://{ip}/{CALLBACK}"))
+						.header("Password", password.unwrap())
 						.body(firmware_to_flash)
 						.send()?;
 
