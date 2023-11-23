@@ -1,5 +1,6 @@
 use std::time::Duration;
 
+use argon2::Params;
 use embedded_svc::http::server::{Connection, Request};
 use password::{BruteForceProtection, PasswordProtection};
 
@@ -64,17 +65,18 @@ impl Security
 		let (password_protection, brute_force_protection) = match configuration.password
 		{
 			PasswordConfiguration::None => (None, None),
-			PasswordConfiguration::Password { password } => (
-				Some(PasswordProtection::new(password).map_err(CreationError::PasswordProtection)?),
+			PasswordConfiguration::Password { password, hash_settings } => (
+				Some(PasswordProtection::new(password, hash_settings).map_err(CreationError::PasswordProtection)?),
 				None,
 			),
 			PasswordConfiguration::PasswordAndBruteforce {
 				password,
+				hash_settings,
 				delays_and_wrong_attempts_count_for_it,
 			} => (
 				None,
 				Some(BruteForceProtection::new(
-					PasswordProtection::new(password).map_err(CreationError::BruteForceProtection)?,
+					PasswordProtection::new(password, hash_settings).map_err(CreationError::BruteForceProtection)?,
 					delays_and_wrong_attempts_count_for_it,
 				)),
 			),
@@ -117,10 +119,12 @@ pub enum PasswordConfiguration
 	Password
 	{
 		password: &'static str,
+		hash_settings: Option<Params>
 	},
 	PasswordAndBruteforce
 	{
 		password: &'static str,
+		hash_settings: Option<Params>,
 		delays_and_wrong_attempts_count_for_it: Vec<(u32, Duration)>,
 	},
 }

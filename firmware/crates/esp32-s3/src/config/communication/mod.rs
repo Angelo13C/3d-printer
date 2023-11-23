@@ -32,6 +32,7 @@ pub fn configuration() -> CommunicationConfig
 		security: security::Configuration {
 			password: PasswordConfiguration::PasswordAndBruteforce {
 				password: env!("PRINTER_PASSWORD"),
+				hash_settings: None,
 				delays_and_wrong_attempts_count_for_it: vec![(3, Duration::from_secs(1))],
 			},
 		},
