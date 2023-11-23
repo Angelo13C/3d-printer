@@ -44,6 +44,8 @@ pub fn list_files<C: Connection, P: Peripherals>(
 	mut request: Request<&mut C>, resources: Resources<P>,
 ) -> Result<(), HandlerError>
 {
+	log::info!("Handle `list_files` HTTP request");
+
 	let mut resources = get_resources(&resources)?;
 	let _ = check_security(&mut request, &mut resources)?;
 
@@ -97,6 +99,8 @@ pub fn delete_file<C: Connection, P: Peripherals>(
 	mut request: Request<&mut C>, resources: Resources<P>,
 ) -> Result<(), HandlerError>
 {
+	log::info!("Handle `delete_file` HTTP request");
+
 	let mut resources = get_resources(&resources)?;
 	let _ = check_security(&mut request, &mut resources)?;
 
@@ -122,6 +126,8 @@ pub fn print_file<C: Connection, P: Peripherals>(
 	mut request: Request<&mut C>, resources: Resources<P>,
 ) -> Result<(), HandlerError>
 {
+	log::info!("Handle `print_file` HTTP request");
+
 	let mut resources = get_resources(&resources)?;
 	let _ = check_security(&mut request, &mut resources)?;
 
@@ -151,6 +157,8 @@ pub fn get_print_status<C: Connection, P: Peripherals>(
 	mut request: Request<&mut C>, resources: Resources<P>,
 ) -> Result<(), HandlerError>
 {
+	log::info!("Handle `get_print_status` HTTP request");
+
 	let mut resources = get_resources(&resources)?;
 	let _ = check_security(&mut request, &mut resources)?;
 
@@ -220,7 +228,9 @@ pub fn pause_or_resume<C: Connection, P: Peripherals>(
 	mut request: Request<&mut C>, resources: Resources<P>,
 ) -> Result<(), HandlerError>
 {
-	let _ = check_security(&mut request, &mut resources.lock())?;
+	log::info!("Handle `pause_or_resume` HTTP request");
+
+	let _ = check_security(&mut request, &mut get_resources(&resources)?)?;
 
 	pauser::toggle_pause();
 
@@ -234,6 +244,8 @@ pub fn printer_state<C: Connection, P: Peripherals>(
 	request: Request<&mut C>, _: Resources<P>,
 ) -> Result<(), HandlerError>
 {
+	log::info!("Handle `printer_state` HTTP request");
+
 	let mut response = request.into_ok_response()?;
 	send_response!(
 		BUFFER_SIZE = 400,
@@ -249,6 +261,8 @@ pub fn move_<C: Connection, P: Peripherals>(
 	request: Request<&mut C>, resources: Resources<P>,
 ) -> Result<(), HandlerError>
 {
+	log::info!("Handle `move` HTTP request");
+
 	todo!()
 }
 
@@ -256,6 +270,8 @@ pub fn ota_update<C: Connection, P: Peripherals>(
 	mut request: Request<&mut C>, resources: Resources<P>,
 ) -> Result<(), HandlerError>
 {
+	log::info!("Handle `ota_update` HTTP request");
+
 	let mut resources = get_resources(&resources)?;
 	let _ = check_security(&mut request, &mut resources)?;
 
@@ -288,6 +304,8 @@ pub fn list_g_code_commands_in_memory<C: Connection, P: Peripherals>(
 	mut request: Request<&mut C>, resources: Resources<P>,
 ) -> Result<(), HandlerError>
 {
+	log::info!("Handle `list_g_code_commands_in_memory` HTTP request");
+
 	let mut resources = get_resources(&resources)?;
 	let _ = check_security(&mut request, &mut resources)?;
 
@@ -337,6 +355,8 @@ pub fn send_g_code_commands<C: Connection, P: Peripherals>(
 	mut request: Request<&mut C>, resources: Resources<P>,
 ) -> Result<(), HandlerError>
 {
+	log::info!("Handle `send_g_code_commands` HTTP request");
+
 	let mut resources = get_resources(&resources)?;
 	let _ = check_security(&mut request, &mut resources)?;
 
