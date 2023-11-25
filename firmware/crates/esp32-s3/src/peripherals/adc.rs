@@ -15,10 +15,11 @@ impl<'d, ADC: EspAdc> AdcTrait for Adc<'d, ADC>
 {
 	type ReadableValue = AdcReading;
 
-	/// Returns [`AdcReading(4095)`](https://docs.espressif.com/projects/esp-idf/en/v4.4/esp32/api-reference/peripherals/adc.html#:~:text=Maximum%20of%20the%20output%20ADC,4095%20under%20Continuous%20Read%20mode).
+	/// The readable value is the number of millivolts, because internally esp_idf_hal converts the ADC reading (which
+	/// goes from 0 to 4095) to the range 0..3300 mV.
 	fn max_readable_value(&self) -> Self::ReadableValue
 	{
-		AdcReading(4095)
+		AdcReading(crate::config::components::ADC_MAX_READABLE_MILLIVOLTS)
 	}
 }
 
