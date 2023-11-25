@@ -63,7 +63,7 @@ impl<A: Adc, P: AdcPin<A>> Thermistor<A, P>
 		let beta = self.beta as f64;
 		let resistance_at_t0 = self.resistance_at_t0 as f64;
 		let temperature =
-			1. / (f64::ln(current_resistance as f64 / resistance_at_t0) / beta + (1. / T0.as_celsius() as f64));
+			1. / (f64::ln(current_resistance as f64 / resistance_at_t0) / beta + (1. / T0.as_kelvin() as f64));
 
 		Temperature::from_kelvin(temperature as f32)
 	}
