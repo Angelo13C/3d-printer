@@ -137,15 +137,16 @@ impl TimerInInterrupt
 	{
 		let clock_frequency = (BASE_CLOCK_FREQUENCY.as_hertz() / self.clock_divider) as u64;
 		let whole_seconds = counter / clock_frequency;
-		let fracture_of_seconds = (counter - whole_seconds * clock_frequency) as f32 / clock_frequency as f32;
-		Duration::from_secs(whole_seconds) + Duration::from_secs_f32(fracture_of_seconds)
+		let subsec_counter = counter - (whole_seconds * clock_frequency);
+		let nanoseconds = subsec_counter * Duration::from_secs(1).as_nanos() as u64 / clock_frequency;
+		Duration::new(whole_seconds, nanoseconds as u32)
 	}
 
 	pub fn duration_to_counter(&self, duration: Duration) -> u64
 	{
 		let clock_frequency = (BASE_CLOCK_FREQUENCY.as_hertz() / self.clock_divider) as u64;
 		let mut counter = duration.as_secs() * clock_frequency;
-		counter += (duration.as_secs_f32().fract() * clock_frequency as f32) as u64;
+		counter += (duration.subsec_nanos() as u64 * clock_frequency) / Duration::from_secs(1).as_nanos() as u64;
 		counter
 	}
 }
