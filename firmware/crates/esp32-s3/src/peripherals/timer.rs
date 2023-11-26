@@ -47,12 +47,16 @@ impl TimerTrait for Timer
 
 	unsafe fn on_alarm(&mut self, callback: impl FnMut() + Send + 'static) -> Result<(), Self::Error>
 	{
-		self.driver.subscribe(callback)
+		self.driver.enable_alarm(true)?;
+		self.driver.subscribe(callback)?;
+		self.driver.enable_interrupt()?;
+
+		Ok(())
 	}
 
 	fn enable_alarm(&mut self, enable: bool) -> Result<(), Self::Error>
 	{
-		self.driver.enable_alarm(enable)
+		self.driver.enable(enable)
 	}
 
 	fn get_additional_functionality(&self) -> Self::AdditionalFunctionality
