@@ -202,6 +202,8 @@ impl<P: Peripherals> Printer3DComponents<P>
 
 	pub fn tick(&mut self) -> Result<(), TickError<P::ZAxisEndstop, P::StepperTickerTimer>>
 	{
+		// Time elapsed since the last time you called Self::tick.
+		let delta_time = self.clock.get_delta_time().as_secs_f64();
 		self.clock.tick();
 
 		if !pauser::is_paused()
@@ -213,7 +215,6 @@ impl<P: Peripherals> Printer3DComponents<P>
 			}
 		}
 
-		let delta_time = self.clock.get_delta_time().as_secs_f64();
 		self.heated_bed_pid_controller
 			.tick(delta_time, &mut self.adc)
 			.map_err(TickError::HeatedBedPidController)?;
