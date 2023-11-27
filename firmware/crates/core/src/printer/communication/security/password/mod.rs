@@ -1,8 +1,6 @@
-use std::str::FromStr;
-
 use argon2::{
 	password_hash::{PasswordHashString, SaltString},
-	PasswordHasher, PasswordVerifier, Params,
+	Params, PasswordHasher, PasswordVerifier,
 };
 pub use brute_force::BruteForceProtection;
 
@@ -20,12 +18,12 @@ pub enum PasswordProtection
 	Hashed
 	{
 		hashed_password: PasswordHashString,
-		hash_settings: Params
+		hash_settings: Params,
 	},
 	NotHashed
 	{
 		password: String
-	}
+	},
 }
 
 impl PasswordProtection
@@ -34,17 +32,22 @@ impl PasswordProtection
 	{
 		match hash_settings
 		{
-			Some(hash_settings) => 
+			Some(hash_settings) =>
 			{
 				let salt = SaltString::generate(&mut rand_core::OsRng);
-		
+
 				let hashed_password = AlgorithmIter::get_random(hash_settings.clone())
 					.hash_password(password.as_bytes(), &salt)?
 					.serialize();
-		
-				Ok(Self::Hashed { hashed_password, hash_settings })
+
+				Ok(Self::Hashed {
+					hashed_password,
+					hash_settings,
+				})
 			},
-			None => Ok(Self::NotHashed { password: password.to_string() }),
+			None => Ok(Self::NotHashed {
+				password: password.to_string(),
+			}),
 		}
 	}
 }
@@ -57,7 +60,10 @@ impl Protection for PasswordProtection
 	{
 		match self
 		{
-			PasswordProtection::Hashed { hashed_password, hash_settings } => 
+			PasswordProtection::Hashed {
+				hashed_password,
+				hash_settings,
+			} =>
 			{
 				let algorithm_iter = AlgorithmIter::start_iterating(hash_settings.clone());
 				for algorithm in algorithm_iter
@@ -98,7 +104,7 @@ mod algorithm
 	pub struct AlgorithmIter
 	{
 		peppers: SplitWhitespace<'static>,
-		hash_settings: Params
+		hash_settings: Params,
 	}
 	impl AlgorithmIter
 	{
@@ -124,7 +130,7 @@ mod algorithm
 		{
 			Self {
 				peppers: Self::POSSIBLE_PEPPERS.split_whitespace(),
-				hash_settings
+				hash_settings,
 			}
 		}
 

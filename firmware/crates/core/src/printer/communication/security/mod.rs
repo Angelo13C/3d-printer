@@ -65,7 +65,10 @@ impl Security
 		let (password_protection, brute_force_protection) = match configuration.password
 		{
 			PasswordConfiguration::None => (None, None),
-			PasswordConfiguration::Password { password, hash_settings } => (
+			PasswordConfiguration::Password {
+				password,
+				hash_settings,
+			} => (
 				Some(PasswordProtection::new(password, hash_settings).map_err(CreationError::PasswordProtection)?),
 				None,
 			),
@@ -119,7 +122,7 @@ pub enum PasswordConfiguration
 	Password
 	{
 		password: &'static str,
-		hash_settings: Option<Params>
+		hash_settings: Option<Params>,
 	},
 	PasswordAndBruteforce
 	{

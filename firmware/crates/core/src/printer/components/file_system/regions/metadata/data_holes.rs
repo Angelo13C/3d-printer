@@ -1,4 +1,4 @@
-use std::{marker::PhantomData, ops::RangeInclusive, fmt::Debug};
+use std::{fmt::Debug, marker::PhantomData, ops::RangeInclusive};
 
 use super::FilesMetadatasRegion;
 use crate::{
@@ -100,7 +100,10 @@ pub enum FreeSpace
 
 impl<Chip: FlashMemoryChip> Debug for DataHoles<Chip>
 {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("DataHoles").field("block_holes", &self.block_holes).finish()
-    }
+	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result
+	{
+		f.debug_struct("DataHoles")
+			.field("block_holes", &self.block_holes)
+			.finish()
+	}
 }

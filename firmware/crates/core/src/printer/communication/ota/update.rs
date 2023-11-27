@@ -22,11 +22,12 @@ impl<'a, Ota: OtaTrait> OverTheAirUpdate<'a, Ota>
 	/// Writes a new portion of data to the OTA partition. After all the data has been written call [`Self::complete`].
 	pub fn write(&mut self, data: &[u8]) -> Result<Percentage, OverTheAirUpdateWriteError<Ota>>
 	{
-		self.update.write_all(data).map_err(OverTheAirUpdateWriteError::OtaWrite)?;
+		self.update
+			.write_all(data)
+			.map_err(OverTheAirUpdateWriteError::OtaWrite)?;
 		self.current_written_bytes += data.len();
-		Percentage::from_0_to_1(
-			self.current_written_bytes as f32 / self.update_size_in_bytes as f32,
-		).map_err(|_| OverTheAirUpdateWriteError::WrittenMoreBytesThanUpdateSize)
+		Percentage::from_0_to_1(self.current_written_bytes as f32 / self.update_size_in_bytes as f32)
+			.map_err(|_| OverTheAirUpdateWriteError::WrittenMoreBytesThanUpdateSize)
 	}
 
 	/// States to the firmware that the OTA update you started before has been aborted.
@@ -50,16 +51,19 @@ impl<'a, Ota: OtaTrait> OverTheAirUpdate<'a, Ota>
 pub enum OverTheAirUpdateWriteError<Ota: OtaTrait>
 {
 	OtaWrite(<Ota as ErrorType>::Error),
-	WrittenMoreBytesThanUpdateSize
+	WrittenMoreBytesThanUpdateSize,
 }
 
-impl<Ota: OtaTrait> std::fmt::Debug for OverTheAirUpdateWriteError<Ota> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Self::OtaWrite(arg0) => f.debug_tuple("OtaWrite").field(arg0).finish(),
-            Self::WrittenMoreBytesThanUpdateSize => write!(f, "WrittenMoreBytesThanUpdateSize"),
-        }
-    }
+impl<Ota: OtaTrait> std::fmt::Debug for OverTheAirUpdateWriteError<Ota>
+{
+	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result
+	{
+		match self
+		{
+			Self::OtaWrite(arg0) => f.debug_tuple("OtaWrite").field(arg0).finish(),
+			Self::WrittenMoreBytesThanUpdateSize => write!(f, "WrittenMoreBytesThanUpdateSize"),
+		}
+	}
 }
 
 pub(super) fn has_completed_update() -> bool
