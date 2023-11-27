@@ -262,7 +262,7 @@ impl<Chip: FlashMemoryChip, Spi: SpiDevice<u8>> SpiFlashMemory<Chip, Spi>
 	fn is_operation_in_progress(&mut self) -> Result<bool, <Spi as ErrorType>::Error>
 	{
 		let status = self.get_features(FeatureRegister::Status)?;
-		let is_in_progress = (status & 0b0000_0001) == 0;
+		let is_in_progress = (status & 0b0000_0001) == 1;
 		Ok(is_in_progress)
 	}
 
