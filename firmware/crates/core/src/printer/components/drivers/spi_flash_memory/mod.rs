@@ -5,7 +5,6 @@ use embedded_hal::spi::{ErrorType, SpiDevice};
 use self::{
 	address::{ColumnAddress, RowAddress},
 	commands::Command,
-	features::FeatureRegister,
 };
 use crate::utils::math::NumberExt;
 
@@ -15,6 +14,7 @@ mod commands;
 mod features;
 
 pub use chip::*;
+pub use features::*;
 
 /// A flash memory connected to the microcontroller through a SPI interface.
 ///
