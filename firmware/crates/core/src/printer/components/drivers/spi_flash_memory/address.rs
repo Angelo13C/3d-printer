@@ -14,7 +14,7 @@ impl ColumnAddress
 	pub const fn new(mut column_address: u16, plane_index: u8) -> Self
 	{
 		column_address |= (plane_index as u16) << 12;
-		Self(column_address.to_le_bytes())
+		Self(column_address.to_be_bytes())
 	}
 
 	/// Returns the column address as bytes that can be sent over SPI.
