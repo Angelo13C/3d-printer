@@ -58,7 +58,7 @@ impl<Chip: FlashMemoryChip, Spi: SpiDevice<u8>> SpiFlashMemory<Chip, Spi>
 		Command::<Chip>::WriteEnable.execute(&mut self.spi)?;
 
 		Self::cycle_pages(address, data.len() as u32, |parameters| {
-			Command::ProgramLoad::<Chip> {
+			Command::ProgramLoadRandomData::<Chip> {
 				column_address: parameters.column_address,
 				input: &data[parameters.data_range.clone()],
 			}
