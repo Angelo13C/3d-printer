@@ -3,7 +3,7 @@
 use std::{
 	string::FromUtf8Error,
 	sync::atomic::{AtomicU16, Ordering},
-	time::Duration,
+	time::Duration, fmt::Debug,
 };
 
 use embedded_hal::spi::SpiDevice;
@@ -151,7 +151,7 @@ impl<P: Peripherals> PrintProcess<P>
 								read_commands.push(command);
 							}
 						},
-						Err(_) => return Err(PrintProcessError::CouldntParseLine),
+						Err(_) => return Err(PrintProcessError::CouldntParseLine(line.to_string())),
 					}
 				}
 
@@ -268,11 +268,22 @@ pub enum PrintProcessError<Spi: SpiDevice<u8>>
 	SPIError(ReadError<Spi>),
 
 	/// One of the lines read from the file is a [`GCodeLine::Error`].
-	CouldntParseLine,
+	CouldntParseLine(String),
 }
 
 pub struct LineToExecuteParsed<'a, P: Peripherals>
 {
 	pub comment: Option<&'a str>,
 	pub command: Option<Box<dyn GCodeCommand<P>>>,
+}
+
+impl<Spi: SpiDevice<u8>> Debug for PrintProcessError<Spi> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::CouldntOpenFileForRead => write!(f, "CouldntOpenFileForRead"),
+            Self::FileContainsInvalidUtf8(arg0) => f.debug_tuple("FileContainsInvalidUtf8").field(arg0).finish(),
+            Self::SPIError(arg0) => f.debug_tuple("SPIError").field(arg0).finish(),
+            Self::CouldntParseLine(line) => f.debug_struct("CoudlntParseLine").field("line", line).finish(),
+        }
+    }
 }
