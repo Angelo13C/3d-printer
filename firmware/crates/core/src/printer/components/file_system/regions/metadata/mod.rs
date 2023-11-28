@@ -146,14 +146,17 @@ impl FilesMetadatasRegion
 		spi_flash_memory.erase_blocks(regions_config.metadata_block_range.clone())?;
 
 		let self_as_bytes: Vec<u8> = core::iter::once(0_u8)
-			.chain(self.highest_used_file_id.to_bytes().into_iter())
 			.chain(self.bad_block_table.as_bytes())
 			.chain(self.highest_used_file_id.to_bytes().into_iter())
-			.chain(
-				self.files_metadatas
-					.iter()
-					.flat_map(|file_metadata| file_metadata.to_bytes().into_iter()),
-			)
+			.chain((self.files_metadatas.len() as u16).to_le_bytes().into_iter())
+			.chain(self.files_metadatas.iter().flat_map(|file_metadata| {
+				let mut file_metadata_to_serialize = file_metadata.clone();
+				if self.writing_to_files_with_id.contains(&file_metadata.id)
+				{
+					file_metadata_to_serialize.id = FileId::WRITING_FILE;
+				}
+				file_metadata_to_serialize.to_bytes().into_iter()
+			}))
 			.collect();
 
 		spi_flash_memory.program(&self_as_bytes, *regions_config.metadata_address_range::<Chip>().start())?;
