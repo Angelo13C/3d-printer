@@ -55,14 +55,26 @@ impl<Chip: FlashMemoryChip, Spi: SpiDevice<u8>> SpiFlashMemory<Chip, Spi>
 			return Ok(());
 		}
 
-		Command::<Chip>::WriteEnable.execute(&mut self.spi)?;
-
 		Self::cycle_pages(address, data.len() as u32, |parameters| {
-			Command::ProgramLoadRandomData::<Chip> {
-				column_address: parameters.column_address,
-				input: &data[parameters.data_range.clone()],
+			Command::<Chip>::WriteEnable.execute(&mut self.spi)?;
+
+			if parameters.column_address == ColumnAddress::new(0, 0)
+				|| parameters.column_address == ColumnAddress::new(0, 1)
+			{
+				Command::ProgramLoad::<Chip> {
+					column_address: parameters.column_address,
+					input: &data[parameters.data_range],
+				}
+				.execute(&mut self.spi)?;
 			}
-			.execute(&mut self.spi)?;
+			else
+			{
+				Command::ProgramLoadRandomData::<Chip> {
+					column_address: parameters.column_address,
+					input: &data[parameters.data_range],
+				}
+				.execute(&mut self.spi)?;
+			}
 
 			self.wait_for_operation_to_finish()?;
 
@@ -70,6 +82,8 @@ impl<Chip: FlashMemoryChip, Spi: SpiDevice<u8>> SpiFlashMemory<Chip, Spi>
 				row_address: parameters.row_address,
 			}
 			.execute(&mut self.spi)?;
+
+			self.wait_for_operation_to_finish()?;
 
 			Ok(())
 		})?;
@@ -292,15 +306,20 @@ impl<Chip: FlashMemoryChip, Spi: SpiDevice<u8>> SpiFlashMemory<Chip, Spi>
 		mut callback: impl FnMut(CyclePageParameters<Chip>) -> Result<(), <Spi as ErrorType>::Error>,
 	) -> Result<(), <Spi as ErrorType>::Error>
 	{
+		if data_length == 0
+		{
+			return Ok(());
+		}
+
 		let start_page_index = address / Chip::PAGE_SIZE;
 		let mut column_address = (address - start_page_index * Chip::PAGE_SIZE) as u16;
 		let mut data_range_length = Chip::PAGE_SIZE as usize - column_address as usize;
-		let loops_to_do = data_length.ceil_div(Chip::PAGE_SIZE);
+		let mut data_range_start = 0;
+		let loops_to_do = (data_length + column_address as u32).ceil_div(Chip::PAGE_SIZE);
 		for i in 0..loops_to_do
 		{
 			let row_address = RowAddress::<Chip>::from_page_index(start_page_index + i);
 			let plane_index = row_address.get_plane_index();
-			let data_range_start = (i * Chip::PAGE_SIZE) as usize;
 
 			if i == loops_to_do - 1
 			{
@@ -314,6 +333,7 @@ impl<Chip: FlashMemoryChip, Spi: SpiDevice<u8>> SpiFlashMemory<Chip, Spi>
 			})?;
 
 			column_address = 0;
+			data_range_start += data_range_length;
 			data_range_length = Chip::PAGE_SIZE as usize;
 		}
 
