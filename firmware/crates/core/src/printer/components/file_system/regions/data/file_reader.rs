@@ -28,6 +28,19 @@ pub enum ReadError<Spi: SpiDevice<u8>>
 	EndOfFile,
 }
 
+impl<Spi: SpiDevice<u8>> Debug for ReadError<Spi>
+{
+	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result
+	{
+		match self
+		{
+			Self::Spi(arg0) => f.debug_tuple("Spi").field(arg0).finish(),
+			Self::DoesntExistAnymore => write!(f, "DoesntExistAnymore"),
+			Self::EndOfFile => write!(f, "EndOfFile"),
+		}
+	}
+}
+
 pub enum ReadNameError<Spi: SpiDevice<u8>>
 {
 	Spi(<Spi as ErrorType>::Error),

@@ -178,6 +178,18 @@ pub enum TickError<P: Peripherals>
 	PrintProcessTick(PrintProcessError<P::FlashSpi>),
 }
 
+impl<P: Peripherals> Debug for TickError<P>
+{
+	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result
+	{
+		match self
+		{
+			TickError::Send(error) => f.debug_tuple("Send").field(error).finish(),
+			TickError::PrintProcessTick(error) => f.debug_tuple("PrintProcessTick").field(error).finish(),
+		}
+	}
+}
+
 impl<WifiDriver: Wifi, WifiCommunicator: Communicator, Spi: SpiDevice<u8>, ServerError: Debug> Debug
 	for CreationError<WifiDriver, WifiCommunicator, Spi, ServerError>
 {
