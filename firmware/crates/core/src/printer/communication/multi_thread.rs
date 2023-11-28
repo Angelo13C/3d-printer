@@ -50,7 +50,10 @@ impl<P: Peripherals + 'static> MultiThreadCommunication<P>
 						watchdog.feed();
 					}
 
-					communication.tick();
+					if let Err(error) = communication.tick()
+					{
+						log::error!("Tick error: {error:#?}");
+					}
 
 					if let Some(system_time) = system_time.as_ref()
 					{
