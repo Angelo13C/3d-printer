@@ -71,7 +71,7 @@ impl<Chip: FlashMemoryChip, Spi: SpiDevice<u8>> FileWriter<Chip, Spi>
 			)
 			.map_err(WriteError::Spi)?;
 		self.has_finished_writing = true;
-log::info!("File writer has finished writing: {}", self.has_finished_writing);
+
 		Ok(())
 	}
 
