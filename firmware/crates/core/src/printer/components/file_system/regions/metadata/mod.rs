@@ -291,7 +291,9 @@ impl FilesMetadatasRegion
 	}
 }
 
+#[derive(Debug)]
 pub struct FileDoesntExist;
+#[derive(Debug)]
 pub struct NotEnoughSpaceAvailable;
 
 struct ArrayIterator<const N: usize, T>
