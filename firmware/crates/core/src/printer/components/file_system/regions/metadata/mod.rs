@@ -22,6 +22,7 @@ pub struct FilesMetadatasRegion
 {
 	files_metadatas: Vec<FileMetadata>,
 	highest_used_file_id: FileId,
+	writing_to_files_with_id: Vec<FileId>,
 	bad_block_table: BadBlockTable,
 	metadata_validator_master: FileMetadataValidatorMaster,
 }
@@ -60,6 +61,7 @@ impl FilesMetadatasRegion
 			Self {
 				files_metadatas: Vec::with_capacity(5),
 				highest_used_file_id: FileId::FIRST,
+				writing_to_files_with_id: Vec::with_capacity(2),
 				bad_block_table,
 				metadata_validator_master: FileMetadataValidatorMaster::new(),
 			}
@@ -117,6 +119,7 @@ impl FilesMetadatasRegion
 			Self {
 				files_metadatas,
 				highest_used_file_id,
+				writing_to_files_with_id: Vec::with_capacity(2),
 				bad_block_table,
 				metadata_validator_master: FileMetadataValidatorMaster::new(),
 			}
@@ -187,13 +190,32 @@ impl FilesMetadatasRegion
 		}
 	}
 
-	pub fn finish_writing_file<Chip: FlashMemoryChip, Spi: SpiDevice<u8>>(
+	pub fn start_writing_file<Chip: FlashMemoryChip, Spi: SpiDevice<u8>>(
 		&mut self, file_metadata: FileMetadata, spi_flash_memory: &mut SpiFlashMemory<Chip, Spi>,
 		regions_config: &RegionsConfig,
 	) -> Result<(), <Spi as ErrorType>::Error>
 	{
+		self.writing_to_files_with_id.push(file_metadata.id);
+
 		self.files_metadatas.push(file_metadata);
 		self.store_in_flash(spi_flash_memory, regions_config)?;
+
+		Ok(())
+	}
+
+	pub fn finish_writing_file<Chip: FlashMemoryChip, Spi: SpiDevice<u8>>(
+		&mut self, file_id: FileId, spi_flash_memory: &mut SpiFlashMemory<Chip, Spi>, regions_config: &RegionsConfig,
+	) -> Result<(), <Spi as ErrorType>::Error>
+	{
+		if let Some(position) = self
+			.writing_to_files_with_id
+			.iter()
+			.position(|&writing_file_id| writing_file_id == file_id)
+		{
+			self.writing_to_files_with_id.swap_remove(position);
+
+			self.store_in_flash(spi_flash_memory, regions_config)?;
+		}
 
 		Ok(())
 	}

@@ -31,7 +31,7 @@ impl<Chip: FlashMemoryChip, Spi: SpiDevice<u8>> FileWriter<Chip, Spi>
 			file_system
 				.metadatas_region
 				.start_writing_file(
-					self.file_metadata,
+					self.file_metadata.clone(),
 					&mut file_system.spi_flash_memory,
 					&file_system.regions_config,
 				)
@@ -65,7 +65,7 @@ impl<Chip: FlashMemoryChip, Spi: SpiDevice<u8>> FileWriter<Chip, Spi>
 		file_system
 			.metadatas_region
 			.finish_writing_file(
-				self.file_metadata.clone(),
+				self.file_metadata.id,
 				&mut file_system.spi_flash_memory,
 				&file_system.regions_config,
 			)
