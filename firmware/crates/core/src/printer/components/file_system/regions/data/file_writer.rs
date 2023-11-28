@@ -27,7 +27,10 @@ impl<Chip: FlashMemoryChip, Spi: SpiDevice<u8>> FileWriter<Chip, Spi>
 		// If it's the first time you try to write to this file
 		if let Some(name) = self.name.take()
 		{
-			log::info!("Start writing a file with name \"{name}\" and with a size of {} bytes", self.file_metadata.file_data_length);
+			log::info!(
+				"Start writing a file with name \"{name}\" and with a size of {} bytes",
+				self.file_metadata.file_data_length
+			);
 			file_system
 				.metadatas_region
 				.start_writing_file(

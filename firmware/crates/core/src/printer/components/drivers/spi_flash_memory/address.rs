@@ -53,7 +53,9 @@ impl<Chip: FlashMemoryChip> RowAddress<Chip>
 	/// Returns the index of the page identified by this address.
 	pub fn get_page_index(&self) -> u32
 	{
-		u32::from_be_bytes(std::array::from_fn(|i| self.0.get(i.overflowing_sub(1).0).map(|value| *value).unwrap_or(0)))
+		u32::from_be_bytes(std::array::from_fn(|i| {
+			self.0.get(i.overflowing_sub(1).0).map(|value| *value).unwrap_or(0)
+		}))
 	}
 
 	/// Returns the index of the plane of the page identified by this address.

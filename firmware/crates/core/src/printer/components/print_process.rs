@@ -1,9 +1,10 @@
 //! Check [`PrintProcess`].
 
 use std::{
+	fmt::Debug,
 	string::FromUtf8Error,
 	sync::atomic::{AtomicU16, Ordering},
-	time::Duration, fmt::Debug,
+	time::Duration,
 };
 
 use embedded_hal::spi::SpiDevice;
@@ -277,13 +278,16 @@ pub struct LineToExecuteParsed<'a, P: Peripherals>
 	pub command: Option<Box<dyn GCodeCommand<P>>>,
 }
 
-impl<Spi: SpiDevice<u8>> Debug for PrintProcessError<Spi> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Self::CouldntOpenFileForRead => write!(f, "CouldntOpenFileForRead"),
-            Self::FileContainsInvalidUtf8(arg0) => f.debug_tuple("FileContainsInvalidUtf8").field(arg0).finish(),
-            Self::SPIError(arg0) => f.debug_tuple("SPIError").field(arg0).finish(),
-            Self::CouldntParseLine(line) => f.debug_struct("CoudlntParseLine").field("line", line).finish(),
-        }
-    }
+impl<Spi: SpiDevice<u8>> Debug for PrintProcessError<Spi>
+{
+	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result
+	{
+		match self
+		{
+			Self::CouldntOpenFileForRead => write!(f, "CouldntOpenFileForRead"),
+			Self::FileContainsInvalidUtf8(arg0) => f.debug_tuple("FileContainsInvalidUtf8").field(arg0).finish(),
+			Self::SPIError(arg0) => f.debug_tuple("SPIError").field(arg0).finish(),
+			Self::CouldntParseLine(line) => f.debug_struct("CoudlntParseLine").field("line", line).finish(),
+		}
+	}
 }

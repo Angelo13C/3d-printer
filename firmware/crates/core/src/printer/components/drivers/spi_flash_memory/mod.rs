@@ -199,7 +199,7 @@ impl<Chip: FlashMemoryChip, Spi: SpiDevice<u8>> SpiFlashMemory<Chip, Spi>
 		for block_index in block_indices_to_erase
 		{
 			Command::WriteEnable::<Chip>.execute(&mut self.spi)?;
-	
+
 			let row_address = RowAddress::from_memory_address(Chip::get_address_of_block_index(block_index));
 			Command::BlockErase::<Chip> { row_address }.execute(&mut self.spi)?;
 

@@ -1,4 +1,4 @@
-use std::{marker::PhantomData, string::FromUtf8Error, fmt::Debug};
+use std::{fmt::Debug, marker::PhantomData, string::FromUtf8Error};
 
 use embedded_hal::spi::{ErrorType, SpiDevice};
 
@@ -50,13 +50,15 @@ pub enum ReadNameError<Spi: SpiDevice<u8>>
 
 impl<Spi: SpiDevice<u8>> Debug for ReadNameError<Spi>
 {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Self::Spi(arg0) => f.debug_tuple("Spi").field(arg0).finish(),
-            Self::DoesntExistAnymore => write!(f, "DoesntExistAnymore"),
-            Self::InvalidUtf8String(arg0) => f.debug_tuple("InvalidUtf8String").field(arg0).finish(),
-        }
-    }
+	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result
+	{
+		match self
+		{
+			Self::Spi(arg0) => f.debug_tuple("Spi").field(arg0).finish(),
+			Self::DoesntExistAnymore => write!(f, "DoesntExistAnymore"),
+			Self::InvalidUtf8String(arg0) => f.debug_tuple("InvalidUtf8String").field(arg0).finish(),
+		}
+	}
 }
 
 impl<Chip: FlashMemoryChip, Spi: SpiDevice<u8>> FileReader<Chip, Spi>
