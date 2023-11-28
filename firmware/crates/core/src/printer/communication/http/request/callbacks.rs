@@ -153,10 +153,51 @@ pub fn print_file<C: Connection, P: Peripherals>(
 }
 
 pub fn send_file<C: Connection, P: Peripherals>(
-	request: Request<&mut C>, resources: Resources<P>,
+	mut request: Request<&mut C>, resources: Resources<P>,
 ) -> Result<(), HandlerError>
 {
-	todo!()
+	log::info!("Start handling `send-file` HTTP request");
+
+	let mut resources = get_resources(&resources)?;
+	let _ = check_security(&mut request, &mut resources)?;
+
+	let file_name = request
+		.header("File-Name")
+		.ok_or(HandlerError::new("The request doesn't have a `File-Name` header"))?;
+	let file_length = request
+		.header("File-Length")
+		.ok_or(HandlerError::new("The request doesn't have a `File-Length` header"))?;
+	let file_length = file_length
+		.parse::<u32>()
+		.map_err(|_| HandlerError::new("The `File-Length` header is not a valid number"))?;
+
+	log::info!("Receive file `{}` of {} bytes", file_name, file_length);
+
+	let mut file_writer = resources
+		.file_system
+		.create_file(file_name, file_length)
+		.map_err(|error| HandlerError::new("Not enough space available in the flash memory"))?;
+
+	let mut buffer = [0; super::STACK_SIZE];
+	while let Ok(read_bytes) = request.read(&mut buffer)
+	{
+		if read_bytes == 0
+		{
+			break;
+		}
+
+		file_writer
+			.write_data(&mut resources.file_system, &buffer[0..read_bytes])
+			.map_err(|error| HandlerError::new(&format!("{:#?}", error)))?;
+	}
+
+	file_writer
+		.finish_writing(&mut resources.file_system)
+		.map_err(|error| HandlerError::new(&format!("{:#?}", error)))?;
+
+	log::info!("Successfully handled `send-file` HTTP request");
+
+	Ok(())
 }
 
 pub fn get_print_status<C: Connection, P: Peripherals>(
