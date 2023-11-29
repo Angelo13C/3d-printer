@@ -1,8 +1,8 @@
-use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign};
+use std::{ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign}, fmt::Debug};
 
 use super::frequency::Frequency;
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 /// A duration of time with a `10 nanoseconds` sensitivity and a range of values that goes up to `10*2^32ns` (which is almost 43 seconds).
 pub struct SmallDuration
 {
@@ -180,6 +180,29 @@ impl SmallDuration
 	{
 		self.as_tens_of_nanos() as f32 / Self::SECOND.as_tens_of_nanos() as f32
 	}
+
+	/// Returns the number of milliseconds this duration represents.
+	///
+	/// It differs from [`Self::as_millis`] due to the fact that the milliseconds are of type `f32` (the
+	/// submillisecond part is not trunked).
+	///
+	/// # Examples
+	/// ```
+	/// # use firmware_core::utils::measurement::duration::SmallDuration;
+	/// #
+	/// assert_eq!(SmallDuration::from_micros(5_902).as_millis_f32(), 5.902);
+	/// assert_eq!(SmallDuration::from_micros(3_141).as_millis_f32(), 3.141);
+	/// ```
+	pub fn as_millis_f32(&self) -> f32
+	{
+		self.as_tens_of_nanos() as f32 / Self::MILLI_SECOND.as_tens_of_nanos() as f32
+	}
+}
+
+impl Debug for SmallDuration {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+		write!(f, "Duration: {}ms", self.as_millis_f32())
+    }
 }
 
 impl From<Frequency> for SmallDuration
