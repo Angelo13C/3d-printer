@@ -1,4 +1,5 @@
 pub mod bresenham;
+pub mod log_in_isr;
 pub mod math;
 pub mod measurement;
 pub mod mutex;

@@ -54,6 +54,8 @@ impl<P: Peripherals + 'static> Printer3D<P>
 		self.components.tick().map_err(TickError::Components)?;
 		self.communication.tick(&mut self.components);
 
+		crate::utils::log_in_isr::print_logs_from_isr();
+
 		Ok(())
 	}
 }
