@@ -8,7 +8,7 @@ use self::{
 	bed_leveling::{Probe, ZAxisProbe},
 	homing::{endstop::Endstop, HomingProcedure},
 	kinematics::Kinematics as KinematicsTrait,
-	planner::{communicate_to_ticker, BlocksBufferIsFull, Planner, Settings},
+	planner::{communicate_to_ticker, BlocksBufferIsFull, MoveId, Planner, Settings},
 	ticker::StepperMotorsTicker,
 };
 use super::{
@@ -163,7 +163,7 @@ impl<Timer: TimerTrait, Kinematics: KinematicsTrait, ZEndstop: ZAxisProbe> Motio
 	pub fn plan_move(
 		&mut self, x: Option<Distance>, y: Option<Distance>, z: Option<Distance>, e: Option<Distance>,
 		feed_rate: Option<f32>,
-	) -> Result<(), BlocksBufferIsFull>
+	) -> Result<MoveId, BlocksBufferIsFull>
 	{
 		if let Some(feed_rate) = feed_rate
 		{
@@ -199,9 +199,7 @@ impl<Timer: TimerTrait, Kinematics: KinematicsTrait, ZEndstop: ZAxisProbe> Motio
 			target_position,
 			calculate_microsteps_per_mm(&self.rotations_to_linear_motions, &self.tmc2209_drivers),
 			self.next_move_feed_rate,
-		)?;
-
-		Ok(())
+		)
 	}
 
 	/// Make the last [`planned move`] ready to be executed.
@@ -210,6 +208,11 @@ impl<Timer: TimerTrait, Kinematics: KinematicsTrait, ZEndstop: ZAxisProbe> Motio
 	pub fn mark_last_move_as_ready_to_go(&mut self)
 	{
 		self.planner.mark_last_added_move_as_ready_to_go()
+	}
+
+	pub fn has_move_been_executed(&self, move_to_check: MoveId) -> bool
+	{
+		self.planner.has_move_been_executed(move_to_check)
 	}
 
 	/// Returns the position of the last [`planned move`] if there has been one, otherwise returns `None`.

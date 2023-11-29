@@ -38,6 +38,9 @@ pub struct Planner<const N: usize>
 {
 	current_position: VectorN<N>,
 
+	current_move_id: MoveId,
+	last_move_id: MoveId,
+
 	previous_normalized_displacement: Option<VectorN<N>>,
 	previous_nominal_speed: f32,
 
@@ -48,6 +51,45 @@ pub struct Planner<const N: usize>
 	most_optimized_block_index: usize,
 
 	stepper_ticker_frequency: Frequency,
+}
+
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+pub struct MoveId(u32);
+impl MoveId
+{
+	const NULL: Self = Self(u32::MAX);
+
+	pub fn is_null(&self) -> bool
+	{
+		*self == Self::NULL
+	}
+
+	const fn next(other: Self) -> Self
+	{
+		Self(other.0.wrapping_add(1))
+	}
+}
+impl Default for MoveId
+{
+	fn default() -> Self
+	{
+		Self::NULL
+	}
+}
+
+impl std::fmt::Debug for MoveId
+{
+	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result
+	{
+		if self.is_null()
+		{
+			write!(f, "MoveId::NULL")
+		}
+		else
+		{
+			f.debug_tuple("MoveId").field(&self.0).finish()
+		}
+	}
 }
 
 impl Planner<N_MOTORS>
@@ -63,6 +105,8 @@ impl Planner<N_MOTORS>
 				{
 					two_blocks_required = false;
 				}
+
+				self.current_move_id = MoveId::next(self.current_move_id);
 
 				let used_blocks_count = 1 + two_blocks_required as usize;
 				self.most_optimized_block_index -= used_blocks_count;
@@ -98,6 +142,8 @@ impl<const N: usize> Planner<N>
 
 		Self {
 			current_position: VectorN::ZERO,
+			current_move_id: MoveId::NULL,
+			last_move_id: MoveId::NULL,
 			blocks: AllocRingBuffer::with_capacity_power_of_2(blocks_power_of_two),
 			settings,
 			previous_normalized_displacement: None,
@@ -134,6 +180,11 @@ impl<const N: usize> Planner<N>
 		self.ready_to_go_blocks_count += 1;
 	}
 
+	pub fn has_move_been_executed(&self, move_to_check: MoveId) -> bool
+	{
+		move_to_check < self.current_move_id || move_to_check.is_null()
+	}
+
 	/// Plans a move that will make the tool move to the `target_position` starting from the `target_position` of the last
 	/// planned move.
 	///
@@ -148,7 +199,7 @@ impl<const N: usize> Planner<N>
 		target_position: VectorN<N>,
 		steps_per_mm: [f32; N],
 		mut move_speed_mm_s: f32,
-	) -> Result<(), BlocksBufferIsFull>
+	) -> Result<MoveId, BlocksBufferIsFull>
 	{
 		if self.blocks.is_full()
 		{
@@ -158,7 +209,7 @@ impl<const N: usize> Planner<N>
 		let mut displacement = target_position.clone() - &self.current_position;
 		if displacement == VectorN::ZERO
 		{
-			return Ok(());
+			return Ok(self.last_move_id);
 		}
 
 		let mut block = Block::<N>::default();
@@ -335,7 +386,8 @@ impl<const N: usize> Planner<N>
 
 		self.recalculate(0.);
 
-		Ok(())
+		self.last_move_id = MoveId::next(self.last_move_id);
+		Ok(self.last_move_id)
 	}
 
 	pub fn has_any_move_planned(&self) -> bool

@@ -76,6 +76,7 @@ fn generate_g_code_deserializer() -> Result<(), Box<dyn std::error::Error>>
         {find_identifiers}
         Some(Box::new({command_name} {{
             {parameters}
+			..Default::default()
         }}))
     }},"
 				)

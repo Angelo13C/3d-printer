@@ -60,3 +60,14 @@ impl<I: GCodeParameterIdentifier, V: GCodeParameterValue> From<V> for Param<I, V
 		Self::new(None, Some(value))
 	}
 }
+
+impl<I: GCodeParameterIdentifier, V: GCodeParameterValue> Default for Param<I, V>
+{
+	fn default() -> Self
+	{
+		Self {
+			identifier: Default::default(),
+			value: Default::default(),
+		}
+	}
+}
