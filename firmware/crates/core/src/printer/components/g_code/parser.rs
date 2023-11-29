@@ -74,7 +74,7 @@ impl GCodeParser
 		if let Some(semi_colon_position) = line.find(';')
 		{
 			line_without_comment = &line[0..semi_colon_position];
-			comment_position = Some(semi_colon_position);
+			comment_position = Some(semi_colon_position + 1);
 		}
 
 		let mut words = line_without_comment.split_whitespace();
