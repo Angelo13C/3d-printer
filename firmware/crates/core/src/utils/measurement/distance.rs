@@ -1,7 +1,8 @@
 use std::{
 	default::Default,
+	fmt::Debug,
 	num::ParseIntError,
-	ops::{Add, AddAssign, Div, Mul, MulAssign, Neg, Sub, SubAssign}, fmt::Debug,
+	ops::{Add, AddAssign, Div, Mul, MulAssign, Neg, Sub, SubAssign},
 };
 
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Default)]
@@ -218,10 +219,12 @@ impl Distance
 	}
 }
 
-impl Debug for Distance {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl Debug for Distance
+{
+	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result
+	{
 		write!(f, "Distance: {}mm", self.as_millimeters_f32())
-    }
+	}
 }
 
 impl Mul<i32> for Distance

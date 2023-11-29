@@ -169,7 +169,7 @@ impl<P: Peripherals> PrintProcess<P>
 							{
 								let _ = self.g_code_to_execute.pop();
 							}
-							
+
 							return Err(PrintProcessError::CouldntParseLine(line.to_string()));
 						},
 					}

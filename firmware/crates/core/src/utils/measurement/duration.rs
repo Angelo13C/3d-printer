@@ -1,4 +1,7 @@
-use std::{ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign}, fmt::Debug};
+use std::{
+	fmt::Debug,
+	ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign},
+};
 
 use super::frequency::Frequency;
 
@@ -199,10 +202,12 @@ impl SmallDuration
 	}
 }
 
-impl Debug for SmallDuration {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl Debug for SmallDuration
+{
+	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result
+	{
 		write!(f, "Duration: {}ms", self.as_millis_f32())
-    }
+	}
 }
 
 impl From<Frequency> for SmallDuration
