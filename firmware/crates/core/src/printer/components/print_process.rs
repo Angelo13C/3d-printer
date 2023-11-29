@@ -132,8 +132,9 @@ impl<P: Peripherals> PrintProcess<P>
 
 				let is_last_line_finished = read_lines.ends_with("\n");
 				let mut read_commands = Vec::with_capacity(read_lines.len() / 25);
-				let mut read_lines_iterator = read_lines.lines().peekable();
-				while let Some(line) = read_lines_iterator.next()
+				let mut read_lines_iterator = read_lines.lines().enumerate().peekable();
+				let mut read_lines_iterator_cloned = read_lines_iterator.clone();
+				while let Some((line_number, line)) = read_lines_iterator.next()
 				{
 					if read_lines_iterator.peek().is_none()
 					{
@@ -152,7 +153,25 @@ impl<P: Peripherals> PrintProcess<P>
 								read_commands.push(command);
 							}
 						},
-						Err(_) => return Err(PrintProcessError::CouldntParseLine(line.to_string())),
+						Err(_) =>
+						{
+							self.g_code_to_execute.clear();
+
+							read_lines_iterator_cloned.for_each(|(line_number_cloned, line)| {
+								if line_number != line_number_cloned
+								{
+									self.g_code_to_execute.push_str(line);
+									self.g_code_to_execute.push('\n');
+								}
+							});
+							// Remove the last new line if there wasn't one before
+							if !is_last_line_finished
+							{
+								let _ = self.g_code_to_execute.pop();
+							}
+							
+							return Err(PrintProcessError::CouldntParseLine(line.to_string()));
+						},
 					}
 				}
 
