@@ -223,7 +223,7 @@ impl<const N: usize> Planner<N>
 			block.steps[i] = (displacement[i].as_millimeters_f32() * steps_per_mm[i]) as i32;
 		}
 
-		block.step_event_count = *block.steps.iter().max().unwrap() as u32;
+		block.step_event_count = block.steps.iter().max_by(|&a, &b| a.abs().cmp(&b.abs())).unwrap().abs() as u32;
 
 		// Here it enable the motors of the axes that do at least 1 step.. but I don't know if I should do it
 
