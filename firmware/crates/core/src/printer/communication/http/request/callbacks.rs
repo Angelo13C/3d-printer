@@ -17,7 +17,7 @@ use crate::{
 	utils::mutex::MutexGuard,
 };
 
-const SER_BUFFER_SIZE: usize = 2048;
+const SER_BUFFER_SIZE: usize = super::STACK_SIZE / 3;
 
 macro_rules! deserialize_request {
 	(BUFFER_SIZE = $buffer_size: expr, CALLBACK = $callback_name: expr, $type: ty, $request: expr) => {{
