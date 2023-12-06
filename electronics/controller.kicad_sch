@@ -180,13 +180,11 @@
       (property "Datasheet" "https://www.diodes.com/assets/Datasheets/AZ1084C.pdf" (at -1.27 -24.13 0)
         (effects (font (size 1.27 1.27)) hide)
       )
-      (symbol "AZ1084CD-3.3TRG1_0_1"
+      (symbol "AZ1084CD-3.3TRG1_1_1"
         (rectangle (start -7.62 3.81) (end 7.62 -5.08)
           (stroke (width 0) (type default))
-          (fill (type none))
+          (fill (type background))
         )
-      )
-      (symbol "AZ1084CD-3.3TRG1_1_1"
         (pin power_in line (at 0 -7.62 90) (length 2.54)
           (name "GND" (effects (font (size 1.27 1.27))))
           (number "1" (effects (font (size 1.27 1.27))))
@@ -852,13 +850,11 @@
       (property "Datasheet" "https://www.mornsun-power.com/html/pdf/K7805MT-1000R4.html" (at 0 -16.51 0)
         (effects (font (size 1.27 1.27)) hide)
       )
-      (symbol "K7805MT-1000R4_0_1"
+      (symbol "K7805MT-1000R4_1_1"
         (rectangle (start -8.89 5.08) (end 8.89 -5.08)
           (stroke (width 0) (type default))
-          (fill (type none))
+          (fill (type background))
         )
-      )
-      (symbol "K7805MT-1000R4_1_1"
         (pin power_in line (at -11.43 2.54 0) (length 2.54)
           (name "Vin" (effects (font (size 1.27 1.27))))
           (number "1" (effects (font (size 1.27 1.27))))
@@ -898,13 +894,11 @@
       (property "Datasheet" "https://datasheet.lcsc.com/lcsc/1912111437_Micron-Tech-MT29F2G01ABAGDWB-IT-G_C410863.pdf" (at -6.35 -11.43 0)
         (effects (font (size 1.27 1.27)) hide)
       )
-      (symbol "MT29F2G01ABAGDWB-IT_0_1"
+      (symbol "MT29F2G01ABAGDWB-IT_1_1"
         (rectangle (start -10.16 5.08) (end 10.16 -7.62)
           (stroke (width 0) (type default))
-          (fill (type none))
+          (fill (type background))
         )
-      )
-      (symbol "MT29F2G01ABAGDWB-IT_1_1"
         (pin input line (at -12.7 2.54 0) (length 2.54)
           (name "CS" (effects (font (size 1.27 1.27))))
           (number "1" (effects (font (size 1.27 1.27))))
