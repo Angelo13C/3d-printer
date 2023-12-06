@@ -22,6 +22,7 @@ pub struct FilesMetadatasRegion
 {
 	files_metadatas: Vec<FileMetadata>,
 	highest_used_file_id: FileId,
+	writing_to_files_with_id: Vec<FileId>,
 	bad_block_table: BadBlockTable,
 	metadata_validator_master: FileMetadataValidatorMaster,
 }
@@ -38,12 +39,12 @@ impl FilesMetadatasRegion
 	///
 	/// [`stored`]: `Self::store_in_flash`
 	pub fn read_from_flash<Chip: FlashMemoryChip, Spi: SpiDevice<u8>>(
-		spi_flash_memory: &mut SpiFlashMemory<Chip, Spi>, regions_config: &RegionsConfig<Chip>,
+		spi_flash_memory: &mut SpiFlashMemory<Chip, Spi>, regions_config: &RegionsConfig,
 	) -> Result<Self, <Spi as ErrorType>::Error>
 	{
 		let mut needs_to_store_in_flash = false;
 
-		let address_offset = *regions_config.metadata_address_range().start();
+		let address_offset = *regions_config.metadata_address_range::<Chip>().start();
 
 		const READ_DATA_SIZE: usize = 2048;
 		assert_eq!(READ_DATA_SIZE, Chip::PAGE_SIZE as usize);
@@ -60,6 +61,7 @@ impl FilesMetadatasRegion
 			Self {
 				files_metadatas: Vec::with_capacity(5),
 				highest_used_file_id: FileId::FIRST,
+				writing_to_files_with_id: Vec::with_capacity(2),
 				bad_block_table,
 				metadata_validator_master: FileMetadataValidatorMaster::new(),
 			}
@@ -117,6 +119,7 @@ impl FilesMetadatasRegion
 			Self {
 				files_metadatas,
 				highest_used_file_id,
+				writing_to_files_with_id: Vec::with_capacity(2),
 				bad_block_table,
 				metadata_validator_master: FileMetadataValidatorMaster::new(),
 			}
@@ -137,23 +140,26 @@ impl FilesMetadatasRegion
 	/// Returns `Err(...)` if there has been an error in communicating with the flash memory,
 	/// otherwise returns `Ok(())`.
 	pub fn store_in_flash<Chip: FlashMemoryChip, Spi: SpiDevice<u8>>(
-		&self, spi_flash_memory: &mut SpiFlashMemory<Chip, Spi>, regions_config: &RegionsConfig<Chip>,
+		&self, spi_flash_memory: &mut SpiFlashMemory<Chip, Spi>, regions_config: &RegionsConfig,
 	) -> Result<(), <Spi as ErrorType>::Error>
 	{
 		spi_flash_memory.erase_blocks(regions_config.metadata_block_range.clone())?;
 
 		let self_as_bytes: Vec<u8> = core::iter::once(0_u8)
-			.chain(self.highest_used_file_id.to_bytes().into_iter())
 			.chain(self.bad_block_table.as_bytes())
 			.chain(self.highest_used_file_id.to_bytes().into_iter())
-			.chain(
-				self.files_metadatas
-					.iter()
-					.flat_map(|file_metadata| file_metadata.to_bytes().into_iter()),
-			)
+			.chain((self.files_metadatas.len() as u16).to_le_bytes().into_iter())
+			.chain(self.files_metadatas.iter().flat_map(|file_metadata| {
+				let mut file_metadata_to_serialize = file_metadata.clone();
+				if self.writing_to_files_with_id.contains(&file_metadata.id)
+				{
+					file_metadata_to_serialize.id = FileId::WRITING_FILE;
+				}
+				file_metadata_to_serialize.to_bytes().into_iter()
+			}))
 			.collect();
 
-		spi_flash_memory.program(&self_as_bytes, *regions_config.metadata_address_range().start())?;
+		spi_flash_memory.program(&self_as_bytes, *regions_config.metadata_address_range::<Chip>().start())?;
 
 		Ok(())
 	}
@@ -167,7 +173,7 @@ impl FilesMetadatasRegion
 	/// This won't store the metadata of the newly created file in the flash memory, a call
 	/// to [`Self::finish_writing_file`] is required.
 	pub fn create_file<Chip: FlashMemoryChip>(
-		&mut self, bytes_count: u32, regions_config: &RegionsConfig<Chip>,
+		&mut self, bytes_count: u32, regions_config: &RegionsConfig,
 	) -> Result<(FileId, u32), NotEnoughSpaceAvailable>
 	{
 		let data_holes = DataHoles::<Chip>::from_metadatas_region(&self, regions_config);
@@ -187,13 +193,32 @@ impl FilesMetadatasRegion
 		}
 	}
 
-	pub fn finish_writing_file<Chip: FlashMemoryChip, Spi: SpiDevice<u8>>(
+	pub fn start_writing_file<Chip: FlashMemoryChip, Spi: SpiDevice<u8>>(
 		&mut self, file_metadata: FileMetadata, spi_flash_memory: &mut SpiFlashMemory<Chip, Spi>,
-		regions_config: &RegionsConfig<Chip>,
+		regions_config: &RegionsConfig,
 	) -> Result<(), <Spi as ErrorType>::Error>
 	{
+		self.writing_to_files_with_id.push(file_metadata.id);
+
 		self.files_metadatas.push(file_metadata);
 		self.store_in_flash(spi_flash_memory, regions_config)?;
+
+		Ok(())
+	}
+
+	pub fn finish_writing_file<Chip: FlashMemoryChip, Spi: SpiDevice<u8>>(
+		&mut self, file_id: FileId, spi_flash_memory: &mut SpiFlashMemory<Chip, Spi>, regions_config: &RegionsConfig,
+	) -> Result<(), <Spi as ErrorType>::Error>
+	{
+		if let Some(position) = self
+			.writing_to_files_with_id
+			.iter()
+			.position(|&writing_file_id| writing_file_id == file_id)
+		{
+			self.writing_to_files_with_id.swap_remove(position);
+
+			self.store_in_flash(spi_flash_memory, regions_config)?;
+		}
 
 		Ok(())
 	}
@@ -269,7 +294,9 @@ impl FilesMetadatasRegion
 	}
 }
 
+#[derive(Debug)]
 pub struct FileDoesntExist;
+#[derive(Debug)]
 pub struct NotEnoughSpaceAvailable;
 
 struct ArrayIterator<const N: usize, T>

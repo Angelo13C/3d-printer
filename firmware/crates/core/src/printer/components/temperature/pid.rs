@@ -31,6 +31,8 @@ pub struct PidController<CHP: PwmPin, TADC: Adc, TP: AdcPin<TADC>>
 	cartridge_heater: CartridgeHeater<CHP>,
 	pid_control: pid_control::PIDController,
 	safety: TemperatureSafety,
+
+	last_current_temperature_sample: Option<Temperature>,
 }
 
 impl<CHP: PwmPin, TADC: Adc, TP: AdcPin<TADC>> PidController<CHP, TADC, TP>
@@ -59,6 +61,7 @@ impl<CHP: PwmPin, TADC: Adc, TP: AdcPin<TADC>> PidController<CHP, TADC, TP>
 			cartridge_heater,
 			pid_control,
 			safety,
+			last_current_temperature_sample: None,
 		}
 	}
 
@@ -86,7 +89,24 @@ impl<CHP: PwmPin, TADC: Adc, TP: AdcPin<TADC>> PidController<CHP, TADC, TP>
 	/// Returns `Ok(Temperature)` if the read was succesful, otherwise `Err(ReadPercentageError)`.
 	pub fn get_current_temperature(&mut self, adc: &mut TADC) -> Result<Temperature, ReadPercentageError<TADC, TP>>
 	{
-		self.thermistor.read_temperature(adc)
+		match self.thermistor.read_temperature(adc)
+		{
+			Ok(temperature) =>
+			{
+				self.last_current_temperature_sample = Some(temperature);
+				Ok(temperature)
+			},
+			Err(error) => Err(error),
+		}
+	}
+
+	/// Gets the [`Temperature`] read using [`Self::get_current_temperature`] the last time you called that function.
+	///
+	/// Returns `None` if [`Self::get_current_temperature`] has never been successfull since the instantation of this
+	/// struct.
+	pub fn get_last_sample_of_current_temperature(&self) -> Option<Temperature>
+	{
+		self.last_current_temperature_sample
 	}
 
 	/// Returns the [`Temperature`] the PID controller is trying to reach.
@@ -110,8 +130,7 @@ impl<CHP: PwmPin, TADC: Adc, TP: AdcPin<TADC>> PidController<CHP, TADC, TP>
 	pub fn tick(&mut self, delta_time: f64, adc: &mut TADC) -> Result<(), TickError>
 	{
 		let current_temperature = self
-			.thermistor
-			.read_temperature(adc)
+			.get_current_temperature(adc)
 			.map_err(|_| TickError::CantReadTemperature)?;
 
 		let safety_errors =

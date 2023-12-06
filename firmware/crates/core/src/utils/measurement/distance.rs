@@ -1,10 +1,11 @@
 use std::{
 	default::Default,
+	fmt::Debug,
 	num::ParseIntError,
 	ops::{Add, AddAssign, Div, Mul, MulAssign, Neg, Sub, SubAssign},
 };
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Default)]
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Default)]
 /// A distance with a `10 nanometer` sensitivity (10^-8 meters) and a range of values that goes from `10 * (-2^31) nm`
 /// to `10 * (2^31-1) nm` (which is from -21 to 21 meters).
 pub struct Distance
@@ -215,6 +216,14 @@ impl Distance
 	pub const fn as_meters(&self) -> i32
 	{
 		self.as_centimeters() / 100
+	}
+}
+
+impl Debug for Distance
+{
+	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result
+	{
+		write!(f, "Distance: {}mm", self.as_millimeters_f32())
 	}
 }
 

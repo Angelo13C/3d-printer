@@ -1,3 +1,5 @@
+use std::fmt::Debug;
+
 use super::super::homing::endstop::Endstop;
 use crate::utils::math::vectors::Vector3;
 
@@ -36,7 +38,8 @@ impl<P: ZAxisProbe> Endstop for Probe<P>
 		self.inner_probe.is_end_reached()
 	}
 
-	unsafe fn on_end_reached(&mut self, callback: impl FnMut() + 'static) -> Result<(), Self::OnEndReachedError>
+	unsafe fn on_end_reached(&mut self, callback: impl FnMut() + Send + 'static)
+		-> Result<(), Self::OnEndReachedError>
 	{
 		self.inner_probe.on_end_reached(callback)
 	}
@@ -54,15 +57,16 @@ impl<P: ZAxisProbe> Endstop for Probe<P>
 
 pub trait ZAxisProbe
 {
-	type IsEndReachedError;
-	type OnEndReachedError;
-	type HomingError;
+	type IsEndReachedError: Debug;
+	type OnEndReachedError: Debug;
+	type HomingError: Debug;
 
 	fn is_end_reached(&self) -> Result<bool, Self::IsEndReachedError>;
 
 	/// # Safety
 	/// The `callback` will be called in an ISR context.
-	unsafe fn on_end_reached(&mut self, callback: impl FnMut() + 'static) -> Result<(), Self::OnEndReachedError>;
+	unsafe fn on_end_reached(&mut self, callback: impl FnMut() + Send + 'static)
+		-> Result<(), Self::OnEndReachedError>;
 
 	/// Prepare the probe for homing.
 	fn prepare_for_homing(&mut self) -> Result<(), Self::HomingError>;

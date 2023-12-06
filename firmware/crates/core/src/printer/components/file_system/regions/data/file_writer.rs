@@ -25,14 +25,16 @@ impl<Chip: FlashMemoryChip, Spi: SpiDevice<u8>> FileWriter<Chip, Spi>
 	pub fn write_data(&mut self, file_system: &mut FileSystem<Chip, Spi>, data: &[u8]) -> Result<(), WriteError<Spi>>
 	{
 		// If it's the first time you try to write to this file
-		if let Some(name) = &self.name
+		if let Some(name) = self.name.take()
 		{
-			let mut writing_file_metadata = self.file_metadata.clone();
-			writing_file_metadata.id = FileId::WRITING_FILE;
+			log::info!(
+				"Start writing a file with name \"{name}\" and with a size of {} bytes",
+				self.file_metadata.file_data_length
+			);
 			file_system
 				.metadatas_region
-				.finish_writing_file(
-					writing_file_metadata,
+				.start_writing_file(
+					self.file_metadata.clone(),
 					&mut file_system.spi_flash_memory,
 					&file_system.regions_config,
 				)
@@ -66,7 +68,7 @@ impl<Chip: FlashMemoryChip, Spi: SpiDevice<u8>> FileWriter<Chip, Spi>
 		file_system
 			.metadatas_region
 			.finish_writing_file(
-				self.file_metadata.clone(),
+				self.file_metadata.id,
 				&mut file_system.spi_flash_memory,
 				&file_system.regions_config,
 			)
@@ -95,13 +97,25 @@ pub enum WriteError<Spi: SpiDevice<u8>>
 	DoesntExistAnymore,
 }
 
+impl<Spi: SpiDevice<u8>> std::fmt::Debug for WriteError<Spi>
+{
+	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result
+	{
+		match self
+		{
+			Self::Spi(arg0) => f.debug_tuple("Spi").field(arg0).finish(),
+			Self::DoesntExistAnymore => write!(f, "DoesntExistAnymore"),
+		}
+	}
+}
+
 impl<Chip: FlashMemoryChip, Spi: SpiDevice<u8>> Drop for FileWriter<Chip, Spi>
 {
 	fn drop(&mut self)
 	{
 		if !self.has_finished_writing
 		{
-			panic!("WriteableFile instance dropped without calling WriteableFile::finish_writing() first");
+			panic!("FileWriter instance dropped without calling FileWriter::finish_writing() first");
 		}
 	}
 }

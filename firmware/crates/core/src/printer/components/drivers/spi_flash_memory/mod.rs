@@ -1,11 +1,10 @@
-use std::ops::RangeInclusive;
+use std::ops::{Range, RangeInclusive};
 
 use embedded_hal::spi::{ErrorType, SpiDevice};
 
 use self::{
 	address::{ColumnAddress, RowAddress},
 	commands::Command,
-	features::FeatureRegister,
 };
 use crate::utils::math::NumberExt;
 
@@ -15,6 +14,7 @@ mod commands;
 mod features;
 
 pub use chip::*;
+pub use features::*;
 
 /// A flash memory connected to the microcontroller through a SPI interface.
 ///
@@ -55,14 +55,26 @@ impl<Chip: FlashMemoryChip, Spi: SpiDevice<u8>> SpiFlashMemory<Chip, Spi>
 			return Ok(());
 		}
 
-		Command::<Chip>::WriteEnable.execute(&mut self.spi)?;
-
 		Self::cycle_pages(address, data.len() as u32, |parameters| {
-			Command::ProgramLoad::<Chip> {
-				column_address: parameters.column_address,
-				input: &data[parameters.data_range.clone()],
+			Command::<Chip>::WriteEnable.execute(&mut self.spi)?;
+
+			if parameters.column_address == ColumnAddress::new(0, 0)
+				|| parameters.column_address == ColumnAddress::new(0, 1)
+			{
+				Command::ProgramLoad::<Chip> {
+					column_address: parameters.column_address,
+					input: &data[parameters.data_range],
+				}
+				.execute(&mut self.spi)?;
 			}
-			.execute(&mut self.spi)?;
+			else
+			{
+				Command::ProgramLoadRandomData::<Chip> {
+					column_address: parameters.column_address,
+					input: &data[parameters.data_range],
+				}
+				.execute(&mut self.spi)?;
+			}
 
 			self.wait_for_operation_to_finish()?;
 
@@ -70,6 +82,8 @@ impl<Chip: FlashMemoryChip, Spi: SpiDevice<u8>> SpiFlashMemory<Chip, Spi>
 				row_address: parameters.row_address,
 			}
 			.execute(&mut self.spi)?;
+
+			self.wait_for_operation_to_finish()?;
 
 			Ok(())
 		})?;
@@ -150,7 +164,7 @@ impl<Chip: FlashMemoryChip, Spi: SpiDevice<u8>> SpiFlashMemory<Chip, Spi>
 			}
 			.execute(&mut self.spi)?;
 
-			let row_address = RowAddress::from_memory_address(to_start_address + *parameters.data_range.start() as u32);
+			let row_address = RowAddress::from_memory_address(to_start_address + parameters.data_range.start as u32);
 			Command::ProgramExecute::<Chip> { row_address }.execute(&mut self.spi)?;
 
 			self.wait_for_operation_to_finish()?;
@@ -182,10 +196,10 @@ impl<Chip: FlashMemoryChip, Spi: SpiDevice<u8>> SpiFlashMemory<Chip, Spi>
 	pub fn erase_blocks(&mut self, block_indices_to_erase: RangeInclusive<u16>)
 		-> Result<(), <Spi as ErrorType>::Error>
 	{
-		Command::WriteEnable::<Chip>.execute(&mut self.spi)?;
-
 		for block_index in block_indices_to_erase
 		{
+			Command::WriteEnable::<Chip>.execute(&mut self.spi)?;
+
 			let row_address = RowAddress::from_memory_address(Chip::get_address_of_block_index(block_index));
 			Command::BlockErase::<Chip> { row_address }.execute(&mut self.spi)?;
 
@@ -262,7 +276,7 @@ impl<Chip: FlashMemoryChip, Spi: SpiDevice<u8>> SpiFlashMemory<Chip, Spi>
 	fn is_operation_in_progress(&mut self) -> Result<bool, <Spi as ErrorType>::Error>
 	{
 		let status = self.get_features(FeatureRegister::Status)?;
-		let is_in_progress = (status & 0b0000_0001) == 0;
+		let is_in_progress = (status & 0b0000_0001) == 1;
 		Ok(is_in_progress)
 	}
 
@@ -292,15 +306,20 @@ impl<Chip: FlashMemoryChip, Spi: SpiDevice<u8>> SpiFlashMemory<Chip, Spi>
 		mut callback: impl FnMut(CyclePageParameters<Chip>) -> Result<(), <Spi as ErrorType>::Error>,
 	) -> Result<(), <Spi as ErrorType>::Error>
 	{
+		if data_length == 0
+		{
+			return Ok(());
+		}
+
 		let start_page_index = address / Chip::PAGE_SIZE;
 		let mut column_address = (address - start_page_index * Chip::PAGE_SIZE) as u16;
 		let mut data_range_length = Chip::PAGE_SIZE as usize - column_address as usize;
-		let loops_to_do = data_length.ceil_div(Chip::PAGE_SIZE);
+		let mut data_range_start = 0;
+		let loops_to_do = (data_length + column_address as u32).ceil_div(Chip::PAGE_SIZE);
 		for i in 0..loops_to_do
 		{
 			let row_address = RowAddress::<Chip>::from_page_index(start_page_index + i);
 			let plane_index = row_address.get_plane_index();
-			let data_range_start = (i * Chip::PAGE_SIZE) as usize;
 
 			if i == loops_to_do - 1
 			{
@@ -308,12 +327,13 @@ impl<Chip: FlashMemoryChip, Spi: SpiDevice<u8>> SpiFlashMemory<Chip, Spi>
 			}
 
 			(callback)(CyclePageParameters {
-				data_range: data_range_start..=(data_range_start + data_range_length),
+				data_range: data_range_start..(data_range_start + data_range_length),
 				column_address: ColumnAddress::new(column_address, plane_index),
 				row_address,
 			})?;
 
 			column_address = 0;
+			data_range_start += data_range_length;
 			data_range_length = Chip::PAGE_SIZE as usize;
 		}
 
@@ -323,7 +343,7 @@ impl<Chip: FlashMemoryChip, Spi: SpiDevice<u8>> SpiFlashMemory<Chip, Spi>
 
 struct CyclePageParameters<Chip: FlashMemoryChip>
 {
-	data_range: RangeInclusive<usize>,
+	data_range: Range<usize>,
 	row_address: RowAddress<Chip>,
 	column_address: ColumnAddress,
 }
@@ -347,46 +367,8 @@ pub enum ValidateIdError<Spi: SpiDevice<u8>>
 #[cfg(test)]
 mod tests
 {
-	use embedded_hal::spi::{Error, ErrorKind, SpiDeviceRead, SpiDeviceWrite};
-
 	use super::{chip::MT29F2G01ABAGDWB, *};
-
-	#[derive(Debug)]
-	struct MockSpiError;
-	impl Error for MockSpiError
-	{
-		fn kind(&self) -> ErrorKind
-		{
-			ErrorKind::Other
-		}
-	}
-
-	struct MockSpi;
-	impl ErrorType for MockSpi
-	{
-		type Error = MockSpiError;
-	}
-	impl SpiDeviceWrite for MockSpi
-	{
-		fn write_transaction(&mut self, _: &[&[u8]]) -> Result<(), Self::Error>
-		{
-			panic!()
-		}
-	}
-	impl SpiDeviceRead for MockSpi
-	{
-		fn read_transaction(&mut self, _: &mut [&mut [u8]]) -> Result<(), Self::Error>
-		{
-			panic!()
-		}
-	}
-	impl SpiDevice<u8> for MockSpi
-	{
-		fn transaction(&mut self, _: &mut [embedded_hal::spi::Operation<'_, u8>]) -> Result<(), Self::Error>
-		{
-			panic!()
-		}
-	}
+	use crate::printer::components::mock::{MockError, MockSpi};
 
 	#[test]
 	fn cycle_zero_pages()
@@ -412,7 +394,7 @@ mod tests
 					let row_address = (parameters.row_address.get_page_index()) as usize;
 					if cycled_pages[row_address]
 					{
-						Err(MockSpiError)
+						Err(MockError)
 					}
 					else
 					{

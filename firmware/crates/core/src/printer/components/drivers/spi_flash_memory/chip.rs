@@ -1,6 +1,6 @@
 use embedded_hal::spi::{ErrorType, Mode, SpiDevice, MODE_0};
 
-use super::{address::RowAddress, SpiFlashMemory};
+use super::{address::RowAddress, FeatureRegister, SpiFlashMemory};
 use crate::utils::measurement::frequency::Frequency;
 
 /// A type that represents a [`flash memory chip`](https://en.wikipedia.org/wiki/Flash_memory).
@@ -26,6 +26,11 @@ pub trait FlashMemoryChip
 
 	const MANUFACTURER_ID: u8;
 	const DEVICE_ID: u8;
+
+	fn initialize<Spi: SpiDevice<u8>>(
+		spi_flash_memory: &mut SpiFlashMemory<Self, Spi>,
+	) -> Result<(), <Spi as ErrorType>::Error>
+	where Self: Sized;
 
 	/// Check if the block at the provided `block_index` in the provided `spi_flash_memory` contains a bad block mark.
 	///
@@ -67,6 +72,7 @@ impl<Chip: FlashMemoryChip> FlashMemoryChipExt for Chip {}
 /// 2Gbit 3.3V NAND SPI flash memory chip ([datasheet]).
 ///
 /// [datasheet]: <https://datasheet.lcsc.com/lcsc/1912111437_Micron-Tech-MT29F2G01ABAGDWB-IT-G_C410863.pdf>
+#[derive(Clone, PartialEq, Eq, Debug)]
 pub struct MT29F2G01ABAGDWB;
 impl FlashMemoryChip for MT29F2G01ABAGDWB
 {
@@ -82,6 +88,18 @@ impl FlashMemoryChip for MT29F2G01ABAGDWB
 
 	const MANUFACTURER_ID: u8 = 0x2C;
 	const DEVICE_ID: u8 = 0x24;
+
+	fn initialize<Spi: SpiDevice<u8>>(
+		spi_flash_memory: &mut SpiFlashMemory<Self, Spi>,
+	) -> Result<(), <Spi as ErrorType>::Error>
+	where Self: Sized
+	{
+		spi_flash_memory.reset()?;
+		// This is required to remove the block protection which is enabled by default (check page 38 of the datasheet).
+		spi_flash_memory.set_features(FeatureRegister::BlockLock, 0x00)?;
+
+		Ok(())
+	}
 
 	fn contains_bad_block_mark<Spi: SpiDevice<u8>>(
 		block_index: u16, spi_flash_memory: &mut SpiFlashMemory<Self, Spi>,

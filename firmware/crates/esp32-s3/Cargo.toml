@@ -4,8 +4,11 @@ version = "0.1.0"
 authors = ["AngeloCipriani <angelo13cipriani.03@gmail.com>"]
 edition = "2021"
 resolver = "2"
-rust-version = "1.66"
+rust-version = "1.72"
 description = "ESP32-S3 specific code for the 3D printer's firmware"
+
+[package.metadata.espflash]
+partition_table = "partitions.csv" # Supports CSV and binary formats
 
 [profile.release]
 opt-level = "s"
@@ -16,7 +19,7 @@ opt-level = "z"
 
 [features]
 
-default = ["std", "hal", "esp-idf-sys/native"]
+default = ["std", "hal", "esp-idf-sys/native", "alloc", "nightly"]
 
 
 pio = ["esp-idf-sys/pio"]
@@ -26,16 +29,18 @@ std = ["alloc", "esp-idf-sys/std", "esp-idf-sys/binstart", "embedded-svc?/std", 
 alloc = ["embedded-svc?/alloc", "esp-idf-hal?/alloc", "esp-idf-svc?/alloc"]
 nightly = ["embedded-svc?/nightly", "esp-idf-svc?/nightly"] # Future: "esp-idf-hal?/nightly"
 experimental = ["embedded-svc?/experimental", "esp-idf-svc?/experimental"]
-embassy = ["esp-idf-hal?/embassy-sync", "esp-idf-hal?/critical-section", "esp-idf-hal?/edge-executor", "esp-idf-svc?/embassy-time-driver", "esp-idf-svc?/embassy-time-isr-queue"]
+embassy = ["esp-idf-hal?/embassy-sync", "esp-idf-hal?/critical-section", "esp-idf-svc?/embassy-time-driver", "esp-idf-svc?/embassy-time-isr-queue"]
 
 [dependencies]
 log = { version = "0.4.17", default-features = false }
 esp-idf-sys = { version = "0.33", default-features = false }
-esp-idf-hal = { version = "0.41", optional = true, default-features = false }
-esp-idf-svc = { version = "0.46", optional = true, default-features = false }
-embedded-svc = { version = "0.25", optional = true, default-features = false }
+esp-idf-hal = { version = "0.42.4", optional = true, default-features = false }
+esp-idf-svc = { version = "0.47.2", optional = true, default-features = false }
+embedded-svc = { version = "0.26", optional = true, default-features = false }
 
 firmware-core = { path = "../core" }
+
+enumset = "1.1.2"
 
 [build-dependencies]
 embuild = "0.31.2"

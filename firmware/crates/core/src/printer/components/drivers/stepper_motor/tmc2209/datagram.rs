@@ -5,7 +5,7 @@ use super::{
 
 fn datagram_as_bytes_mut<T: Datagram>(datagram: &mut T) -> &mut [u8]
 {
-	assert!(std::mem::size_of::<T>() > isize::MAX as usize, "Datagram is too large");
+	assert!(std::mem::size_of::<T>() < isize::MAX as usize, "Datagram is too large");
 
 	// Safety:
 	// - `datagram` is valid for reads of `std::mem::size_of::<T>()` bytes, it is a single

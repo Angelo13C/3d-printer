@@ -1,3 +1,5 @@
+use std::fmt::Debug;
+
 /// Type that can be used as an [`endstop`].
 ///
 /// [`endstop`]: <https://reprap.org/wiki/Endstop>
@@ -5,7 +7,7 @@ pub trait Endstop
 {
 	type IsEndReachedError;
 	type OnEndReachedError;
-	type HomingError;
+	type HomingError: Debug;
 
 	/// Check if the endstop is currently triggered or not.
 	///
@@ -17,7 +19,8 @@ pub trait Endstop
 	///
 	/// # Safety
 	/// The `callback` will be called in an ISR context.
-	unsafe fn on_end_reached(&mut self, callback: impl FnMut() + 'static) -> Result<(), Self::OnEndReachedError>;
+	unsafe fn on_end_reached(&mut self, callback: impl FnMut() + Send + 'static)
+		-> Result<(), Self::OnEndReachedError>;
 
 	/// Prepare the endstop for homing. Some types of endstop may not require a preparation so there's a
 	/// default blank implementation, but others like a probe with the `BLTouch` sensor do.
@@ -59,7 +62,7 @@ pub trait Endstop
 #[derive(Default)]
 pub struct ManualEndstop
 {
-	callback: Option<Box<dyn FnMut()>>,
+	callback: Option<Box<dyn FnMut() + Send>>,
 	is_triggered: bool,
 }
 impl ManualEndstop
@@ -127,7 +130,8 @@ impl Endstop for ManualEndstop
 	/// # Safety
 	/// The callback is actually not called in an ISR context, but it's triggered manually by the user
 	/// (by calling [`ManualEndstop::trigger`]). So calling this function is always safe.
-	unsafe fn on_end_reached(&mut self, callback: impl FnMut() + 'static) -> Result<(), Self::OnEndReachedError>
+	unsafe fn on_end_reached(&mut self, callback: impl FnMut() + Send + 'static)
+		-> Result<(), Self::OnEndReachedError>
 	{
 		self.callback = Some(Box::new(callback));
 

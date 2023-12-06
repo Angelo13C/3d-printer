@@ -8,8 +8,8 @@ use crate::utils::measurement::frequency::Frequency;
 /// [`call some callback you provide when a certain time is reached`]: `Self::on_alarm`
 pub trait Timer
 {
-	type Error;
-	type AdditionalFunctionality: TimerAdditionalFunctionality;
+	type Error: Debug;
+	type AdditionalFunctionality: TimerAdditionalFunctionality + Send;
 
 	/// Returns a [`Self::AdditionalFunctionality`] instance that can be used to get some additional timer
 	/// functionality (like setting the alarm time or getting the time kept by the timer).
@@ -27,7 +27,7 @@ pub trait Timer
 	///
 	/// # Safety
 	/// The `callback` will be called in an ISR context.
-	unsafe fn on_alarm(&mut self, callback: impl FnMut() + 'static) -> Result<(), Self::Error>;
+	unsafe fn on_alarm(&mut self, callback: impl FnMut() + Send + 'static) -> Result<(), Self::Error>;
 
 	/// Enable or disable the timer based on the provided `enable` variable.
 	///
