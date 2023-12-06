@@ -1426,7 +1426,7 @@
       (property "Value" "StepperMotor_Connector" (at 0 -7.62 0)
         (effects (font (size 1.27 1.27)))
       )
-      (property "Footprint" "Connector_JST:JST_PH_B4B-PH-K_1x04_P2.00mm_Vertical" (at -1.27 -11.43 0)
+      (property "Footprint" "Connector_JST:JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical" (at -1.27 -11.43 0)
         (effects (font (size 1.27 1.27)) hide)
       )
       (property "Datasheet" "~" (at 0 0 0)
@@ -5436,8 +5436,8 @@
     (property "Datasheet" "~" (at 378.46 179.07 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid 62f40244-2e03-4798-8720-8785861057b7))
-    (pin "2" (uuid 0b443df6-1816-4b36-b0ba-255ac6396962))
+    (pin "1" (uuid 25056120-19f0-41a2-b321-ff22091caf0f))
+    (pin "2" (uuid 36f57fb5-e477-46c5-b64d-4c8a02d9df49))
     (instances
       (project "controller"
         (path "/b72cfb6e-763f-4aec-88af-02f682ab9e2d"
@@ -5616,8 +5616,8 @@
     (property "Datasheet" "~" (at 367.03 196.85 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid d64c5aae-757d-4d42-8a15-324df9fef920))
-    (pin "2" (uuid 460b8804-e7fd-41dc-ac4f-56c40824b78e))
+    (pin "1" (uuid 60083846-0694-4577-b86c-50e99f2327ee))
+    (pin "2" (uuid c7ed9a47-e3d0-4ef2-91d0-1e1b7865bc21))
     (instances
       (project "controller"
         (path "/b72cfb6e-763f-4aec-88af-02f682ab9e2d"
@@ -5748,7 +5748,7 @@
     (property "Value" "Motor_E_Connector" (at 165.1 255.27 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
-    (property "Footprint" "Connector_JST:JST_PH_B4B-PH-K_1x04_P2.00mm_Vertical" (at 161.29 264.16 0)
+    (property "Footprint" "Connector_JST:JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical" (at 161.29 264.16 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Datasheet" "~" (at 162.56 252.73 0)
@@ -7592,7 +7592,7 @@
     (property "Value" "Motor_Z_Connector" (at 82.55 255.27 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
-    (property "Footprint" "Connector_JST:JST_PH_B4B-PH-K_1x04_P2.00mm_Vertical" (at 78.74 264.16 0)
+    (property "Footprint" "Connector_JST:JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical" (at 78.74 264.16 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Datasheet" "~" (at 80.01 252.73 0)
@@ -7748,7 +7748,7 @@
     (property "Value" "Motor_A_Connector" (at 83.82 199.39 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
-    (property "Footprint" "Connector_JST:JST_PH_B4B-PH-K_1x04_P2.00mm_Vertical" (at 80.01 208.28 0)
+    (property "Footprint" "Connector_JST:JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical" (at 80.01 208.28 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Datasheet" "~" (at 81.28 196.85 0)
@@ -8311,7 +8311,7 @@
     (property "Value" "Motor_B_Connector" (at 163.83 199.39 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
-    (property "Footprint" "Connector_JST:JST_PH_B4B-PH-K_1x04_P2.00mm_Vertical" (at 160.02 208.28 0)
+    (property "Footprint" "Connector_JST:JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical" (at 160.02 208.28 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Datasheet" "~" (at 161.29 196.85 0)
@@ -8371,8 +8371,8 @@
     (property "Datasheet" "~" (at 361.95 189.23 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid df675b2a-a811-43b7-8503-498b92a21559))
-    (pin "2" (uuid 1c77bcb5-bead-4b2c-9151-47c9ea0c3ca5))
+    (pin "1" (uuid 58e5455c-e9b8-4ba4-bb1f-7fe38448ea45))
+    (pin "2" (uuid 49053111-537b-45da-9edc-885c01b8badf))
     (instances
       (project "controller"
         (path "/b72cfb6e-763f-4aec-88af-02f682ab9e2d"
@@ -8929,7 +8929,7 @@
     (property "Value" "Hotend_Fan_Connector" (at 294.64 170.18 90)
       (effects (font (size 1.27 1.27)) (justify left))
     )
-    (property "Footprint" "Connector_Molex:Molex_Micro-Latch_53253-0370_1x03_P2.00mm_Vertical" (at 299.72 168.91 0)
+    (property "Footprint" "Connector_Molex:Molex_KK-254_AE-6410-03A_1x03_P2.54mm_Vertical" (at 299.72 168.91 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Datasheet" "~" (at 299.72 168.91 0)

@@ -1654,7 +1654,7 @@
     (property "Value" "StepperMotor_Connector" (at 0 -7.62 0)
       (effects (font (size 1.27 1.27)))
     )
-    (property "Footprint" "Connector_JST:JST_PH_B4B-PH-K_1x04_P2.00mm_Vertical" (at -1.27 -11.43 0)
+    (property "Footprint" "Connector_JST:JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical" (at -1.27 -11.43 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Datasheet" "~" (at 0 0 0)
