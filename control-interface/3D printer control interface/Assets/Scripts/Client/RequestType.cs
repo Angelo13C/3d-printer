@@ -11,6 +11,7 @@ namespace Client
         GetPrintStatus,
         PauseOrResume,
         PrinterState,
+        Move,
         ListGCodeCommandsInMemory,
         SendGCodeCommands
     }
@@ -28,6 +29,7 @@ namespace Client
                 case RequestType.GetPrintStatus: return "print-status";
                 case RequestType.PauseOrResume: return "pause-or-resume";
                 case RequestType.PrinterState: return "printer-state";
+                case RequestType.Move: return "move";
                 case RequestType.ListGCodeCommandsInMemory: return "list-gcode-commands-in-memory";
                 case RequestType.SendGCodeCommands: return "send-gcode-commands";
                 default: throw new NotImplementedException();
