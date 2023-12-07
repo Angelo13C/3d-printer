@@ -21,7 +21,7 @@ _Tabella con i vari materiali stampabili e le loro proprietà_
 Gli oggetti 3D vengono stampati strato per strato: ad esempio per riprodurre un cubo vengono stampati tanti quadrati uno sopra l'altro.
 
 Il filamento va nell'estrusore che è un componente con un motore e degli ingranaggi. Quando il motore è acceso, il filo viene spinto verso il basso, fino a quando non arriva nell'hotend.
-L'hotend contiene un filo elettrico che si scalda e gli fa raggiungere la temperatura di 200/250/300 gradi. La plastica si fonde e fuoriesce dall'ugello.
+L'hotend contiene un collegamento elettrico che si scalda e gli fa raggiungere la temperatura di 200/250/300 gradi. La plastica si fonde e fuoriesce dall'ugello.
 
 ![Estrusore + Hotend](https://github.com/Angelo13C/3d-printer/assets/55251189/eea26bc2-ab4b-49b6-a289-87d96defe6b0)
 
