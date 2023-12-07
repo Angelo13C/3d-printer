@@ -25,13 +25,14 @@ L'hotend contiene un collegamento elettrico che si scalda e gli fa raggiungere l
 
 ![Estrusore + Hotend](https://github.com/Angelo13C/3d-printer/assets/55251189/eea26bc2-ab4b-49b6-a289-87d96defe6b0)
 
-Per stampare un cubo, come detto prima, c'è bisogno che la plastica fuoriuscita componga la forma di un quadrato, e per fare ciò l'hotend si deve spostare nel frattempo che il
-filamento viene estruso. Questo viene fatto grazie a 2 motori, uno per ogni asse che grazie ad un sistema di trasmissione con delle cinghie spostano il carrello su cui c'è l'hotend.
+Una volta fuoriuscito dall'ugello, il materiale si solidifica anche grazie a delle ventole che vengono puntate su di esso.
+
+Per stampare un cubo, come detto prima, c'è bisogno che la plastica fuoriuscita componga la forma di un quadrato, e per fare ciò l'hotend si deve spostare nel frattempo che il filamento viene estruso. Questo viene fatto grazie a 2 motori, uno per ogni asse che grazie ad un sistema di trasmissione con delle cinghie spostano il carrello su cui c'è l'hotend.
 
 ![image](https://github.com/Angelo13C/3d-printer/assets/55251189/f4f3208a-aa6d-457a-a4f9-05c478058811)
 _Uno dei 2 motori (l'altro è sfocato in lontananza) della stampante che sto costruendo_
 
-Una volta che uno strato viene completato, il letto si abbassa un po' grazie ad un altro motore che è in basso alla macchina e così si possono stampare tutti gli strati.
+Una volta che uno strato viene completato, il letto (che è la superficie base su cui viene stampato l'oggetto) si abbassa un po' grazie ad un altro motore che è in basso alla macchina e così si possono stampare tutti gli strati.
 
 ![Letto](https://github.com/Angelo13C/3d-printer/assets/55251189/4e1a503e-8439-48c8-b5e6-6eea154cb199)
 _Motore che fa spostare il letto (in questa immagine manca la cinghia che collega il motore alle pulegge)_
