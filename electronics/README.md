@@ -11,12 +11,16 @@ microcontroller, the [MT29F2G01ABAGDWB-IT](https://datasheet.lcsc.com/lcsc/19121
 ## Schematic
 This is the electrical schematic of the board:
 
-![Schematic](https://github.com/Angelo13C/3d-printer/assets/55251189/a8f42ddd-891c-41f4-b030-fd985ccf64f9)
+![Schematic](https://github.com/Angelo13C/3d-printer/assets/55251189/c5a384e0-25ff-420f-afa4-b0682ca9cd4f)
 
 ## PCB
-_Still under development..._
+The PCB has 4 layers (PWR/SIGNAL, GND, GND, PWR/SIGNAL), this is an image of the top layer:
+
+![image](https://github.com/Angelo13C/3d-printer/assets/55251189/8515a8d1-d97e-4070-8901-0ebee8fbcdfe)
 
 ## Possible improvements
 Some ideas for further improvement are:
 - Add some little LEDs on the board to show that the power rails are good.
 - Use an external Sigma-Delta ADC to improve the accuracy of the temperatures' readings (or calibrate the microcontroller's internal ADC).
+- Put the antenna area of the ESP32 on the border of the PCB, to improve the antenna's performance.
+- Change some connectors.
