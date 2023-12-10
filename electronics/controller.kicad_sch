@@ -8,6 +8,7 @@
     (title "ESP32-S3 3D printer controller")
     (date "2023-10-15")
     (rev "1.0")
+    (company "Angelo Cipriani")
   )
 
   (lib_symbols
