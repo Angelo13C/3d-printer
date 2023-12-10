@@ -1,4 +1,6 @@
 # 3D printer
+![Rust workflow](https://github.com/Angelo13C/3d-printer/actions/workflows/rust.yml/badge.svg)
+
 ![Render](https://github.com/Angelo13C/3d-printer/assets/55251189/2a444c39-bc82-4af8-932b-83d232937848)
 
 I am designing and building a CoreXY 3D printer (all the aspects of the machine: the mechanics, the firmware, the electronics and the control interface). And I've decided to make everything open source!
@@ -16,4 +18,6 @@ This is a table of contents:
 [Here I've made a simplified explanation of how a 3D printer works](HOW_A_3D_PRINTER_WORKS.md).
 
 ## Contributions
-I would be really glad if you could give me some tips on how to improve this project!
+I would be really glad if you could give me some tips on how to improve this project (make a pull request!)
+
+_By the way, I am not a native English speaker. I am sorry if there is any grammar error 😅_
