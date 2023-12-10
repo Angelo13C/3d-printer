@@ -16,4 +16,6 @@ This is a table of contents:
 [Here I've made a simplified explanation of how a 3D printer works](HOW_A_3D_PRINTER_WORKS.md).
 
 ## Contributions
-I would be really glad if you could give me some tips on how to improve this project!
+I would be really glad if you could give me some tips on how to improve this project (make a pull request!)
+
+_By the way, I am not a native English speaker. I am sorry if there is any grammar error 😅_
