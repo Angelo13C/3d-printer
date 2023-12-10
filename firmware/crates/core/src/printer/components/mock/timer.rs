@@ -44,4 +44,14 @@ impl TimerAdditionalFunctionality for MockTimerAdditionalFunctionality
 	{
 		todo!()
 	}
+
+	fn set_alarm_in_ticks(&mut self, ticks: u64) -> Result<(), Self::Error>
+	{
+		todo!()
+	}
+
+	fn get_time_in_ticks(&self) -> Result<u64, Self::Error>
+	{
+		todo!()
+	}
 }
