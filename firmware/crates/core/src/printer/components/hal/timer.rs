@@ -44,7 +44,26 @@ pub trait TimerAdditionalFunctionality: 'static
 	///
 	/// [`current time`]: `Self::get_time`
 	fn set_alarm(&mut self, time: Duration) -> Result<(), Self::Error>;
+	fn set_alarm_in_ticks(&mut self, ticks: u64) -> Result<(), Self::Error>;
 
 	/// Get the current time kept by the timer.
 	fn get_time(&self) -> Result<Duration, Self::Error>;
+	fn get_time_in_ticks(&self) -> Result<u64, Self::Error>;
+}
+
+pub const fn ticks_to_duration(ticks: u64, clock_frequency: Frequency) -> Duration
+{
+	let clock_frequency = clock_frequency.as_hertz() as u64;
+	let whole_seconds = ticks / clock_frequency;
+	let subsec_counter = ticks - (whole_seconds * clock_frequency);
+	let nanoseconds = subsec_counter * Duration::from_secs(1).as_nanos() as u64 / clock_frequency;
+	Duration::new(whole_seconds, nanoseconds as u32)
+}
+
+pub const fn duration_to_counter(duration: Duration, clock_frequency: Frequency) -> u64
+{
+	let clock_frequency = clock_frequency.as_hertz() as u64;
+	let mut counter = duration.as_secs() * clock_frequency;
+	counter += (duration.subsec_nanos() as u64 * clock_frequency) / Duration::from_secs(1).as_nanos() as u64;
+	counter
 }

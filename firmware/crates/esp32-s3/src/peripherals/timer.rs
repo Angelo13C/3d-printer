@@ -98,15 +98,20 @@ impl TimerInInterruptTrait for TimerInInterrupt
 	fn set_alarm(&mut self, alarm_time: Duration) -> Result<(), Self::Error>
 	{
 		let value = self.duration_to_counter(alarm_time);
+		self.set_alarm_in_ticks(value)
+	}
+
+	fn set_alarm_in_ticks(&mut self, ticks: u64) -> Result<(), Self::Error>
+	{
 		if esp_idf_hal::interrupt::active()
 		{
 			unsafe {
-				esp_idf_sys::timer_group_set_alarm_value_in_isr(self.group, self.index, value);
+				esp_idf_sys::timer_group_set_alarm_value_in_isr(self.group, self.index, ticks);
 			}
 		}
 		else
 		{
-			esp!(unsafe { esp_idf_sys::timer_set_alarm_value(self.group, self.index, value) })?;
+			esp!(unsafe { esp_idf_sys::timer_set_alarm_value(self.group, self.index, ticks) })?;
 		}
 
 		Ok(())
@@ -114,6 +119,10 @@ impl TimerInInterruptTrait for TimerInInterrupt
 
 	fn get_time(&self) -> Result<Duration, Self::Error>
 	{
+		Ok(self.counter_to_duration(self.get_time_in_ticks()?))
+	}
+
+	fn get_time_in_ticks(&self) -> Result<u64, Self::Error> {
 		let value = if esp_idf_hal::interrupt::active()
 		{
 			unsafe { esp_idf_sys::timer_group_get_counter_value_in_isr(self.group, self.index) }
@@ -127,7 +136,7 @@ impl TimerInInterruptTrait for TimerInInterrupt
 			value
 		};
 
-		Ok(self.counter_to_duration(value))
+		Ok(value)
 	}
 }
 
