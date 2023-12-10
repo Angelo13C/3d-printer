@@ -1,4 +1,8 @@
 # Firmware
+![Rust workflow](https://github.com/Angelo13C/3d-printer/actions/workflows/rust.yml/badge.svg)
+[![License](https://img.shields.io/badge/license-GPL_3.0-blue.svg)](LICENSE)
+[![Docs](https://github.com/Angelo13C/3d-printer/blob/master/docs/badge.svg)](https://angelo13c.github.io/3d-printer/)
+
 This is the software that runs on top of the electrical control board.
 
 This project is subdivided in 3 parts:
