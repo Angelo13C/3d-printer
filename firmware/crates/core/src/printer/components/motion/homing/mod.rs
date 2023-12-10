@@ -23,7 +23,7 @@ pub enum HomingProcedure
 impl HomingProcedure
 {
 	/// Movement speed at which the printer is homed.
-	const MOVE_SPEED_MM_MINUTE: f32 = 40. * 60.;
+	const MOVE_SPEED_MM_SECOND: f32 = 40.;
 
 	/// Starts the homing procedure, by first homing the X axis.
 	pub fn start_homing<const N: usize, K: Kinematics>(
@@ -110,7 +110,7 @@ impl HomingProcedure
 		planner.plan_move::<K>(
 			axis.target_position(),
 			(calculate_steps_per_mm)(),
-			Self::MOVE_SPEED_MM_MINUTE,
+			Self::MOVE_SPEED_MM_SECOND,
 		)?;
 		planner.set_flags_on_last_added_block(enum_set!(Flag::Homing));
 		planner.mark_last_added_move_as_ready_to_go();
