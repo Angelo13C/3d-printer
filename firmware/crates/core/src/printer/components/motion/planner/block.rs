@@ -4,6 +4,7 @@ use enumset::EnumSet;
 /// the move actually happen.
 ///
 /// [`StepperMotorsTicker`]: super::StepperMotorsTicker
+#[derive(Debug)]
 pub struct Block<const N: usize>
 {
 	// Fields used by the bresenham algorithm for tracing the line
@@ -57,7 +58,7 @@ impl<const N: usize> Default for Block<N>
 	}
 }
 
-#[derive(enumset::EnumSetType)]
+#[derive(enumset::EnumSetType, Debug)]
 pub enum Flag
 {
 	/// An homing procedure move.

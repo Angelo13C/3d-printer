@@ -1,9 +1,9 @@
-use std::fmt::Debug;
+use std::{fmt::Debug, net::IpAddr};
 
 #[cfg(feature = "usb")]
 use embedded_hal::digital::InputPin;
 use embedded_hal::{digital::OutputPin, spi::SpiDevice};
-use embedded_svc::wifi::asynch::Wifi;
+use embedded_svc::{ota::Ota, wifi::asynch::Wifi};
 #[cfg(feature = "usb")]
 use usb_device::class_prelude::UsbBus;
 
@@ -14,6 +14,7 @@ use super::{
 		pwm::PwmPin,
 		timer::Timer,
 		uart::Uart,
+		watchdog::WatchdogCreator,
 	},
 	motion::{bed_leveling::ZAxisProbe, homing::endstop::Endstop, kinematics::Kinematics},
 	time::SystemTime,
@@ -22,6 +23,8 @@ use crate::printer::communication::communicator::wifi::HttpServer;
 
 pub trait Peripherals
 {
+	type WatchdogCreator: WatchdogCreator;
+
 	type Kinematics: Kinematics;
 	type StepperTickerTimer: Timer;
 
@@ -59,10 +62,14 @@ pub trait Peripherals
 	type Server: HttpServer + 'static;
 	type ServerError: Debug;
 
+	type Ota: Ota + Send + 'static;
+
 	#[cfg(feature = "usb")]
 	type UsbSensePin: InputPin + Send + 'static;
 	#[cfg(feature = "usb")]
 	type UsbBus: UsbBus + Send + 'static;
+
+	fn take_watchdog_creator(&mut self) -> Option<Self::WatchdogCreator>;
 
 	fn take_kinematics(&mut self) -> Option<Self::Kinematics>;
 	fn take_stepper_ticker_timer(&mut self) -> Option<Self::StepperTickerTimer>;
@@ -98,7 +105,12 @@ pub trait Peripherals
 	fn take_system_time(&mut self) -> Option<Self::SystemTime>;
 
 	fn take_wifi_driver(&mut self) -> Option<Self::WifiDriver>;
+	fn get_ip_address_from_wifi_driver_function() -> fn(&Self::WifiDriver) -> Option<IpAddr>;
 	fn take_http_server(&mut self) -> Option<Box<dyn FnOnce() -> Result<Self::Server, Self::ServerError> + Send>>;
+
+	fn take_ota(&mut self) -> Option<Self::Ota>;
+	/// Returns a function pointer that reboots the microcontroller.
+	fn reboot_fn() -> fn();
 
 	#[cfg(feature = "usb")]
 	fn take_usb_sense_pin(&mut self) -> Option<Self::UsbSensePin>;

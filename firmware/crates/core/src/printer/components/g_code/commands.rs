@@ -16,7 +16,7 @@ use crate::{
 			adc::{Adc, AdcPin},
 			pwm::PwmPin,
 		},
-		motion::axes::Axis,
+		motion::{axes::Axis, planner::MoveId},
 		temperature::TemperaturePidController,
 		Peripherals, Printer3DComponents,
 	},
@@ -29,7 +29,7 @@ use crate::{
 	},
 };
 
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq, Default)]
 pub struct G0
 {
 	pub x: Param<identifier::X, Distance>,
@@ -37,14 +37,27 @@ pub struct G0
 	pub z: Param<identifier::Z, Distance>,
 	pub e: Param<identifier::E, Distance>,
 	pub feed_rate: Param<identifier::F, f32>,
+
+	pub move_id: MoveId,
+	pub is_move_ready_to_go: bool,
 }
 impl<P: Peripherals> GCodeCommand<P> for G0
 {
 	fn execute(&mut self, printer_components: &mut Printer3DComponents<P>, _: &mut GCodeExecuter<P>) -> Status
 	{
-		printer_components.motion_controller.mark_last_move_as_ready_to_go();
+		if !self.is_move_ready_to_go
+		{
+			printer_components.motion_controller.mark_last_move_as_ready_to_go();
+			self.is_move_ready_to_go = true;
+		}
 
-		Status::Finished
+		match printer_components
+			.motion_controller
+			.has_move_been_executed(self.move_id)
+		{
+			true => Status::Finished,
+			false => Status::Working,
+		}
 	}
 
 	fn prepare(
@@ -66,13 +79,18 @@ impl<P: Peripherals> GCodeCommand<P> for G0
 			self.feed_rate.value,
 		)
 		{
-			Ok(_) => Status::Finished,
+			Ok(move_id) =>
+			{
+				self.move_id = move_id;
+
+				Status::Finished
+			},
 			Err(_) => Status::Working,
 		}
 	}
 }
 
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq, Default)]
 pub struct G1
 {
 	pub x: Param<identifier::X, Distance>,
@@ -80,6 +98,9 @@ pub struct G1
 	pub z: Param<identifier::Z, Distance>,
 	pub e: Param<identifier::E, Distance>,
 	pub feed_rate: Param<identifier::F, f32>,
+
+	pub move_id: MoveId,
+	pub is_move_ready_to_go: bool,
 }
 impl<P: Peripherals> GCodeCommand<P> for G1
 {
@@ -87,32 +108,47 @@ impl<P: Peripherals> GCodeCommand<P> for G1
 		&mut self, printer_components: &mut Printer3DComponents<P>, g_code_executer: &mut GCodeExecuter<P>,
 	) -> Status
 	{
-		G0 {
+		let status = G0 {
 			x: self.x,
 			y: self.y,
 			z: self.z,
 			e: self.e,
 			feed_rate: self.feed_rate,
+
+			move_id: self.move_id,
+			is_move_ready_to_go: self.is_move_ready_to_go,
 		}
-		.execute(printer_components, g_code_executer)
+		.execute(printer_components, g_code_executer);
+
+		self.is_move_ready_to_go = false;
+
+		status
 	}
 
 	fn prepare(
 		&mut self, printer_components: &mut Printer3DComponents<P>, g_code_executer: &mut GCodeExecuter<P>,
 	) -> Status
 	{
-		G0 {
+		let mut g0 = G0 {
 			x: self.x,
 			y: self.y,
 			z: self.z,
 			e: self.e,
 			feed_rate: self.feed_rate,
-		}
-		.prepare(printer_components, g_code_executer)
+
+			move_id: MoveId::default(),
+			is_move_ready_to_go: false,
+		};
+
+		let status = g0.prepare(printer_components, g_code_executer);
+
+		self.move_id = g0.move_id;
+
+		status
 	}
 }
 
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq, Default)]
 pub struct G20;
 impl<P: Peripherals> GCodeCommand<P> for G20
 {
@@ -124,7 +160,7 @@ impl<P: Peripherals> GCodeCommand<P> for G20
 	}
 }
 
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq, Default)]
 pub struct G21;
 impl<P: Peripherals> GCodeCommand<P> for G21
 {
@@ -136,7 +172,7 @@ impl<P: Peripherals> GCodeCommand<P> for G21
 	}
 }
 
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq, Default)]
 pub struct G28
 {
 	pub x: Param<identifier::X, NoValue>,
@@ -156,7 +192,7 @@ impl<P: Peripherals> GCodeCommand<P> for G28
 }
 
 const DEFAULT_MEMORY_SLOT: usize = 0;
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq, Default)]
 /// TODO: Find a way to get the current position (because now I can't save it since I don't know how to retrieve it).
 pub struct G60
 {
@@ -175,7 +211,7 @@ impl<P: Peripherals> GCodeCommand<P> for G60
 	}
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Default)]
 pub struct G61
 {
 	pub axes:
@@ -189,6 +225,8 @@ impl<P: Peripherals> GCodeCommand<P> for G61
 		&mut self, printer_components: &mut Printer3DComponents<P>, g_code_executer: &mut GCodeExecuter<P>,
 	) -> Status
 	{
+		todo!("Check if the move has finished (with the MoveId returned by the planner), like G0 does");
+
 		let mut inner = |x: bool, y: bool, z: bool, e: bool| match g_code_executer
 			.get_saved_position(self.slot.value.unwrap_or(DEFAULT_MEMORY_SLOT))
 		{
@@ -228,7 +266,7 @@ impl<P: Peripherals> GCodeCommand<P> for G61
 	}
 }
 
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq, Default)]
 pub struct G90;
 impl<P: Peripherals> GCodeCommand<P> for G90
 {
@@ -240,7 +278,7 @@ impl<P: Peripherals> GCodeCommand<P> for G90
 	}
 }
 
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq, Default)]
 pub struct G91;
 impl<P: Peripherals> GCodeCommand<P> for G91
 {
@@ -252,7 +290,7 @@ impl<P: Peripherals> GCodeCommand<P> for G91
 	}
 }
 
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq, Default)]
 pub struct G92
 {
 	pub x: Param<identifier::X, Distance>,
@@ -277,11 +315,11 @@ impl<P: Peripherals> GCodeCommand<P> for G92
 	}
 }
 
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq, Default)]
 pub struct M82;
 impl<P: Peripherals> GCodeCommand<P> for M82
 {
-	fn execute(&mut self, _: &mut Printer3DComponents<P>, g_code_executer: &mut GCodeExecuter<P>) -> Status
+	fn prepare(&mut self, _: &mut Printer3DComponents<P>, g_code_executer: &mut GCodeExecuter<P>) -> Status
 	{
 		g_code_executer.set_extruder_position_mode(PositionMode::Absolute);
 
@@ -289,11 +327,11 @@ impl<P: Peripherals> GCodeCommand<P> for M82
 	}
 }
 
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq, Default)]
 pub struct M83;
 impl<P: Peripherals> GCodeCommand<P> for M83
 {
-	fn execute(&mut self, _: &mut Printer3DComponents<P>, g_code_executer: &mut GCodeExecuter<P>) -> Status
+	fn prepare(&mut self, _: &mut Printer3DComponents<P>, g_code_executer: &mut GCodeExecuter<P>) -> Status
 	{
 		g_code_executer.set_extruder_position_mode(PositionMode::Relative);
 
@@ -341,7 +379,7 @@ fn wait_for_target_temperature<CHP: PwmPin, TADC: Adc, TP: AdcPin<TADC>>(
 	}
 }
 
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq, Default)]
 pub struct M104
 {
 	pub target_temperature: Param<identifier::S, u16>,
@@ -357,7 +395,7 @@ impl<P: Peripherals> GCodeCommand<P> for M104
 	}
 }
 
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq, Default)]
 pub struct M109
 {
 	pub target_temperature_heating: Param<identifier::S, u16>,
@@ -386,7 +424,7 @@ impl<P: Peripherals> GCodeCommand<P> for M109
 	}
 }
 
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq, Default)]
 pub struct M140
 {
 	pub target_temperature: Param<identifier::S, u16>,
@@ -402,7 +440,7 @@ impl<P: Peripherals> GCodeCommand<P> for M140
 	}
 }
 
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq, Default)]
 pub struct M190
 {
 	pub target_temperature_heating: Param<identifier::S, u16>,
@@ -447,7 +485,7 @@ fn get_fan_with_index<P: Peripherals>(
 	}
 }
 
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq, Default)]
 pub struct M106
 {
 	pub fan_index: Param<identifier::P, u8>,
@@ -476,7 +514,7 @@ impl<P: Peripherals> GCodeCommand<P> for M106
 	}
 }
 
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq, Default)]
 pub struct M107
 {
 	pub fan_index: Param<identifier::P, u8>,

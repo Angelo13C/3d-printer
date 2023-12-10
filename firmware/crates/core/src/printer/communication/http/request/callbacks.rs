@@ -1,4 +1,8 @@
-use embedded_svc::http::server::{Connection, HandlerError, Request};
+use embedded_svc::{
+	http::server::{Connection, HandlerError, Request},
+	io::Write,
+	ota::OtaUpdate,
+};
 use serde::{Deserialize, Serialize};
 
 use crate::{
@@ -13,7 +17,7 @@ use crate::{
 	utils::mutex::MutexGuard,
 };
 
-const SER_BUFFER_SIZE: usize = 2048;
+const SER_BUFFER_SIZE: usize = super::STACK_SIZE / 3;
 
 macro_rules! deserialize_request {
 	(BUFFER_SIZE = $buffer_size: expr, CALLBACK = $callback_name: expr, $type: ty, $request: expr) => {{
@@ -40,6 +44,8 @@ pub fn list_files<C: Connection, P: Peripherals>(
 	mut request: Request<&mut C>, resources: Resources<P>,
 ) -> Result<(), HandlerError>
 {
+	log::info!("Start handling `list-files` HTTP request");
+
 	let mut resources = get_resources(&resources)?;
 	let _ = check_security(&mut request, &mut resources)?;
 
@@ -86,6 +92,8 @@ pub fn list_files<C: Connection, P: Peripherals>(
 		response
 	);
 
+	log::info!("Successfully handled `list-files` HTTP request");
+
 	Ok(())
 }
 
@@ -93,6 +101,8 @@ pub fn delete_file<C: Connection, P: Peripherals>(
 	mut request: Request<&mut C>, resources: Resources<P>,
 ) -> Result<(), HandlerError>
 {
+	log::info!("Start handling `delete-file` HTTP request");
+
 	let mut resources = get_resources(&resources)?;
 	let _ = check_security(&mut request, &mut resources)?;
 
@@ -111,6 +121,8 @@ pub fn delete_file<C: Connection, P: Peripherals>(
 		.delete_file(file_id)
 		.map_err(|_| HandlerError::new("Unable to delete a file from the file system"))?;
 
+	log::info!("Successfully handled `delete-file` HTTP request");
+
 	Ok(())
 }
 
@@ -118,6 +130,8 @@ pub fn print_file<C: Connection, P: Peripherals>(
 	mut request: Request<&mut C>, resources: Resources<P>,
 ) -> Result<(), HandlerError>
 {
+	log::info!("Start handling `print-file` HTTP request");
+
 	let mut resources = get_resources(&resources)?;
 	let _ = check_security(&mut request, &mut resources)?;
 
@@ -133,20 +147,65 @@ pub fn print_file<C: Connection, P: Peripherals>(
 	let current_time = resources.system_time.as_ref().map(|time| time.now());
 	resources.print_process.print_file(file_id, current_time);
 
+	log::info!("Successfully handled `print-file` HTTP request");
+
 	Ok(())
 }
 
 pub fn send_file<C: Connection, P: Peripherals>(
-	request: Request<&mut C>, resources: Resources<P>,
+	mut request: Request<&mut C>, resources: Resources<P>,
 ) -> Result<(), HandlerError>
 {
-	todo!()
+	log::info!("Start handling `send-file` HTTP request");
+
+	let mut resources = get_resources(&resources)?;
+	let _ = check_security(&mut request, &mut resources)?;
+
+	let file_name = request
+		.header("File-Name")
+		.ok_or(HandlerError::new("The request doesn't have a `File-Name` header"))?;
+	let file_length = request
+		.header("File-Length")
+		.ok_or(HandlerError::new("The request doesn't have a `File-Length` header"))?;
+	let file_length = file_length
+		.parse::<u32>()
+		.map_err(|_| HandlerError::new("The `File-Length` header is not a valid number"))?;
+
+	log::info!("Receive file `{}` of {} bytes", file_name, file_length);
+
+	let mut file_writer = resources
+		.file_system
+		.create_file(file_name, file_length)
+		.map_err(|error| HandlerError::new("Not enough space available in the flash memory"))?;
+
+	let mut buffer = [0; super::STACK_SIZE];
+	while let Ok(read_bytes) = request.read(&mut buffer)
+	{
+		if read_bytes == 0
+		{
+			break;
+		}
+
+		file_writer
+			.write_data(&mut resources.file_system, &buffer[0..read_bytes])
+			.map_err(|error| HandlerError::new(&format!("{:#?}", error)))?;
+	}
+
+	file_writer
+		.finish_writing(&mut resources.file_system)
+		.map_err(|error| HandlerError::new(&format!("{:#?}", error)))?;
+
+	log::info!("Successfully handled `send-file` HTTP request");
+
+	Ok(())
 }
 
 pub fn get_print_status<C: Connection, P: Peripherals>(
 	mut request: Request<&mut C>, resources: Resources<P>,
 ) -> Result<(), HandlerError>
 {
+	log::info!("Start handling `get-print-status` HTTP request");
+
 	let mut resources = get_resources(&resources)?;
 	let _ = check_security(&mut request, &mut resources)?;
 
@@ -209,6 +268,8 @@ pub fn get_print_status<C: Connection, P: Peripherals>(
 		response
 	);
 
+	log::info!("Successfully handled `get-print-status` HTTP request");
+
 	Ok(())
 }
 
@@ -216,20 +277,28 @@ pub fn pause_or_resume<C: Connection, P: Peripherals>(
 	mut request: Request<&mut C>, resources: Resources<P>,
 ) -> Result<(), HandlerError>
 {
-	let _ = check_security(&mut request, &mut resources.lock())?;
+	log::info!("Start handling `pause-or-resume` HTTP request");
+
+	let _ = check_security(&mut request, &mut get_resources(&resources)?)?;
 
 	pauser::toggle_pause();
 
 	let mut response = request.into_ok_response()?;
 	response.flush()?;
 
+	log::info!("Successfully handled `pause-or-resume` HTTP request");
+
 	Ok(())
 }
 
 pub fn printer_state<C: Connection, P: Peripherals>(
-	request: Request<&mut C>, _: Resources<P>,
+	mut request: Request<&mut C>, resources: Resources<P>,
 ) -> Result<(), HandlerError>
 {
+	log::info!("Start handling `printer-state` HTTP request");
+
+	let _ = check_security(&mut request, &mut resources.lock())?;
+
 	let mut response = request.into_ok_response()?;
 	send_response!(
 		BUFFER_SIZE = 400,
@@ -238,6 +307,8 @@ pub fn printer_state<C: Connection, P: Peripherals>(
 		response
 	);
 
+	log::info!("Successfully handled `printer-state` HTTP request");
+
 	Ok(())
 }
 
@@ -245,13 +316,68 @@ pub fn move_<C: Connection, P: Peripherals>(
 	request: Request<&mut C>, resources: Resources<P>,
 ) -> Result<(), HandlerError>
 {
+	log::info!("Start handling `move` HTTP request");
+
 	todo!()
+}
+
+pub fn ota_update<C: Connection, P: Peripherals>(
+	mut request: Request<&mut C>, resources: Resources<P>,
+) -> Result<(), HandlerError>
+{
+	log::info!("Start handling `ota-update` HTTP request");
+
+	let mut resources = get_resources(&resources)?;
+	let _ = check_security(&mut request, &mut resources)?;
+
+	let ota_length = request
+		.header("Content-Length")
+		.ok_or(HandlerError::new("The request doesn't have a `Content-Length` header"))?;
+	let ota_length = ota_length
+		.parse::<usize>()
+		.map_err(|_| HandlerError::new("The `Content-Length` header is not a valid number"))?;
+
+	log::info!("Receiving OTA update of {ota_length} bytes");
+
+	let mut update = resources
+		.ota_updater
+		.initiate_update(ota_length)
+		.map_err(|error| HandlerError::new(&format!("Initiate: {:#?}", error)))?;
+
+	let mut buffer = [0; super::STACK_SIZE];
+	while let Ok(read_bytes) = request.read(&mut buffer)
+	{
+		if read_bytes == 0
+		{
+			break;
+		}
+
+		match update.write(&buffer[0..read_bytes])
+		{
+			Ok(written_percentage) => log::info!("OTA update {written_percentage}"),
+			Err(error) =>
+			{
+				update.abort();
+				return Err(HandlerError::new(&format!("Write: {:#?}", error)));
+			},
+		}
+	}
+
+	update
+		.complete()
+		.map_err(|error| HandlerError::new(&format!("Complete: {:#?}", error)))?;
+
+	log::info!("Successfully handled `ota-update` HTTP request");
+
+	Ok(())
 }
 
 pub fn list_g_code_commands_in_memory<C: Connection, P: Peripherals>(
 	mut request: Request<&mut C>, resources: Resources<P>,
 ) -> Result<(), HandlerError>
 {
+	log::info!("Start handling `list-gcode-commands-in-memory` HTTP request");
+
 	let mut resources = get_resources(&resources)?;
 	let _ = check_security(&mut request, &mut resources)?;
 
@@ -294,6 +420,8 @@ pub fn list_g_code_commands_in_memory<C: Connection, P: Peripherals>(
 		response
 	);
 
+	log::info!("Successfully handled `list-gcode-commands-in-memory` HTTP request");
+
 	Ok(())
 }
 
@@ -301,6 +429,8 @@ pub fn send_g_code_commands<C: Connection, P: Peripherals>(
 	mut request: Request<&mut C>, resources: Resources<P>,
 ) -> Result<(), HandlerError>
 {
+	log::info!("Start handling `send-gcode-commands` HTTP request");
+
 	let mut resources = get_resources(&resources)?;
 	let _ = check_security(&mut request, &mut resources)?;
 
@@ -334,6 +464,8 @@ pub fn send_g_code_commands<C: Connection, P: Peripherals>(
 		.command_sender
 		.send_command(Command::AddGCodeCommandsToBuffer(commands))
 		.map_err(|_| HandlerError::new("Coudln't send a Command::AddGCodeCommandsToBuffer"))?;
+
+	log::info!("Successfully handled `send-gcode-commands` HTTP request");
 
 	Ok(())
 }

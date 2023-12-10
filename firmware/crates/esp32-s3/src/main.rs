@@ -15,6 +15,8 @@ fn main()
 	// Bind the log crate to the ESP Logging facilities
 	esp_idf_svc::log::EspLogger::initialize_default();
 
+	esp_idf_sys::esp!(unsafe { esp_idf_sys::esp_netif_init() }).unwrap();
+
 	let mut printer_3d = create_printer().unwrap();
 
 	loop
@@ -26,7 +28,7 @@ fn main()
 fn create_printer() -> Result<Printer3D<Peripherals>, CreatePrinterError>
 {
 	esp_idf_hal::task::thread::ThreadSpawnConfiguration {
-		name: Some(b"Communication thread"),
+		name: Some(b"Communication\0"),
 		stack_size: 10_000,
 		priority: 10,
 		inherit: false,

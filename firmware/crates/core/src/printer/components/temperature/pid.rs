@@ -130,8 +130,7 @@ impl<CHP: PwmPin, TADC: Adc, TP: AdcPin<TADC>> PidController<CHP, TADC, TP>
 	pub fn tick(&mut self, delta_time: f64, adc: &mut TADC) -> Result<(), TickError>
 	{
 		let current_temperature = self
-			.thermistor
-			.read_temperature(adc)
+			.get_current_temperature(adc)
 			.map_err(|_| TickError::CantReadTemperature)?;
 
 		let safety_errors =

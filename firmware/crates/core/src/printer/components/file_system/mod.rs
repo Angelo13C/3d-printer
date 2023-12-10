@@ -28,6 +28,8 @@ impl<Chip: FlashMemoryChip, Spi: SpiDevice<u8>> FileSystem<Chip, Spi>
 		mut spi_flash_memory: SpiFlashMemory<Chip, Spi>, regions_config: RegionsConfig,
 	) -> Result<Self, CreationError<Spi>>
 	{
+		Chip::initialize(&mut spi_flash_memory).map_err(CreationError::InitializeChip)?;
+
 		let metadatas_region = FilesMetadatasRegion::read_from_flash(&mut spi_flash_memory, &regions_config)
 			.map_err(CreationError::MetadatasRegion)?;
 		let files_region = FilesRegion;
@@ -139,6 +141,7 @@ pub enum DeleteFileError<Spi: SpiDevice<u8>>
 /// An error returned from [`FileSystem::new`].
 pub enum CreationError<Spi: SpiDevice<u8>>
 {
+	InitializeChip(<Spi as ErrorType>::Error),
 	MetadatasRegion(<Spi as ErrorType>::Error),
 }
 
@@ -149,6 +152,7 @@ impl<Spi: SpiDevice<u8>> Debug for CreationError<Spi>
 		match self
 		{
 			Self::MetadatasRegion(arg0) => f.debug_tuple("MetadatasRegion").field(arg0).finish(),
+			CreationError::InitializeChip(arg0) => f.debug_tuple("InitializeChip").field(arg0).finish(),
 		}
 	}
 }

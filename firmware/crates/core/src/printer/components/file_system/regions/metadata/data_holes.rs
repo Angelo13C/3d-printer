@@ -1,4 +1,4 @@
-use std::{marker::PhantomData, ops::RangeInclusive};
+use std::{fmt::Debug, marker::PhantomData, ops::RangeInclusive};
 
 use super::FilesMetadatasRegion;
 use crate::{
@@ -17,14 +17,6 @@ impl<Chip: FlashMemoryChip> DataHoles<Chip>
 	pub fn from_metadatas_region(files_metadatas_region: &FilesMetadatasRegion, regions_config: &RegionsConfig)
 		-> Self
 	{
-		if files_metadatas_region.files_metadatas.is_empty()
-		{
-			return Self {
-				block_holes: Vec::new(),
-				_chip: PhantomData,
-			};
-		}
-
 		let mut used_slots: Vec<RangeInclusive<u16>> = files_metadatas_region
 			.bad_block_table
 			.indices()
@@ -41,14 +33,19 @@ impl<Chip: FlashMemoryChip> DataHoles<Chip>
 		used_slots.sort_by(|a, b| a.start().cmp(b.start()));
 
 		let mut holes = Vec::with_capacity(used_slots.len() + 1);
-		holes.push(0..=*used_slots[0].start());
-		for i in 0..used_slots.len()
+
+		if *used_slots[0].start() != 0
+		{
+			holes.push(0..=(*used_slots[0].start() - 1));
+		}
+
+		for i in 0..(used_slots.len() - 1)
 		{
 			holes.push((used_slots[i].end() + 1)..=(used_slots[i + 1].start() - 1));
 		}
 		if let Some(last_hole) = used_slots.last()
 		{
-			holes.push(*last_hole.end()..=Chip::get_block_index_of_address(Chip::MEMORY_SIZE));
+			holes.push((*last_hole.end() + 1)..=Chip::get_block_index_of_address(Chip::MEMORY_SIZE));
 		}
 
 		holes.retain(|hole| !hole.is_empty());
@@ -99,4 +96,14 @@ pub enum FreeSpace
 	{
 		start_address: u32
 	},
+}
+
+impl<Chip: FlashMemoryChip> Debug for DataHoles<Chip>
+{
+	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result
+	{
+		f.debug_struct("DataHoles")
+			.field("block_holes", &self.block_holes)
+			.finish()
+	}
 }

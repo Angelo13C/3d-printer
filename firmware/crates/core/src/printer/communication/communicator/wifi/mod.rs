@@ -37,6 +37,11 @@ impl<WifiDriver: Wifi, Server: HttpServer> WifiCommunicator<WifiDriver, Server>
 
 		Ok(Self { driver: wifi, server })
 	}
+
+	pub fn get_driver(&self) -> &WifiDriver
+	{
+		&self.driver
+	}
 }
 
 impl<WifiDriver: Wifi, Server: HttpServer> Communicator for WifiCommunicator<WifiDriver, Server>

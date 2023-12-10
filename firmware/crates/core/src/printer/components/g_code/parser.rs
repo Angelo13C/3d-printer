@@ -41,7 +41,9 @@ impl GCodeParser
 	/// 	y: Param::from(None),
 	/// 	z: Param::from(Distance::from_micrometers(20_100)),
 	/// 	e: Param::from(None),
-	/// 	feed_rate: Param::from(None)
+	/// 	feed_rate: Param::from(None),
+	///
+	/// 	..Default::default()
 	/// });
 	///
 	/// assert_command(&g_code_parser, "G1 Y0.5 Z-5.15 F4000.40", G1 {
@@ -49,7 +51,9 @@ impl GCodeParser
 	/// 	y: Param::from(Distance::from_micrometers(500)),
 	/// 	z: Param::from(Distance::from_micrometers(-5_150)),
 	/// 	e: Param::from(None),
-	/// 	feed_rate: Param::from(4000.40)
+	/// 	feed_rate: Param::from(4000.40),
+	///
+	/// 	..Default::default()
 	/// });
 	///
 	/// assert_command(&g_code_parser, "M104 S60", M104 {
@@ -74,7 +78,7 @@ impl GCodeParser
 		if let Some(semi_colon_position) = line.find(';')
 		{
 			line_without_comment = &line[0..semi_colon_position];
-			comment_position = Some(semi_colon_position);
+			comment_position = Some(semi_colon_position + 1);
 		}
 
 		let mut words = line_without_comment.split_whitespace();

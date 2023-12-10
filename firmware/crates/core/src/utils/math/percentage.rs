@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 /// A percentage value.
 #[derive(PartialEq, PartialOrd, Clone, Copy, Default, Debug)]
 pub struct Percentage(f32);
@@ -76,5 +78,13 @@ impl Percentage
 	pub fn into_0_to_100(&self) -> f32
 	{
 		self.into_0_to_1() * 100.
+	}
+}
+
+impl Display for Percentage
+{
+	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result
+	{
+		write!(f, "{}%", self.0 * 100.)
 	}
 }

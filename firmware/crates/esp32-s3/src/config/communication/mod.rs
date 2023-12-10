@@ -32,10 +32,12 @@ pub fn configuration() -> CommunicationConfig
 		security: security::Configuration {
 			password: PasswordConfiguration::PasswordAndBruteforce {
 				password: env!("PRINTER_PASSWORD"),
+				hash_settings: None,
 				delays_and_wrong_attempts_count_for_it: vec![(3, Duration::from_secs(1))],
 			},
 		},
 		file_system: RegionsConfig::default::<<Peripherals as PeripheralsTrait>::FlashChip>(),
 		max_commands_in_buffer_before_reading_new: 20,
+		delay_between_ticks: Duration::from_millis(100),
 	}
 }

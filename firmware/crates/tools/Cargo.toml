@@ -1,0 +1,11 @@
+[package]
+name = "firmware-tools"
+version = "0.2.1"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+clap = { version = "4.4.8", features = ["derive"] }
+reqwest = { version = "0.11", features = ["blocking", "json"] }
+preferences = "1.1"

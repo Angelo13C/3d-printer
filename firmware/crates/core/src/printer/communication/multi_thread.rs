@@ -7,7 +7,11 @@ use super::{
 	http::command::{CommandsReceiver, CommandsSender},
 	Communication, CommunicationConfig,
 };
-use crate::printer::components::{Peripherals, Printer3DComponents};
+use crate::printer::components::{
+	hal::watchdog::{Watchdog, WatchdogCreator},
+	time::SystemTime,
+	Peripherals, Printer3DComponents,
+};
 
 pub struct MultiThreadCommunication<P: Peripherals + 'static>
 {
@@ -24,15 +28,39 @@ impl<P: Peripherals + 'static> MultiThreadCommunication<P>
 
 		let mut sendable_peripherals = SendablePeripherals::<P>::of_communication_thread(peripherals);
 
-		let join_handle = std::thread::Builder::new().spawn(move || {
-			let mut communication =
-				Communication::new(&mut sendable_peripherals, configuration, command_sender).unwrap();
+		let system_time = peripherals.take_system_time();
+		let delay_between_ticks = configuration.delay_between_ticks;
 
-			loop
-			{
-				communication.tick();
-			}
-		})?;
+		let join_handle = std::thread::Builder::new()
+			.stack_size(15_000)
+			.name("Communication".to_string())
+			.spawn(move || {
+				let mut communication =
+					Communication::new(&mut sendable_peripherals, configuration, command_sender).unwrap();
+
+				let mut watchdog = sendable_peripherals
+					.take_watchdog_creator()
+					.map(|watchdog_creator| watchdog_creator.watch_current_thread())
+					.flatten();
+
+				loop
+				{
+					if let Some(watchdog) = watchdog.as_mut()
+					{
+						watchdog.feed();
+					}
+
+					if let Err(error) = communication.tick()
+					{
+						log::error!("Tick error: {error:#?}");
+					}
+
+					if let Some(system_time) = system_time.as_ref()
+					{
+						system_time.delay(delay_between_ticks);
+					}
+				}
+			})?;
 
 		Ok(Self {
 			join_handle,
@@ -61,6 +89,8 @@ pub enum SendablePeripherals<P: Peripherals>
 {
 	ComponentsThread
 	{
+		watchdog_creator: Option<P::WatchdogCreator>,
+
 		stepper_ticker_timer: Option<P::StepperTickerTimer>,
 		kinematics: Option<P::Kinematics>,
 
@@ -79,9 +109,6 @@ pub enum SendablePeripherals<P: Peripherals>
 		y_axis_endstop: Option<P::YAxisEndstop>,
 		z_axis_endstop: Option<P::ZAxisEndstop>,
 
-		flash_chip: Option<P::FlashChip>,
-		flash_spi: Option<P::FlashSpi>,
-
 		layer_fan_pin: Option<P::FanPin>,
 		hotend_fan_pin: Option<P::FanPin>,
 
@@ -97,11 +124,15 @@ pub enum SendablePeripherals<P: Peripherals>
 	},
 	CommunicationThread
 	{
+		watchdog_creator: Option<P::WatchdogCreator>,
+
 		system_time: Option<P::SystemTime>,
 		flash_chip: Option<P::FlashChip>,
 		flash_spi: Option<P::FlashSpi>,
 		wifi_driver: Option<P::WifiDriver>,
 		server: Option<Box<dyn FnOnce() -> Result<P::Server, P::ServerError> + Send>>,
+		ota: Option<P::Ota>,
+
 		#[cfg(feature = "usb")]
 		usb_bus: Option<P::UsbBus>,
 		#[cfg(feature = "usb")]
@@ -116,11 +147,13 @@ impl<P: Peripherals> SendablePeripherals<P>
 	pub fn of_communication_thread(peripherals: &mut P) -> Self
 	{
 		Self::CommunicationThread {
+			watchdog_creator: peripherals.take_watchdog_creator(),
 			system_time: peripherals.take_system_time(),
 			flash_chip: peripherals.take_flash_chip(),
 			flash_spi: peripherals.take_flash_spi(),
 			wifi_driver: peripherals.take_wifi_driver(),
 			server: peripherals.take_http_server(),
+			ota: peripherals.take_ota(),
 			#[cfg(feature = "usb")]
 			usb_bus: peripherals.take_usb_bus(),
 			#[cfg(feature = "usb")]
@@ -131,6 +164,7 @@ impl<P: Peripherals> SendablePeripherals<P>
 	pub fn of_components_thread(peripherals: &mut P) -> Self
 	{
 		Self::ComponentsThread {
+			watchdog_creator: peripherals.take_watchdog_creator(),
 			stepper_ticker_timer: peripherals.take_stepper_ticker_timer(),
 			kinematics: peripherals.take_kinematics(),
 			left_motor_dir_pin: peripherals.take_left_motor_dir_pin(),
@@ -145,8 +179,6 @@ impl<P: Peripherals> SendablePeripherals<P>
 			x_axis_endstop: peripherals.take_x_axis_endstop(),
 			y_axis_endstop: peripherals.take_y_axis_endstop(),
 			z_axis_endstop: peripherals.take_z_axis_endstop(),
-			flash_chip: peripherals.take_flash_chip(),
-			flash_spi: peripherals.take_flash_spi(),
 			layer_fan_pin: peripherals.take_layer_fan_pin(),
 			hotend_fan_pin: peripherals.take_hotend_fan_pin(),
 			bed_cartridge_heater_pin: peripherals.take_bed_cartridge_heater_pin(),
@@ -162,6 +194,8 @@ impl<P: Peripherals> SendablePeripherals<P>
 #[allow(unused_variables)]
 impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 {
+	type WatchdogCreator = P::WatchdogCreator;
+
 	type Kinematics = P::Kinematics;
 
 	type StepperTickerTimer = P::StepperTickerTimer;
@@ -201,17 +235,20 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 	type Server = P::Server;
 	type ServerError = P::ServerError;
 
+	type Ota = P::Ota;
+
 	#[cfg(feature = "usb")]
 	type UsbSensePin = P::UsbSensePin;
 
 	#[cfg(feature = "usb")]
 	type UsbBus = P::UsbBus;
 
-	fn take_kinematics(&mut self) -> Option<Self::Kinematics>
+	fn take_watchdog_creator(&mut self) -> Option<Self::WatchdogCreator>
 	{
 		match self
 		{
 			SendablePeripherals::ComponentsThread {
+				watchdog_creator,
 				stepper_ticker_timer,
 				kinematics,
 				left_motor_dir_pin,
@@ -226,8 +263,51 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 				x_axis_endstop,
 				y_axis_endstop,
 				z_axis_endstop,
+				layer_fan_pin,
+				hotend_fan_pin,
+				bed_cartridge_heater_pin,
+				bed_thermistor_pin,
+				hotend_cartridge_heater_pin,
+				hotend_thermistor_pin,
+				adc,
+				system_time,
+			} => watchdog_creator.take(),
+			SendablePeripherals::CommunicationThread {
+				watchdog_creator,
+				system_time,
 				flash_chip,
 				flash_spi,
+				wifi_driver,
+				server,
+				ota,
+				#[cfg(feature = "usb")]
+				usb_bus,
+				#[cfg(feature = "usb")]
+				usb_sense_pin,
+			} => watchdog_creator.take(),
+		}
+	}
+
+	fn take_kinematics(&mut self) -> Option<Self::Kinematics>
+	{
+		match self
+		{
+			SendablePeripherals::ComponentsThread {
+				watchdog_creator,
+				stepper_ticker_timer,
+				kinematics,
+				left_motor_dir_pin,
+				left_motor_step_pin,
+				right_motor_dir_pin,
+				right_motor_step_pin,
+				z_axis_motor_dir_pin,
+				z_axis_motor_step_pin,
+				extruder_motor_dir_pin,
+				extruder_motor_step_pin,
+				uart_driver,
+				x_axis_endstop,
+				y_axis_endstop,
+				z_axis_endstop,
 				layer_fan_pin,
 				hotend_fan_pin,
 				bed_cartridge_heater_pin,
@@ -238,11 +318,13 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 				system_time,
 			} => kinematics.take(),
 			SendablePeripherals::CommunicationThread {
+				watchdog_creator,
 				system_time,
 				flash_chip,
 				flash_spi,
 				wifi_driver,
 				server,
+				ota,
 				#[cfg(feature = "usb")]
 				usb_bus,
 				#[cfg(feature = "usb")]
@@ -256,6 +338,7 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 		match self
 		{
 			SendablePeripherals::ComponentsThread {
+				watchdog_creator,
 				stepper_ticker_timer,
 				kinematics,
 				left_motor_dir_pin,
@@ -270,8 +353,6 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 				x_axis_endstop,
 				y_axis_endstop,
 				z_axis_endstop,
-				flash_chip,
-				flash_spi,
 				layer_fan_pin,
 				hotend_fan_pin,
 				bed_cartridge_heater_pin,
@@ -282,11 +363,13 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 				system_time,
 			} => stepper_ticker_timer.take(),
 			SendablePeripherals::CommunicationThread {
+				watchdog_creator,
 				system_time,
 				flash_chip,
 				flash_spi,
 				wifi_driver,
 				server,
+				ota,
 				#[cfg(feature = "usb")]
 				usb_bus,
 				#[cfg(feature = "usb")]
@@ -300,6 +383,7 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 		match self
 		{
 			SendablePeripherals::ComponentsThread {
+				watchdog_creator,
 				stepper_ticker_timer,
 				kinematics,
 				left_motor_dir_pin,
@@ -314,8 +398,6 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 				x_axis_endstop,
 				y_axis_endstop,
 				z_axis_endstop,
-				flash_chip,
-				flash_spi,
 				layer_fan_pin,
 				hotend_fan_pin,
 				bed_cartridge_heater_pin,
@@ -326,11 +408,13 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 				system_time,
 			} => left_motor_dir_pin.take(),
 			SendablePeripherals::CommunicationThread {
+				watchdog_creator,
 				system_time,
 				flash_chip,
 				flash_spi,
 				wifi_driver,
 				server,
+				ota,
 				#[cfg(feature = "usb")]
 				usb_bus,
 				#[cfg(feature = "usb")]
@@ -344,6 +428,7 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 		match self
 		{
 			SendablePeripherals::ComponentsThread {
+				watchdog_creator,
 				stepper_ticker_timer,
 				kinematics,
 				left_motor_dir_pin,
@@ -358,8 +443,6 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 				x_axis_endstop,
 				y_axis_endstop,
 				z_axis_endstop,
-				flash_chip,
-				flash_spi,
 				layer_fan_pin,
 				hotend_fan_pin,
 				bed_cartridge_heater_pin,
@@ -370,11 +453,13 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 				system_time,
 			} => left_motor_step_pin.take(),
 			SendablePeripherals::CommunicationThread {
+				watchdog_creator,
 				system_time,
 				flash_chip,
 				flash_spi,
 				wifi_driver,
 				server,
+				ota,
 				#[cfg(feature = "usb")]
 				usb_bus,
 				#[cfg(feature = "usb")]
@@ -388,6 +473,7 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 		match self
 		{
 			SendablePeripherals::ComponentsThread {
+				watchdog_creator,
 				stepper_ticker_timer,
 				kinematics,
 				left_motor_dir_pin,
@@ -402,8 +488,6 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 				x_axis_endstop,
 				y_axis_endstop,
 				z_axis_endstop,
-				flash_chip,
-				flash_spi,
 				layer_fan_pin,
 				hotend_fan_pin,
 				bed_cartridge_heater_pin,
@@ -414,11 +498,13 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 				system_time,
 			} => right_motor_dir_pin.take(),
 			SendablePeripherals::CommunicationThread {
+				watchdog_creator,
 				system_time,
 				flash_chip,
 				flash_spi,
 				wifi_driver,
 				server,
+				ota,
 				#[cfg(feature = "usb")]
 				usb_bus,
 				#[cfg(feature = "usb")]
@@ -432,6 +518,7 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 		match self
 		{
 			SendablePeripherals::ComponentsThread {
+				watchdog_creator,
 				stepper_ticker_timer,
 				kinematics,
 				left_motor_dir_pin,
@@ -446,8 +533,6 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 				x_axis_endstop,
 				y_axis_endstop,
 				z_axis_endstop,
-				flash_chip,
-				flash_spi,
 				layer_fan_pin,
 				hotend_fan_pin,
 				bed_cartridge_heater_pin,
@@ -458,11 +543,13 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 				system_time,
 			} => right_motor_step_pin.take(),
 			SendablePeripherals::CommunicationThread {
+				watchdog_creator,
 				system_time,
 				flash_chip,
 				flash_spi,
 				wifi_driver,
 				server,
+				ota,
 				#[cfg(feature = "usb")]
 				usb_bus,
 				#[cfg(feature = "usb")]
@@ -476,6 +563,7 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 		match self
 		{
 			SendablePeripherals::ComponentsThread {
+				watchdog_creator,
 				stepper_ticker_timer,
 				kinematics,
 				left_motor_dir_pin,
@@ -490,8 +578,6 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 				x_axis_endstop,
 				y_axis_endstop,
 				z_axis_endstop,
-				flash_chip,
-				flash_spi,
 				layer_fan_pin,
 				hotend_fan_pin,
 				bed_cartridge_heater_pin,
@@ -502,11 +588,13 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 				system_time,
 			} => z_axis_motor_dir_pin.take(),
 			SendablePeripherals::CommunicationThread {
+				watchdog_creator,
 				system_time,
 				flash_chip,
 				flash_spi,
 				wifi_driver,
 				server,
+				ota,
 				#[cfg(feature = "usb")]
 				usb_bus,
 				#[cfg(feature = "usb")]
@@ -520,6 +608,7 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 		match self
 		{
 			SendablePeripherals::ComponentsThread {
+				watchdog_creator,
 				stepper_ticker_timer,
 				kinematics,
 				left_motor_dir_pin,
@@ -534,8 +623,6 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 				x_axis_endstop,
 				y_axis_endstop,
 				z_axis_endstop,
-				flash_chip,
-				flash_spi,
 				layer_fan_pin,
 				hotend_fan_pin,
 				bed_cartridge_heater_pin,
@@ -546,11 +633,13 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 				system_time,
 			} => z_axis_motor_step_pin.take(),
 			SendablePeripherals::CommunicationThread {
+				watchdog_creator,
 				system_time,
 				flash_chip,
 				flash_spi,
 				wifi_driver,
 				server,
+				ota,
 				#[cfg(feature = "usb")]
 				usb_bus,
 				#[cfg(feature = "usb")]
@@ -564,6 +653,7 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 		match self
 		{
 			SendablePeripherals::ComponentsThread {
+				watchdog_creator,
 				stepper_ticker_timer,
 				kinematics,
 				left_motor_dir_pin,
@@ -578,8 +668,6 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 				x_axis_endstop,
 				y_axis_endstop,
 				z_axis_endstop,
-				flash_chip,
-				flash_spi,
 				layer_fan_pin,
 				hotend_fan_pin,
 				bed_cartridge_heater_pin,
@@ -590,11 +678,13 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 				system_time,
 			} => extruder_motor_dir_pin.take(),
 			SendablePeripherals::CommunicationThread {
+				watchdog_creator,
 				system_time,
 				flash_chip,
 				flash_spi,
 				wifi_driver,
 				server,
+				ota,
 				#[cfg(feature = "usb")]
 				usb_bus,
 				#[cfg(feature = "usb")]
@@ -608,6 +698,7 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 		match self
 		{
 			SendablePeripherals::ComponentsThread {
+				watchdog_creator,
 				stepper_ticker_timer,
 				kinematics,
 				left_motor_dir_pin,
@@ -622,8 +713,6 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 				x_axis_endstop,
 				y_axis_endstop,
 				z_axis_endstop,
-				flash_chip,
-				flash_spi,
 				layer_fan_pin,
 				hotend_fan_pin,
 				bed_cartridge_heater_pin,
@@ -634,11 +723,13 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 				system_time,
 			} => extruder_motor_step_pin.take(),
 			SendablePeripherals::CommunicationThread {
+				watchdog_creator,
 				system_time,
 				flash_chip,
 				flash_spi,
 				wifi_driver,
 				server,
+				ota,
 				#[cfg(feature = "usb")]
 				usb_bus,
 				#[cfg(feature = "usb")]
@@ -652,6 +743,7 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 		match self
 		{
 			SendablePeripherals::ComponentsThread {
+				watchdog_creator,
 				stepper_ticker_timer,
 				kinematics,
 				left_motor_dir_pin,
@@ -666,8 +758,6 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 				x_axis_endstop,
 				y_axis_endstop,
 				z_axis_endstop,
-				flash_chip,
-				flash_spi,
 				layer_fan_pin,
 				hotend_fan_pin,
 				bed_cartridge_heater_pin,
@@ -678,11 +768,13 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 				system_time,
 			} => uart_driver.take(),
 			SendablePeripherals::CommunicationThread {
+				watchdog_creator,
 				system_time,
 				flash_chip,
 				flash_spi,
 				wifi_driver,
 				server,
+				ota,
 				#[cfg(feature = "usb")]
 				usb_bus,
 				#[cfg(feature = "usb")]
@@ -696,6 +788,7 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 		match self
 		{
 			SendablePeripherals::ComponentsThread {
+				watchdog_creator,
 				stepper_ticker_timer,
 				kinematics,
 				left_motor_dir_pin,
@@ -710,8 +803,6 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 				x_axis_endstop,
 				y_axis_endstop,
 				z_axis_endstop,
-				flash_chip,
-				flash_spi,
 				layer_fan_pin,
 				hotend_fan_pin,
 				bed_cartridge_heater_pin,
@@ -722,11 +813,13 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 				system_time,
 			} => x_axis_endstop.take(),
 			SendablePeripherals::CommunicationThread {
+				watchdog_creator,
 				system_time,
 				flash_chip,
 				flash_spi,
 				wifi_driver,
 				server,
+				ota,
 				#[cfg(feature = "usb")]
 				usb_bus,
 				#[cfg(feature = "usb")]
@@ -740,6 +833,7 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 		match self
 		{
 			SendablePeripherals::ComponentsThread {
+				watchdog_creator,
 				stepper_ticker_timer,
 				kinematics,
 				left_motor_dir_pin,
@@ -754,8 +848,6 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 				x_axis_endstop,
 				y_axis_endstop,
 				z_axis_endstop,
-				flash_chip,
-				flash_spi,
 				layer_fan_pin,
 				hotend_fan_pin,
 				bed_cartridge_heater_pin,
@@ -766,11 +858,13 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 				system_time,
 			} => y_axis_endstop.take(),
 			SendablePeripherals::CommunicationThread {
+				watchdog_creator,
 				system_time,
 				flash_chip,
 				flash_spi,
 				wifi_driver,
 				server,
+				ota,
 				#[cfg(feature = "usb")]
 				usb_bus,
 				#[cfg(feature = "usb")]
@@ -784,6 +878,7 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 		match self
 		{
 			SendablePeripherals::ComponentsThread {
+				watchdog_creator,
 				stepper_ticker_timer,
 				kinematics,
 				left_motor_dir_pin,
@@ -798,8 +893,6 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 				x_axis_endstop,
 				y_axis_endstop,
 				z_axis_endstop,
-				flash_chip,
-				flash_spi,
 				layer_fan_pin,
 				hotend_fan_pin,
 				bed_cartridge_heater_pin,
@@ -810,11 +903,13 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 				system_time,
 			} => z_axis_endstop.take(),
 			SendablePeripherals::CommunicationThread {
+				watchdog_creator,
 				system_time,
 				flash_chip,
 				flash_spi,
 				wifi_driver,
 				server,
+				ota,
 				#[cfg(feature = "usb")]
 				usb_bus,
 				#[cfg(feature = "usb")]
@@ -828,6 +923,7 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 		match self
 		{
 			SendablePeripherals::ComponentsThread {
+				watchdog_creator,
 				stepper_ticker_timer,
 				kinematics,
 				left_motor_dir_pin,
@@ -842,8 +938,6 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 				x_axis_endstop,
 				y_axis_endstop,
 				z_axis_endstop,
-				flash_chip,
-				flash_spi,
 				layer_fan_pin,
 				hotend_fan_pin,
 				bed_cartridge_heater_pin,
@@ -854,11 +948,13 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 				system_time,
 			} => None,
 			SendablePeripherals::CommunicationThread {
+				watchdog_creator,
 				system_time,
 				flash_chip,
 				flash_spi,
 				wifi_driver,
 				server,
+				ota,
 				#[cfg(feature = "usb")]
 				usb_bus,
 				#[cfg(feature = "usb")]
@@ -872,6 +968,7 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 		match self
 		{
 			SendablePeripherals::ComponentsThread {
+				watchdog_creator,
 				stepper_ticker_timer,
 				kinematics,
 				left_motor_dir_pin,
@@ -886,8 +983,6 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 				x_axis_endstop,
 				y_axis_endstop,
 				z_axis_endstop,
-				flash_chip,
-				flash_spi,
 				layer_fan_pin,
 				hotend_fan_pin,
 				bed_cartridge_heater_pin,
@@ -898,11 +993,13 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 				system_time,
 			} => None,
 			SendablePeripherals::CommunicationThread {
+				watchdog_creator,
 				system_time,
 				flash_chip,
 				flash_spi,
 				wifi_driver,
 				server,
+				ota,
 				#[cfg(feature = "usb")]
 				usb_bus,
 				#[cfg(feature = "usb")]
@@ -916,6 +1013,7 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 		match self
 		{
 			SendablePeripherals::ComponentsThread {
+				watchdog_creator,
 				stepper_ticker_timer,
 				kinematics,
 				left_motor_dir_pin,
@@ -930,8 +1028,6 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 				x_axis_endstop,
 				y_axis_endstop,
 				z_axis_endstop,
-				flash_chip,
-				flash_spi,
 				layer_fan_pin,
 				hotend_fan_pin,
 				bed_cartridge_heater_pin,
@@ -942,11 +1038,13 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 				system_time,
 			} => adc.take(),
 			SendablePeripherals::CommunicationThread {
+				watchdog_creator,
 				system_time,
 				flash_chip,
 				flash_spi,
 				wifi_driver,
 				server,
+				ota,
 				#[cfg(feature = "usb")]
 				usb_bus,
 				#[cfg(feature = "usb")]
@@ -960,6 +1058,7 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 		match self
 		{
 			SendablePeripherals::ComponentsThread {
+				watchdog_creator,
 				stepper_ticker_timer,
 				kinematics,
 				left_motor_dir_pin,
@@ -974,8 +1073,6 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 				x_axis_endstop,
 				y_axis_endstop,
 				z_axis_endstop,
-				flash_chip,
-				flash_spi,
 				layer_fan_pin,
 				hotend_fan_pin,
 				bed_cartridge_heater_pin,
@@ -986,11 +1083,13 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 				system_time,
 			} => bed_thermistor_pin.take(),
 			SendablePeripherals::CommunicationThread {
+				watchdog_creator,
 				system_time,
 				flash_chip,
 				flash_spi,
 				wifi_driver,
 				server,
+				ota,
 				#[cfg(feature = "usb")]
 				usb_bus,
 				#[cfg(feature = "usb")]
@@ -1004,6 +1103,7 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 		match self
 		{
 			SendablePeripherals::ComponentsThread {
+				watchdog_creator,
 				stepper_ticker_timer,
 				kinematics,
 				left_motor_dir_pin,
@@ -1018,8 +1118,6 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 				x_axis_endstop,
 				y_axis_endstop,
 				z_axis_endstop,
-				flash_chip,
-				flash_spi,
 				layer_fan_pin,
 				hotend_fan_pin,
 				bed_cartridge_heater_pin,
@@ -1030,11 +1128,13 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 				system_time,
 			} => bed_cartridge_heater_pin.take(),
 			SendablePeripherals::CommunicationThread {
+				watchdog_creator,
 				system_time,
 				flash_chip,
 				flash_spi,
 				wifi_driver,
 				server,
+				ota,
 				#[cfg(feature = "usb")]
 				usb_bus,
 				#[cfg(feature = "usb")]
@@ -1048,6 +1148,7 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 		match self
 		{
 			SendablePeripherals::ComponentsThread {
+				watchdog_creator,
 				stepper_ticker_timer,
 				kinematics,
 				left_motor_dir_pin,
@@ -1062,8 +1163,6 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 				x_axis_endstop,
 				y_axis_endstop,
 				z_axis_endstop,
-				flash_chip,
-				flash_spi,
 				layer_fan_pin,
 				hotend_fan_pin,
 				bed_cartridge_heater_pin,
@@ -1074,11 +1173,13 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 				system_time,
 			} => hotend_thermistor_pin.take(),
 			SendablePeripherals::CommunicationThread {
+				watchdog_creator,
 				system_time,
 				flash_chip,
 				flash_spi,
 				wifi_driver,
 				server,
+				ota,
 				#[cfg(feature = "usb")]
 				usb_bus,
 				#[cfg(feature = "usb")]
@@ -1092,6 +1193,7 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 		match self
 		{
 			SendablePeripherals::ComponentsThread {
+				watchdog_creator,
 				stepper_ticker_timer,
 				kinematics,
 				left_motor_dir_pin,
@@ -1106,8 +1208,6 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 				x_axis_endstop,
 				y_axis_endstop,
 				z_axis_endstop,
-				flash_chip,
-				flash_spi,
 				layer_fan_pin,
 				hotend_fan_pin,
 				bed_cartridge_heater_pin,
@@ -1118,11 +1218,13 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 				system_time,
 			} => hotend_cartridge_heater_pin.take(),
 			SendablePeripherals::CommunicationThread {
+				watchdog_creator,
 				system_time,
 				flash_chip,
 				flash_spi,
 				wifi_driver,
 				server,
+				ota,
 				#[cfg(feature = "usb")]
 				usb_bus,
 				#[cfg(feature = "usb")]
@@ -1136,6 +1238,7 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 		match self
 		{
 			SendablePeripherals::ComponentsThread {
+				watchdog_creator,
 				stepper_ticker_timer,
 				kinematics,
 				left_motor_dir_pin,
@@ -1150,8 +1253,6 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 				x_axis_endstop,
 				y_axis_endstop,
 				z_axis_endstop,
-				flash_chip,
-				flash_spi,
 				layer_fan_pin,
 				hotend_fan_pin,
 				bed_cartridge_heater_pin,
@@ -1162,11 +1263,13 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 				system_time,
 			} => layer_fan_pin.take(),
 			SendablePeripherals::CommunicationThread {
+				watchdog_creator,
 				system_time,
 				flash_chip,
 				flash_spi,
 				wifi_driver,
 				server,
+				ota,
 				#[cfg(feature = "usb")]
 				usb_bus,
 				#[cfg(feature = "usb")]
@@ -1180,6 +1283,7 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 		match self
 		{
 			SendablePeripherals::ComponentsThread {
+				watchdog_creator,
 				stepper_ticker_timer,
 				kinematics,
 				left_motor_dir_pin,
@@ -1194,8 +1298,6 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 				x_axis_endstop,
 				y_axis_endstop,
 				z_axis_endstop,
-				flash_chip,
-				flash_spi,
 				layer_fan_pin,
 				hotend_fan_pin,
 				bed_cartridge_heater_pin,
@@ -1206,11 +1308,13 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 				system_time,
 			} => hotend_fan_pin.take(),
 			SendablePeripherals::CommunicationThread {
+				watchdog_creator,
 				system_time,
 				flash_chip,
 				flash_spi,
 				wifi_driver,
 				server,
+				ota,
 				#[cfg(feature = "usb")]
 				usb_bus,
 				#[cfg(feature = "usb")]
@@ -1224,6 +1328,7 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 		match self
 		{
 			SendablePeripherals::ComponentsThread {
+				watchdog_creator,
 				stepper_ticker_timer,
 				kinematics,
 				left_motor_dir_pin,
@@ -1238,8 +1343,6 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 				x_axis_endstop,
 				y_axis_endstop,
 				z_axis_endstop,
-				flash_chip,
-				flash_spi,
 				layer_fan_pin,
 				hotend_fan_pin,
 				bed_cartridge_heater_pin,
@@ -1250,11 +1353,13 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 				system_time,
 			} => system_time.take(),
 			SendablePeripherals::CommunicationThread {
+				watchdog_creator,
 				system_time,
 				flash_chip,
 				flash_spi,
 				wifi_driver,
 				server,
+				ota,
 				#[cfg(feature = "usb")]
 				usb_bus,
 				#[cfg(feature = "usb")]
@@ -1268,6 +1373,7 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 		match self
 		{
 			SendablePeripherals::ComponentsThread {
+				watchdog_creator,
 				stepper_ticker_timer,
 				kinematics,
 				left_motor_dir_pin,
@@ -1282,8 +1388,6 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 				x_axis_endstop,
 				y_axis_endstop,
 				z_axis_endstop,
-				flash_chip,
-				flash_spi,
 				layer_fan_pin,
 				hotend_fan_pin,
 				bed_cartridge_heater_pin,
@@ -1294,11 +1398,13 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 				system_time,
 			} => None,
 			SendablePeripherals::CommunicationThread {
+				watchdog_creator,
 				system_time,
 				flash_chip,
 				flash_spi,
 				wifi_driver,
 				server,
+				ota,
 				#[cfg(feature = "usb")]
 				usb_bus,
 				#[cfg(feature = "usb")]
@@ -1312,6 +1418,7 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 		match self
 		{
 			SendablePeripherals::ComponentsThread {
+				watchdog_creator,
 				stepper_ticker_timer,
 				kinematics,
 				left_motor_dir_pin,
@@ -1326,8 +1433,6 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 				x_axis_endstop,
 				y_axis_endstop,
 				z_axis_endstop,
-				flash_chip,
-				flash_spi,
 				layer_fan_pin,
 				hotend_fan_pin,
 				bed_cartridge_heater_pin,
@@ -1338,11 +1443,13 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 				system_time,
 			} => None,
 			SendablePeripherals::CommunicationThread {
+				watchdog_creator,
 				system_time,
 				flash_chip,
 				flash_spi,
 				wifi_driver,
 				server,
+				ota,
 				#[cfg(feature = "usb")]
 				usb_bus,
 				#[cfg(feature = "usb")]
@@ -1351,12 +1458,12 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 		}
 	}
 
-	#[cfg(feature = "usb")]
-	fn take_usb_sense_pin(&mut self) -> Option<Self::UsbSensePin>
+	fn take_ota(&mut self) -> Option<Self::Ota>
 	{
 		match self
 		{
 			SendablePeripherals::ComponentsThread {
+				watchdog_creator,
 				stepper_ticker_timer,
 				kinematics,
 				left_motor_dir_pin,
@@ -1371,8 +1478,6 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 				x_axis_endstop,
 				y_axis_endstop,
 				z_axis_endstop,
-				flash_chip,
-				flash_spi,
 				layer_fan_pin,
 				hotend_fan_pin,
 				bed_cartridge_heater_pin,
@@ -1383,11 +1488,64 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 				system_time,
 			} => None,
 			SendablePeripherals::CommunicationThread {
+				watchdog_creator,
 				system_time,
 				flash_chip,
 				flash_spi,
 				wifi_driver,
 				server,
+				ota,
+				#[cfg(feature = "usb")]
+				usb_bus,
+				#[cfg(feature = "usb")]
+				usb_sense_pin,
+			} => ota.take(),
+		}
+	}
+
+	fn reboot_fn() -> fn()
+	{
+		P::reboot_fn()
+	}
+
+	#[cfg(feature = "usb")]
+	fn take_usb_sense_pin(&mut self) -> Option<Self::UsbSensePin>
+	{
+		match self
+		{
+			SendablePeripherals::ComponentsThread {
+				watchdog_creator,
+				stepper_ticker_timer,
+				kinematics,
+				left_motor_dir_pin,
+				left_motor_step_pin,
+				right_motor_dir_pin,
+				right_motor_step_pin,
+				z_axis_motor_dir_pin,
+				z_axis_motor_step_pin,
+				extruder_motor_dir_pin,
+				extruder_motor_step_pin,
+				uart_driver,
+				x_axis_endstop,
+				y_axis_endstop,
+				z_axis_endstop,
+				layer_fan_pin,
+				hotend_fan_pin,
+				bed_cartridge_heater_pin,
+				bed_thermistor_pin,
+				hotend_cartridge_heater_pin,
+				hotend_thermistor_pin,
+				adc,
+				system_time,
+			} => None,
+			SendablePeripherals::CommunicationThread {
+				watchdog_creator,
+				system_time,
+				flash_chip,
+				flash_spi,
+				wifi_driver,
+				server,
+				ota,
 				#[cfg(feature = "usb")]
 				usb_bus,
 				#[cfg(feature = "usb")]
@@ -1402,6 +1560,7 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 		match self
 		{
 			SendablePeripherals::ComponentsThread {
+				watchdog_creator,
 				stepper_ticker_timer,
 				kinematics,
 				left_motor_dir_pin,
@@ -1416,8 +1575,6 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 				x_axis_endstop,
 				y_axis_endstop,
 				z_axis_endstop,
-				flash_chip,
-				flash_spi,
 				layer_fan_pin,
 				hotend_fan_pin,
 				bed_cartridge_heater_pin,
@@ -1428,16 +1585,23 @@ impl<P: Peripherals> Peripherals for SendablePeripherals<P>
 				system_time,
 			} => None,
 			SendablePeripherals::CommunicationThread {
+				watchdog_creator,
 				system_time,
 				flash_chip,
 				flash_spi,
 				wifi_driver,
 				server,
+				ota,
 				#[cfg(feature = "usb")]
 				usb_bus,
 				#[cfg(feature = "usb")]
 				usb_sense_pin,
 			} => usb_bus.take(),
 		}
+	}
+
+	fn get_ip_address_from_wifi_driver_function() -> fn(&Self::WifiDriver) -> Option<std::net::IpAddr>
+	{
+		P::get_ip_address_from_wifi_driver_function()
 	}
 }

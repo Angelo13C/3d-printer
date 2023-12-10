@@ -53,8 +53,6 @@ impl Protection for BruteForceProtection
 			}
 		}
 
-		todo!("I am not sure this is good");
-
 		match self.password_protection.can_pass(input.password)
 		{
 			true =>

@@ -1,6 +1,7 @@
 //! Check [`PrintProcess`].
 
 use std::{
+	fmt::Debug,
 	string::FromUtf8Error,
 	sync::atomic::{AtomicU16, Ordering},
 	time::Duration,
@@ -66,6 +67,10 @@ impl<P: Peripherals> PrintProcess<P>
 	/// Use [`Self::print_file`] to start the process of printing.
 	pub fn new(max_commands_in_buffer_before_reading_new: u16) -> Self
 	{
+		log::info!(
+			"Create the print process with this configuration: {}",
+			max_commands_in_buffer_before_reading_new
+		);
 		Self {
 			g_code_parser: GCodeParser::default(),
 			file_id_to_print: None,
@@ -127,8 +132,9 @@ impl<P: Peripherals> PrintProcess<P>
 
 				let is_last_line_finished = read_lines.ends_with("\n");
 				let mut read_commands = Vec::with_capacity(read_lines.len() / 25);
-				let mut read_lines_iterator = read_lines.lines().peekable();
-				while let Some(line) = read_lines_iterator.next()
+				let mut read_lines_iterator = read_lines.lines().enumerate().peekable();
+				let mut read_lines_iterator_cloned = read_lines_iterator.clone();
+				while let Some((line_number, line)) = read_lines_iterator.next()
 				{
 					if read_lines_iterator.peek().is_none()
 					{
@@ -147,7 +153,25 @@ impl<P: Peripherals> PrintProcess<P>
 								read_commands.push(command);
 							}
 						},
-						Err(_) => return Err(PrintProcessError::CouldntParseLine),
+						Err(_) =>
+						{
+							self.g_code_to_execute.clear();
+
+							read_lines_iterator_cloned.for_each(|(line_number_cloned, line)| {
+								if line_number != line_number_cloned
+								{
+									self.g_code_to_execute.push_str(line);
+									self.g_code_to_execute.push('\n');
+								}
+							});
+							// Remove the last new line if there wasn't one before
+							if !is_last_line_finished
+							{
+								let _ = self.g_code_to_execute.pop();
+							}
+
+							return Err(PrintProcessError::CouldntParseLine(line.to_string()));
+						},
 					}
 				}
 
@@ -264,11 +288,25 @@ pub enum PrintProcessError<Spi: SpiDevice<u8>>
 	SPIError(ReadError<Spi>),
 
 	/// One of the lines read from the file is a [`GCodeLine::Error`].
-	CouldntParseLine,
+	CouldntParseLine(String),
 }
 
 pub struct LineToExecuteParsed<'a, P: Peripherals>
 {
 	pub comment: Option<&'a str>,
 	pub command: Option<Box<dyn GCodeCommand<P>>>,
+}
+
+impl<Spi: SpiDevice<u8>> Debug for PrintProcessError<Spi>
+{
+	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result
+	{
+		match self
+		{
+			Self::CouldntOpenFileForRead => write!(f, "CouldntOpenFileForRead"),
+			Self::FileContainsInvalidUtf8(arg0) => f.debug_tuple("FileContainsInvalidUtf8").field(arg0).finish(),
+			Self::SPIError(arg0) => f.debug_tuple("SPIError").field(arg0).finish(),
+			Self::CouldntParseLine(line) => f.debug_struct("CoudlntParseLine").field("line", line).finish(),
+		}
+	}
 }

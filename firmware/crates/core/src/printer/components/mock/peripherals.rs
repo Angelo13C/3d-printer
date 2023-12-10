@@ -1,3 +1,5 @@
+use std::net::IpAddr;
+
 #[cfg(feature = "usb")]
 use super::input::MockInputPin;
 use super::{
@@ -7,7 +9,7 @@ use super::{
 	time::MockSystemTime,
 	uart::MockUart,
 	z_axis_probe::MockZAxisProbe,
-	MockError, MockOutputPin, MockSpi, MockTimer,
+	MockError, MockOutputPin, MockSpi, MockTimer, MockWatchdogCreator,
 };
 use crate::printer::components::{
 	drivers::spi_flash_memory::MT29F2G01ABAGDWB,
@@ -20,6 +22,8 @@ pub struct MockPeripherals;
 
 impl Peripherals for MockPeripherals
 {
+	type WatchdogCreator = MockWatchdogCreator;
+
 	type Kinematics = CoreXYKinematics;
 
 	type StepperTickerTimer = MockTimer;
@@ -57,10 +61,17 @@ impl Peripherals for MockPeripherals
 	type WifiDriver = MockWifiDriver;
 	type Server = MockHttpServer;
 
+	type Ota = MockOta;
+
 	#[cfg(feature = "usb")]
 	type UsbSensePin = MockInputPin;
 	#[cfg(feature = "usb")]
 	type UsbBus = MockUsbBus;
+
+	fn take_watchdog_creator(&mut self) -> Option<Self::WatchdogCreator>
+	{
+		Some(MockWatchdogCreator)
+	}
 
 	fn take_x_axis_endstop(&mut self) -> Option<Self::XAxisEndstop>
 	{
@@ -187,7 +198,22 @@ impl Peripherals for MockPeripherals
 		todo!()
 	}
 
+	fn get_ip_address_from_wifi_driver_function() -> fn(&Self::WifiDriver) -> Option<IpAddr>
+	{
+		todo!()
+	}
+
 	fn take_http_server(&mut self) -> Option<Box<dyn FnOnce() -> Result<Self::Server, Self::ServerError> + Send>>
+	{
+		todo!()
+	}
+
+	fn take_ota(&mut self) -> Option<Self::Ota>
+	{
+		todo!()
+	}
+
+	fn reboot_fn() -> fn()
 	{
 		todo!()
 	}

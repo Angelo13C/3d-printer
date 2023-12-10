@@ -5,19 +5,22 @@ pub mod pwm;
 pub mod system_time;
 pub mod timer;
 pub mod uart;
+pub mod watchdog;
 
-use std::fmt::Debug;
+use std::{fmt::Debug, net::IpAddr, time::Duration};
 
+use enumset::EnumSet;
 use esp_idf_hal::{
 	adc::{AdcChannelDriver, AdcDriver, ADC1},
 	gpio::*,
 	io::EspIOError,
 	ledc::{LedcDriver, LedcTimerDriver},
 	spi::SpiSingleDeviceDriver,
+	task::watchdog::*,
 	uart::UartDriver,
 };
 use esp_idf_svc::{
-	eventloop::EspSystemEventLoop, http::server::EspHttpServer, nvs::EspDefaultNvsPartition,
+	eventloop::EspSystemEventLoop, http::server::EspHttpServer, nvs::EspDefaultNvsPartition, ota::*,
 	timer::EspTaskTimerService, wifi::*,
 };
 use esp_idf_sys::EspError;
@@ -34,6 +37,7 @@ use self::{
 	pwm::LedcPwmPin,
 	system_time::SystemTime,
 	timer::Timer,
+	watchdog::WatchdogCreator,
 };
 use crate::{
 	config::components::{ADC_CONFIG, FLASH_SPI_CONFIG, FLASH_SPI_DRIVER_CONFIG},
@@ -80,10 +84,16 @@ pub struct Peripherals
 	server: Option<
 		Box<dyn FnOnce() -> Result<<Self as PeripheralsTrait>::Server, <Self as PeripheralsTrait>::ServerError> + Send>,
 	>,
+
+	ota: Option<<Self as PeripheralsTrait>::Ota>,
+
+	watchdog_creator: <Self as PeripheralsTrait>::WatchdogCreator,
 }
 
 impl PeripheralsTrait for Peripherals
 {
+	type WatchdogCreator = WatchdogCreator;
+
 	type StepperTickerTimer = Timer;
 	type Kinematics = CoreXYKinematics;
 
@@ -117,15 +127,22 @@ impl PeripheralsTrait for Peripherals
 
 	type SystemTime = SystemTime;
 
-	type WifiDriver = AsyncWifi<WifiDriver<'static>>;
+	type WifiDriver = AsyncWifi<EspWifi<'static>>;
 
 	type Server = HttpServer<'static>;
 	type ServerError = EspIOError;
+
+	type Ota = EspOta;
 
 	#[cfg(feature = "usb")]
 	type UsbSensePin = InputPin<'static, Gpio20>;
 	#[cfg(feature = "usb")]
 	type UsbBus = firmware_core::printer::components::mock::MockUsbBus;
+
+	fn take_watchdog_creator(&mut self) -> Option<Self::WatchdogCreator>
+	{
+		Some(self.watchdog_creator.clone())
+	}
 
 	fn take_stepper_ticker_timer(&mut self) -> Option<Self::StepperTickerTimer>
 	{
@@ -252,9 +269,31 @@ impl PeripheralsTrait for Peripherals
 		self.wifi.take()
 	}
 
+	fn get_ip_address_from_wifi_driver_function() -> fn(&Self::WifiDriver) -> Option<IpAddr>
+	{
+		|wifi_driver| {
+			wifi_driver
+				.wifi()
+				.sta_netif()
+				.get_ip_info()
+				.ok()
+				.map(|info| IpAddr::V4(info.ip))
+		}
+	}
+
 	fn take_http_server(&mut self) -> Option<Box<dyn FnOnce() -> Result<Self::Server, Self::ServerError> + Send>>
 	{
 		self.server.take()
+	}
+
+	fn take_ota(&mut self) -> Option<Self::Ota>
+	{
+		self.ota.take()
+	}
+
+	fn reboot_fn() -> fn()
+	{
+		esp_idf_hal::reset::restart
 	}
 
 	#[cfg(feature = "usb")]
@@ -281,6 +320,14 @@ impl Peripherals
 			LedcTimerDriver::new(peripherals.ledc.timer0, &crate::config::components::FANS_PWM_TIMER)?;
 
 		Ok(Self {
+			watchdog_creator: WatchdogCreator(TWDTDriver::new(
+				peripherals.twdt,
+				&TWDTConfig {
+					duration: Duration::from_secs(10),
+					panic_on_trigger: true,
+					subscribed_idle_tasks: EnumSet::EMPTY,
+				},
+			)?),
 			system_time: Some(SystemTime::new()?),
 			uart_driver: Some(UARTDriver(UartDriver::new(
 				peripherals.uart2,
@@ -356,13 +403,14 @@ impl Peripherals
 			hotend_thermistor_pin: Some(AdcPin::new(AdcChannelDriver::new(peripherals.pins.gpio2)?)),
 			adc: Some(Adc(AdcDriver::new(peripherals.adc1, &ADC_CONFIG)?)),
 			wifi: Some(AsyncWifi::wrap(
-				WifiDriver::new(peripherals.modem, sys_loop.clone(), Some(nvs))?,
+				EspWifi::wrap(WifiDriver::new(peripherals.modem, sys_loop.clone(), Some(nvs))?)?,
 				sys_loop,
 				EspTaskTimerService::new()?,
 			)?),
 			server: Some(Box::new(move || {
 				Ok(HttpServer(EspHttpServer::new(&http_server_config)?))
 			})),
+			ota: Some(EspOta::new()?),
 		})
 	}
 }

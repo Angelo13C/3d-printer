@@ -14,7 +14,7 @@ impl ColumnAddress
 	pub const fn new(mut column_address: u16, plane_index: u8) -> Self
 	{
 		column_address |= (plane_index as u16) << 12;
-		Self(column_address.to_le_bytes())
+		Self(column_address.to_be_bytes())
 	}
 
 	/// Returns the column address as bytes that can be sent over SPI.
@@ -31,8 +31,8 @@ impl<Chip: FlashMemoryChip> RowAddress<Chip>
 	/// Returns a [`RowAddress`] from the address of a byte in the memory.
 	pub const fn from_page_index(page_index: u32) -> Self
 	{
-		let bytes = page_index.to_le_bytes();
-		Self([bytes[0], bytes[1], bytes[2]], PhantomData)
+		let bytes = page_index.to_be_bytes();
+		Self([bytes[1], bytes[2], bytes[3]], PhantomData)
 	}
 
 	/// Returns a [`RowAddress`] from the address of a byte in the memory.
@@ -53,7 +53,9 @@ impl<Chip: FlashMemoryChip> RowAddress<Chip>
 	/// Returns the index of the page identified by this address.
 	pub fn get_page_index(&self) -> u32
 	{
-		u32::from_le_bytes(std::array::from_fn(|i| self.0.get(i).map(|value| *value).unwrap_or(0)))
+		u32::from_be_bytes(std::array::from_fn(|i| {
+			self.0.get(i.overflowing_sub(1).0).map(|value| *value).unwrap_or(0)
+		}))
 	}
 
 	/// Returns the index of the plane of the page identified by this address.

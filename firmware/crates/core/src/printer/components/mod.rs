@@ -202,6 +202,8 @@ impl<P: Peripherals> Printer3DComponents<P>
 
 	pub fn tick(&mut self) -> Result<(), TickError<P::ZAxisEndstop, P::StepperTickerTimer>>
 	{
+		// Time elapsed since the last time you called Self::tick.
+		let delta_time = self.clock.get_delta_time().as_secs_f64();
 		self.clock.tick();
 
 		if !pauser::is_paused()
@@ -213,7 +215,6 @@ impl<P: Peripherals> Printer3DComponents<P>
 			}
 		}
 
-		let delta_time = self.clock.get_delta_time().as_secs_f64();
 		self.heated_bed_pid_controller
 			.tick(delta_time, &mut self.adc)
 			.map_err(TickError::HeatedBedPidController)?;
@@ -249,7 +250,6 @@ pub enum CreationError<Timer: TimerTrait, ZEndstop: ZAxisProbe, Uart: UartTrait>
 }
 
 /// An error that can occur when you tick a [`Printer3DComponents`] struct.
-#[derive(Debug)]
 pub enum TickError<ZEndstop: ZAxisProbe, Timer: TimerTrait>
 {
 	GCodeExecuter(g_code::execute::TickError),
@@ -257,4 +257,19 @@ pub enum TickError<ZEndstop: ZAxisProbe, Timer: TimerTrait>
 	HotendPidController(temperature::PidUpdateError),
 	MotionController(motion::homing::TickError<Probe<ZEndstop>>),
 	PausingMotionController(motion::SetPausedError<Timer>),
+}
+
+impl<ZEndstop: ZAxisProbe, Timer: TimerTrait> Debug for TickError<ZEndstop, Timer>
+{
+	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result
+	{
+		match self
+		{
+			Self::GCodeExecuter(arg0) => f.debug_tuple("GCodeExecuter").field(arg0).finish(),
+			Self::HeatedBedPidController(arg0) => f.debug_tuple("HeatedBedPidController").field(arg0).finish(),
+			Self::HotendPidController(arg0) => f.debug_tuple("HotendPidController").field(arg0).finish(),
+			Self::MotionController(arg0) => f.debug_tuple("MotionController").field(arg0).finish(),
+			Self::PausingMotionController(arg0) => f.debug_tuple("PausingMotionController").field(arg0).finish(),
+		}
+	}
 }

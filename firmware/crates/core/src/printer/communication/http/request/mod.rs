@@ -9,6 +9,8 @@ use strum::{EnumCount, EnumIter};
 use super::resources::Resources;
 use crate::printer::components::Peripherals;
 
+pub const STACK_SIZE: usize = 30_000;
+
 #[derive(EnumIter, EnumCount, Clone, Copy)]
 /// A possible request that the HTTP server in this firmware can handle. Each request has a [`method`], an [`URI`]
 /// and a [`callback function`] that handles it.
@@ -43,6 +45,8 @@ pub enum HttpRequest
 	ListGCodeCommandsInMemory,
 	/// "Manually" add the provided G-code commands to the command buffer of the current print process.
 	SendGCodeCommands,
+	/// Over-The-Air update.
+	OTAUpdate,
 }
 
 type Callback<C, P> = fn(Request<&mut C>, Resources<P>) -> HandlerResult;
@@ -67,6 +71,7 @@ impl HttpRequest
 			HttpRequest::Move => Method::Post,
 			HttpRequest::ListGCodeCommandsInMemory => Method::Get,
 			HttpRequest::SendGCodeCommands => Method::Post,
+			HttpRequest::OTAUpdate => Method::Post,
 		}
 	}
 
@@ -78,16 +83,17 @@ impl HttpRequest
 	{
 		match self
 		{
-			HttpRequest::ListFiles => "list-files",
-			HttpRequest::DeleteFile => "delete-file",
-			HttpRequest::PrintFile => "print-file",
-			HttpRequest::SendFile => "send-file",
-			HttpRequest::GetPrintStatus => "print-status",
-			HttpRequest::PauseOrResume => "pause-or-resume",
-			HttpRequest::PrinterState => "printer-state",
-			HttpRequest::Move => "move",
-			HttpRequest::ListGCodeCommandsInMemory => "list-gcode-commands-in-memory",
-			HttpRequest::SendGCodeCommands => "send-gcode-commands",
+			HttpRequest::ListFiles => "/list-files",
+			HttpRequest::DeleteFile => "/delete-file",
+			HttpRequest::PrintFile => "/print-file",
+			HttpRequest::SendFile => "/send-file",
+			HttpRequest::GetPrintStatus => "/print-status",
+			HttpRequest::PauseOrResume => "/pause-or-resume",
+			HttpRequest::PrinterState => "/printer-state",
+			HttpRequest::Move => "/move",
+			HttpRequest::ListGCodeCommandsInMemory => "/list-gcode-commands-in-memory",
+			HttpRequest::SendGCodeCommands => "/send-gcode-commands",
+			HttpRequest::OTAUpdate => "/ota-update",
 		}
 	}
 
@@ -110,6 +116,7 @@ impl HttpRequest
 			HttpRequest::Move => callbacks::move_,
 			HttpRequest::ListGCodeCommandsInMemory => callbacks::list_g_code_commands_in_memory,
 			HttpRequest::SendGCodeCommands => callbacks::send_g_code_commands,
+			HttpRequest::OTAUpdate => callbacks::ota_update,
 		}
 	}
 }

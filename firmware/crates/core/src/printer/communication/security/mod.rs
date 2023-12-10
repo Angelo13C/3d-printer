@@ -1,5 +1,6 @@
 use std::time::Duration;
 
+use argon2::Params;
 use embedded_svc::http::server::{Connection, Request};
 use password::{BruteForceProtection, PasswordProtection};
 
@@ -56,20 +57,29 @@ impl Security
 {
 	pub fn new(configuration: Configuration) -> Result<Self, CreationError>
 	{
+		log::info!(
+			"Start the communication security with configuration: {:#?}",
+			configuration
+		);
+
 		let (password_protection, brute_force_protection) = match configuration.password
 		{
 			PasswordConfiguration::None => (None, None),
-			PasswordConfiguration::Password { password } => (
-				Some(PasswordProtection::new(password).map_err(CreationError::PasswordProtection)?),
+			PasswordConfiguration::Password {
+				password,
+				hash_settings,
+			} => (
+				Some(PasswordProtection::new(password, hash_settings).map_err(CreationError::PasswordProtection)?),
 				None,
 			),
 			PasswordConfiguration::PasswordAndBruteforce {
 				password,
+				hash_settings,
 				delays_and_wrong_attempts_count_for_it,
 			} => (
 				None,
 				Some(BruteForceProtection::new(
-					PasswordProtection::new(password).map_err(CreationError::BruteForceProtection)?,
+					PasswordProtection::new(password, hash_settings).map_err(CreationError::BruteForceProtection)?,
 					delays_and_wrong_attempts_count_for_it,
 				)),
 			),
@@ -99,20 +109,25 @@ pub enum CreationError
 	BruteForceProtection(argon2::password_hash::errors::Error),
 }
 
+#[derive(Debug)]
 pub struct Configuration
 {
 	pub password: PasswordConfiguration,
 }
+
+#[derive(Debug)]
 pub enum PasswordConfiguration
 {
 	None,
 	Password
 	{
 		password: &'static str,
+		hash_settings: Option<Params>,
 	},
 	PasswordAndBruteforce
 	{
 		password: &'static str,
+		hash_settings: Option<Params>,
 		delays_and_wrong_attempts_count_for_it: Vec<(u32, Duration)>,
 	},
 }

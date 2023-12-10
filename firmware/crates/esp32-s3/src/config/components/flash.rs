@@ -16,7 +16,7 @@ pub const FLASH_SPI_CONFIG: Config = Config {
 	baudrate: Hertz(80_000_000),
 	data_mode: esp_idf_hal::spi::config::MODE_0,
 	write_only: false,
-	duplex: Duplex::Half3Wire,
+	duplex: Duplex::Full,
 	bit_order: BitOrder::MsbFirst,
 	cs_active_high: false,
 	input_delay_ns: 0,

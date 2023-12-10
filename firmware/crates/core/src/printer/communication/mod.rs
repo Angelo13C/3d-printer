@@ -7,7 +7,7 @@
 //! The data exchange with the external world is used to monitor the printer's status, make it execute commands
 //! (like start printing a 3D model)...
 
-use std::{fmt::Debug, sync::mpsc::SendError};
+use std::{fmt::Debug, sync::mpsc::SendError, time::Duration};
 
 use cassette::{pin_mut, Cassette};
 use embedded_hal::spi::SpiDevice;
@@ -26,13 +26,14 @@ use self::{
 	security::Security,
 };
 use crate::printer::{
-	communication::communicator::Communicator,
+	communication::{communicator::Communicator, ota::OverTheAirUpdater},
 	components::{drivers::spi_flash_memory::SpiFlashMemory, print_process::PrintProcess},
 };
 
 pub mod communicator;
 pub mod http;
 mod multi_thread;
+pub mod ota;
 pub mod security;
 
 pub use multi_thread::*;
@@ -102,13 +103,23 @@ impl<P: Peripherals + 'static> Communication<P>
 		let http_handler_resources = http::resources::Resources::<P>::new(
 			peripherals.take_system_time(),
 			file_system,
+			OverTheAirUpdater::new(
+				peripherals
+					.take_ota()
+					.ok_or(CreationError::PeripheralMissing { name: "OTA" })?,
+				P::reboot_fn(),
+			),
 			Security::new(configuration.security).map_err(CreationError::Security)?,
 			command_sender,
 			PrintProcess::new(configuration.max_commands_in_buffer_before_reading_new),
 		);
 
+		log::info!("Register all the HTTP uri handlers");
+
 		wifi.register_all_requests(http_handler_resources.clone())
 			.map_err(CreationError::WifiRegisterRequests)?;
+
+		log::info!("Finished creating the Communication struct");
 
 		Ok(Self {
 			wifi,
@@ -167,6 +178,18 @@ pub enum TickError<P: Peripherals>
 	PrintProcessTick(PrintProcessError<P::FlashSpi>),
 }
 
+impl<P: Peripherals> Debug for TickError<P>
+{
+	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result
+	{
+		match self
+		{
+			TickError::Send(error) => f.debug_tuple("Send").field(error).finish(),
+			TickError::PrintProcessTick(error) => f.debug_tuple("PrintProcessTick").field(error).finish(),
+		}
+	}
+}
+
 impl<WifiDriver: Wifi, WifiCommunicator: Communicator, Spi: SpiDevice<u8>, ServerError: Debug> Debug
 	for CreationError<WifiDriver, WifiCommunicator, Spi, ServerError>
 {
@@ -197,4 +220,5 @@ pub struct CommunicationConfig
 	pub security: security::Configuration,
 
 	pub max_commands_in_buffer_before_reading_new: u16,
+	pub delay_between_ticks: Duration,
 }
