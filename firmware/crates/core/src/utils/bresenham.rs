@@ -24,6 +24,7 @@
 ///
 /// assert_eq!(bresenham.get_longest_index(), 0);
 /// ```
+#[derive(Debug)]
 pub struct Bresenham<const N: usize>
 {
 	signs: [i8; N],
