@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["deg","rad"],"struct":["AngleGeneric"],"trait":["AngleFunctions","EpsilonAngle"],"type":["Angle","AngleDouble"]};

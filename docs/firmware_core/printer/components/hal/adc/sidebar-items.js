@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["ReadPercentageError"],"trait":["Adc","AdcPin","AdcPinExt"]};

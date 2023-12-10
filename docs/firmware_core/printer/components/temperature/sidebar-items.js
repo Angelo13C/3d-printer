@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["PidUpdateError"],"mod":["safety"],"struct":["TemperaturePidController","TemperaturePidGains"]};

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"mod":["modes"],"struct":["TemperatureChangeConfig","TemperatureChangeSafety"],"trait":["ProtectionModeTrait"]};

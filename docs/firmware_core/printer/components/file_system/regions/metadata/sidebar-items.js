@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":["FileDoesntExist","FileId","FileMetadata","FileMetadataValidator","FilesMetadatasRegion","NotEnoughSpaceAvailable"]};

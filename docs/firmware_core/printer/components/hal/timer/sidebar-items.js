@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["duration_to_counter","ticks_to_duration"],"trait":["Timer","TimerAdditionalFunctionality"]};

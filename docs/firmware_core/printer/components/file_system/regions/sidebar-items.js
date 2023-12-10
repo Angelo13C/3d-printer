@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"mod":["data","metadata"],"struct":["RegionsConfig"]};

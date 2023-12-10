@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["FeatureRegister","ValidateIdError"],"struct":["MT29F2G01ABAGDWB","SpiFlashMemory"],"trait":["FlashMemoryChip","FlashMemoryChipExt"]};

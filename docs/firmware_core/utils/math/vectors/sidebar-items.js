@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":["VectorN"],"type":["Vector2","Vector3"]};

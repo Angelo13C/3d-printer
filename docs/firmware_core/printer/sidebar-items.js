@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["CreationError","TickError"],"mod":["communication","components","panic_handler"],"struct":["Printer3D"]};

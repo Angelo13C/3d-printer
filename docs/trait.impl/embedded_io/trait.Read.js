@@ -1,0 +1,3 @@
+(function() {var implementors = {
+"firmware_core":[["impl Read for <a class=\"struct\" href=\"firmware_core/printer/components/mock/struct.MockHttpConnection.html\" title=\"struct firmware_core::printer::components::mock::MockHttpConnection\">MockHttpConnection</a>"]]
+};if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

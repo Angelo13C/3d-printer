@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"mod":["printer_state"],"struct":["GCodeHistory"]};

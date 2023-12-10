@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["constrain","lerp","map"],"mod":["vectors"],"struct":["Percentage"],"trait":["NumberExt"]};

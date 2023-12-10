@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":["AnyWithoutSpaces","E","F","P","R","S","X","Y","Z"],"trait":["GCodeParameterIdentifier","GCodeParameterIdentifierLetter","IdentifierInGroup"]};

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"mod":["wifi"],"trait":["Communicator"]};

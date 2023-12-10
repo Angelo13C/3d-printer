@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["CreationError"],"struct":["CreationConfig","WifiCommunicator"],"trait":["HttpServer"]};

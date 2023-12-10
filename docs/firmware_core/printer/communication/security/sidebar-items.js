@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["CreationError","PasswordConfiguration"],"struct":["Configuration","IpAddress","Security"],"trait":["GetIpAddress","Protection","ProtectionInput"]};

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["STACK_SIZE"],"enum":["HttpRequest"],"fn":["http_request_handlers_count"],"struct":["HttpRequestIter"]};

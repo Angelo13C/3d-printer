@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"mod":["temperature"],"struct":["ComponentsConfig"]};

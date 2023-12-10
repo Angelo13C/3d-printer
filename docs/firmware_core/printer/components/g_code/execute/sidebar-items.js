@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["SAVED_POSITIONS_COUNT"],"enum":["PositionMode","TickError"],"struct":["GCodeExecuter","InvalidPositionSlot"]};

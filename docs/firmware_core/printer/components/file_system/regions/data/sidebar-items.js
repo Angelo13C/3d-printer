@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["ReadError","ReadNameError","WriteError"],"struct":["FileReader","FileWriter","FilesRegion"]};

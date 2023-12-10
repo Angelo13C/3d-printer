@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["CreationError","SendablePeripherals","TickError"],"mod":["communicator","http","ota","security"],"struct":["Communication","CommunicationConfig","MultiThreadCommunication"]};
