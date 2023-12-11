@@ -6,7 +6,75 @@
 <a href="#6" id="6">6</a>
 <a href="#7" id="7">7</a>
 <a href="#8" id="8">8</a>
-</pre></div><pre class="rust"><code><span class="attr">#![feature(async_fn_in_trait)]
+<a href="#9" id="9">9</a>
+<a href="#10" id="10">10</a>
+<a href="#11" id="11">11</a>
+<a href="#12" id="12">12</a>
+<a href="#13" id="13">13</a>
+<a href="#14" id="14">14</a>
+<a href="#15" id="15">15</a>
+<a href="#16" id="16">16</a>
+<a href="#17" id="17">17</a>
+<a href="#18" id="18">18</a>
+<a href="#19" id="19">19</a>
+<a href="#20" id="20">20</a>
+<a href="#21" id="21">21</a>
+<a href="#22" id="22">22</a>
+<a href="#23" id="23">23</a>
+<a href="#24" id="24">24</a>
+<a href="#25" id="25">25</a>
+<a href="#26" id="26">26</a>
+<a href="#27" id="27">27</a>
+<a href="#28" id="28">28</a>
+<a href="#29" id="29">29</a>
+<a href="#30" id="30">30</a>
+<a href="#31" id="31">31</a>
+<a href="#32" id="32">32</a>
+<a href="#33" id="33">33</a>
+<a href="#34" id="34">34</a>
+<a href="#35" id="35">35</a>
+<a href="#36" id="36">36</a>
+<a href="#37" id="37">37</a>
+<a href="#38" id="38">38</a>
+<a href="#39" id="39">39</a>
+<a href="#40" id="40">40</a>
+<a href="#41" id="41">41</a>
+<a href="#42" id="42">42</a>
+</pre></div><pre class="rust"><code><span class="doccomment">//! # This crate
+//! This is the core part of the firmware for a [3D printer](https://en.wikipedia.org/wiki/3D_printing), and it&#39;s still in development.
+//! 
+//! This crate is an Hardware Abstraction Layer (HAL), meaning it provides an implementation of:
+//! - [Communication] with the external world, through an [HTTP server] (over [WiFi]) for example
+//! - A basic [file system] to store and later retrieve G-code files from a [flash memory]
+//! - Parsing and execution of [G-code]
+//! - Closed loop [PID] heaters
+//! - A [motion controller] to move the tool that is connected to the [stepper motors], with support for [homing] and [bed leveling]
+//! - Some drivers for various components (like [BLTouch], [TMC2209], [fans]...)
+//! - [OTA updates]
+//! - [Pausing and resuming] a print
+//! 
+//! But it doesn&#39;t provide any platform specific implementation, which is done by other crates (like the esp32-s3 one).
+//! 
+//! This makes the adding of support for a new platform easy since only the specific hardware implementations need to be written.
+//! (which means implementing some traits from [embedded_hal] and some other custom traits present in this crate).
+//! 
+//! [Communication]: printer::communication
+//! [HTTP server]: printer::communication::http
+//! [WiFi]: printer::communication::communicator::wifi
+//! [file system]: printer::components::file_system
+//! [G-code]: printer::components::g_code
+//! [PID]: printer::components::temperature
+//! [motion controller]: printer::components::motion
+//! [stepper motors]: printer::components::drivers::stepper_motor
+//! [homing]: printer::components::motion::homing
+//! [bed leveling]: printer::components::motion::bed_leveling
+//! [fans]: printer::components::drivers::fan
+//! [flash memory]: printer::components::drivers::spi_flash_memory
+//! [BLTouch]: printer::components::drivers::bl_touch
+//! [TMC2209]: printer::components::drivers::stepper_motor::tmc2209
+//! [OTA updates]: printer::communication::ota
+//! [Pausing and resuming]: printer::components::pauser
+</span><span class="attr">#![feature(async_fn_in_trait)]
 
 </span><span class="kw">extern crate </span>alloc;
 
