@@ -3,10 +3,11 @@ mod microstepping;
 mod registers;
 mod slave_address;
 
+use datagram::*;
 pub use microstepping::MicrostepsPerStep;
+pub use registers::*;
 pub use slave_address::UARTAddress;
 
-use self::{datagram::*, registers::*};
 use crate::{
 	printer::components::hal::uart::Uart as UartTrait,
 	utils::{math::Percentage, measurement::duration::SmallDuration},
