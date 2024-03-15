@@ -121,16 +121,18 @@ impl<P: Peripherals> PrintProcess<P>
 				read_lines.extend_from_slice(self.g_code_to_execute.as_bytes());
 				read_lines.extend(core::iter::repeat(0).take(P::FlashChip::PAGE_SIZE as usize));
 
-				self.file_to_print_reader
+				let read_bytes_count = self.file_to_print_reader
 					.as_mut()
 					.unwrap()
 					.read_data(file_system, &mut read_lines[start..])
 					.map_err(PrintProcessError::SPIError)?;
+				
+				read_lines.truncate(start + read_bytes_count as usize);
 
 				let read_lines =
 					String::from_utf8(read_lines).map_err(|err| PrintProcessError::FileContainsInvalidUtf8(err))?;
 
-				let is_last_line_finished = read_lines.ends_with("\n");
+				let is_last_line_finished = read_lines.ends_with("\n") || self.file_to_print_reader.as_mut().unwrap().has_reached_end_of_file();
 				let mut read_commands = Vec::with_capacity(read_lines.len() / 25);
 				let mut read_lines_iterator = read_lines.lines().enumerate().peekable();
 				let mut read_lines_iterator_cloned = read_lines_iterator.clone();
