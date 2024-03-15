@@ -9,6 +9,7 @@ pub(super) struct Registers
 	pub gconf: u16,
 	pub chopconf: u32,
 	pub pwm_conf: u32,
+	pub nodeconf: u16,
 	pub ihold_irun: u32,
 }
 
@@ -22,6 +23,7 @@ impl Default for Registers
 			gconf: 0b01_0000_0001,
 			chopconf: 0x10000053,
 			pwm_conf: 0xC10D0024,
+			nodeconf: 0,
 			ihold_irun: 0,
 		};
 
@@ -212,7 +214,7 @@ impl_register_with_fields!(
 );
 impl_register_with_fields!(RW, GSTAT, 0x01, reset, drv_err, uv_cp);
 
-impl_register_with_fields!(W, SLAVECONF, 0x03, SENDDELAY = 8..=11);
+impl_register_with_fields!(W, NODECONF, 0x03, SENDDELAY = 8..=11);
 impl_register_with_fields!(
 	R,
 	IOIN,

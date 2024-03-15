@@ -316,6 +316,15 @@ impl TMC2209
 		self.send_register::<CHOPCONF, Uart>(self.registers.chopconf, uart_driver)
 	}
 
+	pub fn set_reply_delay<Uart: UartTrait>(
+		&mut self, delay: ReplyDelay, uart_driver: &mut Uart,
+	) -> Result<(), Uart::Error>
+	{
+		write_field_of_register(NODECONF::SENDDELAY, &mut self.registers.nodeconf, delay as u16);
+
+		self.send_register::<NODECONF, Uart>(self.registers.nodeconf as u32, uart_driver)
+	}
+
 	/// Initialize the UART communication with the TMC2209 chip.
 	fn initialize_uart<Uart: UartTrait>(&mut self, uart_driver: &mut Uart) -> Result<(), Uart::Error>
 	{
@@ -398,4 +407,17 @@ pub enum ReadRegisterError<Uart: UartTrait>
 	FlushEchoInvalidSize,
 	ReplyDatagramIncomplete,
 	ReplyDatagramInvaild,
+}
+
+#[repr(u8)]
+pub enum ReplyDelay
+{
+	BitTime1 = 1,
+	BitTime3 = 3,
+	BitTime5 = 5,
+	BitTime7 = 7,
+	BitTime9 = 9,
+	BitTime11 = 11,
+	BitTime13 = 13,
+	BitTime15 = 15,
 }
