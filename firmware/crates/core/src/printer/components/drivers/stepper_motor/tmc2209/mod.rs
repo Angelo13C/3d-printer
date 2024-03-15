@@ -408,6 +408,19 @@ pub enum ReadRegisterError<Uart: UartTrait>
 	ReplyDatagramIncomplete,
 	ReplyDatagramInvaild,
 }
+impl<Uart: UartTrait> std::fmt::Debug for ReadRegisterError<Uart>
+{
+	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result
+	{
+		match self
+		{
+			Self::UartError(arg0) => f.debug_tuple("UartError").field(arg0).finish(),
+			Self::FlushEchoInvalidSize => write!(f, "FlushEchoInvalidSize"),
+			Self::ReplyDatagramIncomplete => write!(f, "ReplyDatagramIncomplete"),
+			Self::ReplyDatagramInvaild => write!(f, "ReplyDatagramInvaild"),
+		}
+	}
+}
 
 #[repr(u8)]
 pub enum ReplyDelay
