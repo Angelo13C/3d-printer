@@ -46,7 +46,7 @@ impl TMC2209
 	///
 	/// [`disabled`]: `Self::disable`
 	pub fn new_using_uart<Uart: UartTrait>(
-		uart_address: UARTAddress, uart_driver: &mut Uart,
+		uart_address: UARTAddress, uart_driver: &mut Uart, microsteps_per_step: MicrostepsPerStep,
 	) -> Result<Self, Uart::Error>
 	{
 		let mut self_ = Self {
@@ -59,7 +59,7 @@ impl TMC2209
 		self_.set_current_scaling(Some(Percentage::from_0_to_100(100.).unwrap()), None, uart_driver)?;
 		self_.enable_automatic_current_scaling(uart_driver)?;
 		self_.enable_automatic_gradient_adaptation(uart_driver)?;
-		self_.set_microsteps_per_step(MicrostepsPerStep::M16, uart_driver)?;
+		self_.set_microsteps_per_step(microsteps_per_step, uart_driver)?;
 		self_.disable_stealth_chop(uart_driver)?;
 
 		self_.disable(uart_driver)?;

@@ -18,9 +18,12 @@ use super::{
 	},
 	hal::{timer::Timer as TimerTrait, uart::Uart as UartTrait},
 };
-use crate::utils::{
-	math::vectors::{Vector2, Vector3, VectorN},
-	measurement::distance::Distance,
+use crate::{
+	printer::components::drivers::stepper_motor::tmc2209::MicrostepsPerStep,
+	utils::{
+		math::vectors::{Vector2, Vector3, VectorN},
+		measurement::distance::Distance,
+	},
 };
 
 pub mod axes;
@@ -124,14 +127,30 @@ impl<Timer: TimerTrait, Kinematics: KinematicsTrait, ZEndstop: ZAxisProbe> Motio
 			last_planned_move_end_position: None,
 			homing_procedure: HomingProcedure::None,
 			tmc2209_drivers: [
-				TMC2209::new_using_uart(configuration.left_motor.tmc2209_address, uart_driver)
-					.map_err(CreationError::CreateLeftTMC2209)?,
-				TMC2209::new_using_uart(configuration.right_motor.tmc2209_address, uart_driver)
-					.map_err(CreationError::CreateRightTMC2209)?,
-				TMC2209::new_using_uart(configuration.z_axis_motor.tmc2209_address, uart_driver)
-					.map_err(CreationError::CreateZAxisTMC2209)?,
-				TMC2209::new_using_uart(configuration.extruder_motor.tmc2209_address, uart_driver)
-					.map_err(CreationError::CreateExtruderTMC2209)?,
+				TMC2209::new_using_uart(
+					configuration.left_motor.tmc2209_address,
+					uart_driver,
+					MicrostepsPerStep::M16,
+				)
+				.map_err(CreationError::CreateLeftTMC2209)?,
+				TMC2209::new_using_uart(
+					configuration.right_motor.tmc2209_address,
+					uart_driver,
+					MicrostepsPerStep::M16,
+				)
+				.map_err(CreationError::CreateRightTMC2209)?,
+				TMC2209::new_using_uart(
+					configuration.z_axis_motor.tmc2209_address,
+					uart_driver,
+					MicrostepsPerStep::M16,
+				)
+				.map_err(CreationError::CreateZAxisTMC2209)?,
+				TMC2209::new_using_uart(
+					configuration.extruder_motor.tmc2209_address,
+					uart_driver,
+					MicrostepsPerStep::M16,
+				)
+				.map_err(CreationError::CreateExtruderTMC2209)?,
 			],
 			rotations_to_linear_motions: [
 				configuration.left_motor.rotation_to_linear_motion,
