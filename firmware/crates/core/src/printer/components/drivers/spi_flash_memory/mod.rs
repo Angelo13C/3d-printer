@@ -364,6 +364,20 @@ pub enum ValidateIdError<Spi: SpiDevice<u8>>
 	CoudlntReadSpi(<Spi as ErrorType>::Error),
 }
 
+impl<Spi: SpiDevice<u8>> Debug for ValidateIdError<Spi>
+{
+	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result
+	{
+		match self
+		{
+			Self::ManufacturerIdDoesntMatch => write!(f, "ManufacturerIdDoesntMatch"),
+			Self::DeviceIdDoesntMatch => write!(f, "DeviceIdDoesntMatch"),
+			Self::BothIdsDontMatch => write!(f, "BothIdsDontMatch"),
+			Self::CoudlntReadSpi(arg0) => f.debug_tuple("CoudlntReadSpi").field(arg0).finish(),
+		}
+	}
+}
+
 #[cfg(test)]
 mod tests
 {
