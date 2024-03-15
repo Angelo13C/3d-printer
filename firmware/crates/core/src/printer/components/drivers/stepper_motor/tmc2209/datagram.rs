@@ -20,9 +20,9 @@ pub(super) trait Datagram
 	fn as_bytes_mut(&mut self) -> &mut [u8];
 }
 
-const SYNC_BYTE: u8 = 0b1010_1010;
+const SYNC_BYTE: u8 = 0b0000_0101;
 
-#[repr(C)]
+#[repr(C, packed)]
 #[derive(Clone, Copy)]
 pub(super) struct WriteAccessDatagram
 {
@@ -40,8 +40,8 @@ impl WriteAccessDatagram
 		let mut self_ = Self {
 			sync: SYNC_BYTE,
 			slave_address: slave_address as u8,
-			register_address: (R::write_address() << 1) | 0b0000_0001,
-			data,
+			register_address: R::write_address(),
+			data: data.to_be(),
 			crc: 0,
 		};
 		self_.crc = calculate_crc(self_);
@@ -58,7 +58,7 @@ impl Datagram for WriteAccessDatagram
 	}
 }
 
-#[repr(C)]
+#[repr(C, packed)]
 #[derive(Clone, Copy)]
 pub(super) struct ReadAccessRequestDatagram
 {
@@ -75,7 +75,7 @@ impl ReadAccessRequestDatagram
 		let mut self_ = Self {
 			sync: SYNC_BYTE,
 			slave_address: slave_address as u8,
-			register_address: (R::ADDRESS << 1) & 0b1111_1110,
+			register_address: R::ADDRESS,
 			crc: 0,
 		};
 		self_.crc = calculate_crc(self_);
