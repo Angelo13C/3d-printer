@@ -55,9 +55,10 @@ pub struct Planner<const N: usize>
 
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub struct MoveId(u32);
+
 impl MoveId
 {
-	const NULL: Self = Self(u32::MAX);
+	const NULL: Self = Self(0);
 
 	pub fn is_null(&self) -> bool
 	{
@@ -66,7 +67,7 @@ impl MoveId
 
 	const fn next(other: Self) -> Self
 	{
-		Self(other.0.wrapping_add(1))
+		Self(other.0 + 1)
 	}
 }
 impl Default for MoveId
@@ -182,7 +183,7 @@ impl<const N: usize> Planner<N>
 
 	pub fn has_move_been_executed(&self, move_to_check: MoveId) -> bool
 	{
-		move_to_check < self.current_move_id || move_to_check.is_null()
+		move_to_check <= self.current_move_id || move_to_check.is_null()
 	}
 
 	/// Plans a move that will make the tool move to the `target_position` starting from the `target_position` of the last
