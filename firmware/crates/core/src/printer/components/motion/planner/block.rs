@@ -1,5 +1,7 @@
 use enumset::EnumSet;
 
+pub type StepsPerSecond = u32;
+
 /// Result of a planned move. It contains all the data necessary to allow the [`StepperMotorsTicker`] to make
 /// the move actually happen.
 ///
@@ -22,10 +24,10 @@ pub struct Block<const N: usize>
 
 	pub accelerate_until: u32,
 	pub decelerate_after: u32,
-	pub initial_speed: f32,
-	pub nominal_speed: f32,               // mm/sec
-	pub nominal_speed_steps_per_sec: f32, // step/sec
-	pub final_speed: f32,
+	pub initial_speed: StepsPerSecond,
+	pub nominal_speed_in_mm_sec: f32,  // mm/sec
+	pub nominal_speed: StepsPerSecond, // step/sec
+	pub final_speed: StepsPerSecond,
 
 	pub flags: EnumSet<Flag>,
 }
@@ -40,8 +42,8 @@ impl<const N: usize> Default for Block<N>
 			entry_speed_sqr: Default::default(),
 			max_entry_speed_sqr: Default::default(),
 
+			nominal_speed_in_mm_sec: Default::default(),
 			nominal_speed: Default::default(),
-			nominal_speed_steps_per_sec: Default::default(),
 
 			acceleration: 1_000_000.,
 			acceleration_steps_per_sec2: Default::default(),

@@ -24,7 +24,7 @@ mod settings;
 pub use block::*;
 pub use settings::*;
 
-const MIN_STEP_RATE: f32 = 120.;
+const MIN_STEP_RATE: StepsPerSecond = 120;
 
 // Minimum planner junction speed. Sets the default minimum speed the planner plans for at the end
 // of the buffer and all stops. This should not be much greater than zero and should only be changed
@@ -247,15 +247,15 @@ impl<const N: usize> Planner<N>
 
 		block.millimeters = move_length;
 
-		block.nominal_speed = move_speed_mm_s;
-		block.nominal_speed_steps_per_sec = (block.step_event_count as f32 * inverse_move_duration_s).ceil();
+		block.nominal_speed_in_mm_sec = move_speed_mm_s;
+		block.nominal_speed = (block.step_event_count as f32 * inverse_move_duration_s).ceil() as StepsPerSecond;
 
 		// Limit the whole speed based on the max speed on each axis
 		let mut speed_on_axes_mm_s = [0.; N];
 		let mut speed_factor = 1_f32;
 		for i in 0..N
 		{
-			speed_on_axes_mm_s[i] = displacement[i].as_millimeters_f32() * inverse_move_duration_s;
+			speed_on_axes_mm_s[i] = (displacement[i].as_millimeters_f32() * inverse_move_duration_s).abs();
 			speed_factor = speed_factor.min(self.settings.max_feedrate_mm_s[i] / speed_on_axes_mm_s[i]);
 		}
 
@@ -265,7 +265,8 @@ impl<const N: usize> Planner<N>
 			{
 				speed_on_axes_mm_s[i] *= speed_factor;
 			}
-			block.nominal_speed *= speed_factor;
+			block.nominal_speed_in_mm_sec *= speed_factor;
+			block.nominal_speed = (block.nominal_speed as f32 * speed_factor) as StepsPerSecond;
 		}
 
 		// Get the acceleration of the move in steps per second²
@@ -364,7 +365,12 @@ impl<const N: usize> Planner<N>
 				}
 			}
 
-			vmax_junction_sqr = vmax_junction_sqr.min(block.nominal_speed.sqr().min(self.previous_nominal_speed.sqr()));
+			vmax_junction_sqr = vmax_junction_sqr.min(
+				block
+					.nominal_speed_in_mm_sec
+					.sqr()
+					.min(self.previous_nominal_speed.sqr()),
+			);
 		}
 
 		self.previous_normalized_displacement = Some(normalized_displacement);
@@ -374,14 +380,14 @@ impl<const N: usize> Planner<N>
 
 		let max_reachable_speed_sqr =
 			Self::max_reachable_speed_sqr(-block.acceleration, MINIMUM_PLANNER_SPEED.sqr(), block.millimeters);
-		if block.nominal_speed.sqr() <= max_reachable_speed_sqr
+		if block.nominal_speed_in_mm_sec.sqr() <= max_reachable_speed_sqr
 		{
 			block.flags.insert(Flag::NominalLength);
 		}
 
-		self.previous_nominal_speed = block.nominal_speed;
+		self.previous_nominal_speed = block.nominal_speed_in_mm_sec;
 
-		self.current_position = target_position;
+		self.current_position = target_position.clone();
 
 		self.blocks.push(block);
 
@@ -412,8 +418,8 @@ impl<const N: usize> Planner<N>
 
 	fn calculate_trapezoid_for_block(block: &mut Block<N>, entry_factor: f32, exit_factor: f32)
 	{
-		let mut initial_rate = (block.nominal_speed_steps_per_sec * entry_factor).ceil();
-		let mut final_rate = (block.nominal_speed_steps_per_sec * exit_factor).ceil(); // (steps per second)
+		let mut initial_rate = (block.nominal_speed as f32 * entry_factor).ceil() as StepsPerSecond;
+		let mut final_rate = (block.nominal_speed as f32 * exit_factor).ceil() as StepsPerSecond;
 
 		initial_rate = initial_rate.max(MIN_STEP_RATE);
 		final_rate = final_rate.max(MIN_STEP_RATE);
@@ -428,10 +434,10 @@ impl<const N: usize> Planner<N>
 		{
 			let inverse_accel = 1. / accel;
 			let half_inverse_accel = inverse_accel / 2.;
-			let nominal_rate_sq = block.nominal_speed_steps_per_sec.sqr();
+			let nominal_rate_sq = block.nominal_speed.sqr() as f32;
 			// Steps required for acceleration, deceleration to/from nominal rate
-			let decelerate_steps_float = half_inverse_accel * (nominal_rate_sq - final_rate.sqr());
-			let mut accelerate_steps_float = half_inverse_accel * (nominal_rate_sq - initial_rate.sqr());
+			let decelerate_steps_float = half_inverse_accel * (nominal_rate_sq - final_rate.sqr() as f32);
+			let mut accelerate_steps_float = half_inverse_accel * (nominal_rate_sq - initial_rate.sqr() as f32);
 			accelerate_steps = accelerate_steps_float.ceil() as u32;
 			decelerate_steps = decelerate_steps_float.floor() as u32;
 
@@ -627,7 +633,7 @@ impl<const N: usize> Planner<N>
 				if previous.flags.contains(Flag::Recalculate)
 				{
 					// NOTE: Entry and exit factors always > 0 by all previous logic operations.
-					let nomr = 1. / previous.nominal_speed;
+					let nomr = 1. / previous.nominal_speed_in_mm_sec;
 					Self::calculate_trapezoid_for_block(
 						previous,
 						previous_entry_speed * nomr,
@@ -655,7 +661,7 @@ impl<const N: usize> Planner<N>
 			// marked as RECALCULATE yet. That's the reason for the following line.
 			previous.flags.insert(Flag::Recalculate);
 
-			let nomr = 1. / previous.nominal_speed;
+			let nomr = 1. / previous.nominal_speed_in_mm_sec;
 			Self::calculate_trapezoid_for_block(previous, previous_entry_speed * nomr, current_entry_speed * nomr);
 
 			// Reset block to ensure its trapezoid is computed - The stepper is free to use
