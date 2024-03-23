@@ -138,13 +138,13 @@ impl<P: Peripherals + 'static> Communication<P>
 			{
 				Ok(result) =>
 				{
-					resources
-						.command_sender
-						.send_command(Command::AddGCodeCommandsToBuffer(result.read_commands))
-						.map_err(TickError::Send)?;
-
 					if let Some(read_lines) = result.read_lines
 					{
+						resources
+							.command_sender
+							.send_command(Command::AddGCodeCommandsToBuffer(result.read_commands))
+							.map_err(TickError::Send)?;
+
 						resources.g_code_history.add_read_lines(read_lines);
 					}
 				},
