@@ -3,6 +3,17 @@
 //! The generated motion profiles are optimized to make the move as fast as possible without provoking problems
 //! (for example making a stepper lose steps).
 //!
+//! # Credits
+//! This module incorporates code from the Marlin firmware project, which is licensed under the
+//! GNU General Public License (GPL). Portions of this module are derived from Marlin, for more information about Marlin and its
+//! licensing terms, please visit <https://github.com/MarlinFirmware/Marlin>.
+//!
+//! # Disclaimer
+//! This firmware project is not affiliated with or endorsed by the Marlin firmware project.
+//! While portions of this module are derived from Marlin and are subject to the GNU General Public License (GPL),
+//! this project is independently developed and maintained by Angelo Cipriani. For official information and support
+//! regarding the Marlin firmware, please refer to the Marlin project's documentation and community resources.
+//!
 //! [`stepper motors`]: `super::super::drivers::stepper_motor::StepperMotor`
 
 use enumset::EnumSet;
