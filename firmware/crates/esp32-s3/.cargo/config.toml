@@ -13,6 +13,8 @@ build-std = ["std", "panic_abort"]
 # Note: these variables are not used when using pio builder (`cargo build --features pio`)
 ESP_IDF_VERSION = "v4.4.5"
 ESP_IDF_PATH_ISSUES = "warn"
+
+ESP_IDF_SYS_ROOT_CRATE = "esp32-s3"
 # This is necessary because its deafult value would only be "sdkconfig.defaults", and since its relative to the workspace directory,
 # and not this specific crate, I need to put the relative path from the root directory. Check this:
 # https://esp-rs.github.io/esp-idf-sys/esp_idf_sys/#esp_idf_sdkconfig_defaults-esp_idf_sdkconfig_defaults
