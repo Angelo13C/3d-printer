@@ -17,13 +17,13 @@ impl RotationalDirection
 	/// ```
 	/// # use firmware_core::printer::components::drivers::stepper_motor::*;
 	/// #
-	/// assert_eq!(RotationalDirection::from_sign(40.4), RotationalDirection::CW);
-	/// assert_eq!(RotationalDirection::from_sign(0.), RotationalDirection::CW);
-	/// assert_eq!(RotationalDirection::from_sign(-1.), RotationalDirection::CCW);
+	/// assert_eq!(RotationalDirection::from_sign(40), RotationalDirection::CW);
+	/// assert_eq!(RotationalDirection::from_sign(0), RotationalDirection::CW);
+	/// assert_eq!(RotationalDirection::from_sign(-1), RotationalDirection::CCW);
 	/// ```
-	pub fn from_sign(value: f32) -> Self
+	pub fn from_sign(value: i32) -> Self
 	{
-		match value.is_sign_positive()
+		match value >= 0
 		{
 			true => Self::CW,
 			false => Self::CCW,
