@@ -72,6 +72,16 @@ impl<const N: usize> Bresenham<N>
 		}
 	}
 
+	fn has_finished(&self) -> bool
+	{
+		self.count <= 0
+	}
+
+	pub fn steps_taken(&self) -> u32
+	{
+		(self.lengths[self.longest_index] - self.count) as u32
+	}
+
 	/// Returns the index of the axis with the biggest distance to travel.
 	///
 	/// # Examples
@@ -97,7 +107,7 @@ impl<const N: usize> Iterator for Bresenham<N>
 
 	fn next(&mut self) -> Option<Self::Item>
 	{
-		(self.count > 0).then(|| {
+		(!self.has_finished()).then(|| {
 			self.count -= 1;
 			let mut changed_axis = [false; N];
 
