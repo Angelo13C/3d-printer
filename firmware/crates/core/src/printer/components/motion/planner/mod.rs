@@ -606,11 +606,8 @@ impl<const N: usize> Planner<N>
 		self.recalculate_trapezoids(safe_exit_speed_sqr);
 	}
 
-	/**
-	 * Recalculate the trapezoid speed profiles for all blocks in the plan
-	 * according to the entry_factor for each junction. Must be called by
-	 * recalculate() after updating the blocks.
-	 */
+	/// Recalculate the trapezoid speed profiles for all blocks in the plan according to the entry_factor for each junction.
+	/// Must be called by recalculate() after updating the blocks.
 	fn recalculate_trapezoids(&mut self, safe_exit_speed_sqr: f32)
 	{
 		// Go from the tail (currently executed block) to the first block, without including it)
