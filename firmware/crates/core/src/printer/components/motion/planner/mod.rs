@@ -656,17 +656,8 @@ impl<const N: usize> Planner<N>
 			// Exit speed is set with MINIMUM_PLANNER_SPEED unless some code higher up knows better.
 			current_entry_speed = MINIMUM_PLANNER_SPEED.max(safe_exit_speed_sqr.sqrt());
 
-			// Mark the next(last) block as RECALCULATE, to prevent the Stepper ISR running it.
-			// As the last block is always recalculated here, there is a chance the block isn't
-			// marked as RECALCULATE yet. That's the reason for the following line.
-			previous.flags.insert(Flag::Recalculate);
-
 			let nomr = 1. / previous.nominal_speed_in_mm_sec;
 			Self::calculate_trapezoid_for_block(previous, previous_entry_speed * nomr, current_entry_speed * nomr);
-
-			// Reset block to ensure its trapezoid is computed - The stepper is free to use
-			// the block from now on.
-			previous.flags.remove(Flag::Recalculate);
 		}
 	}
 }
