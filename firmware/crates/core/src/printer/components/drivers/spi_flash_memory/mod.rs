@@ -1,4 +1,7 @@
-use std::ops::{Range, RangeInclusive};
+use core::{
+	fmt::Debug,
+	ops::{Range, RangeInclusive},
+};
 
 use embedded_hal::spi::{ErrorType, SpiDevice};
 
