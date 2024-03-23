@@ -32,30 +32,47 @@ impl<P: Peripherals> GCodeExecuter<P>
 {
 	pub fn tick(&mut self, printer_components: &mut Printer3DComponents<P>) -> Result<(), TickError>
 	{
-		if let Some(mut command) = self.commands_to_prepare.pop_front()
+		let mut prepare_another_command = true;
+		while prepare_another_command && (!self.commands_to_prepare.is_empty() || !self.command_buffer.is_empty())
 		{
-			match command.prepare(printer_components, self)
+			if let Some(mut command) = self.commands_to_prepare.pop_front()
 			{
-				Status::Working => self.commands_to_prepare.push_front(command),
-				Status::Finished => self.command_buffer.push_back(command),
-				Status::Error(error) => return Err(TickError::PreparingCommand { error }),
+				match command.prepare(printer_components, self)
+				{
+					Status::Working =>
+					{
+						self.commands_to_prepare.push_front(command);
+
+						prepare_another_command = false;
+					},
+					Status::Finished => self.command_buffer.push_back(command),
+					Status::Error(error) => return Err(TickError::PreparingCommand { error }),
+				}
 			}
-		}
 
-		if self.current_command.is_none()
-		{
-			self.current_command = self.command_buffer.pop_front();
-		}
-
-		if let Some(mut command) = self.current_command.take()
-		{
-			let status = command.execute(printer_components, self);
-
-			match status
+			if self.current_command.is_none()
 			{
-				Status::Working => self.current_command = Some(command),
-				Status::Finished => print_process::remove_commands_in_buffer_count(1),
-				Status::Error(error) => return Err(TickError::ExecutingCommand { error }),
+				self.current_command = self.command_buffer.pop_front();
+			}
+
+			if let Some(mut command) = self.current_command.take()
+			{
+				let status = command.execute(printer_components, self);
+
+				match status
+				{
+					Status::Working =>
+					{
+						self.current_command = Some(command);
+
+						if self.commands_to_prepare.is_empty()
+						{
+							prepare_another_command = false;
+						}
+					},
+					Status::Finished => print_process::remove_commands_in_buffer_count(1),
+					Status::Error(error) => return Err(TickError::ExecutingCommand { error }),
+				}
 			}
 		}
 
