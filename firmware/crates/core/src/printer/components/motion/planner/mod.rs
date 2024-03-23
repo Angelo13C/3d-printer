@@ -438,11 +438,11 @@ impl<const N: usize> Planner<N>
 			// Steps required for acceleration, deceleration to/from nominal rate
 			let decelerate_steps_float = half_inverse_accel * (nominal_rate_sq - final_rate.sqr() as f32);
 			let mut accelerate_steps_float = half_inverse_accel * (nominal_rate_sq - initial_rate.sqr() as f32);
-			accelerate_steps = accelerate_steps_float.ceil() as u32;
-			decelerate_steps = decelerate_steps_float.floor() as u32;
+			accelerate_steps = accelerate_steps_float.ceil() as i32;
+			decelerate_steps = decelerate_steps_float.floor() as i32;
 
 			// Steps between acceleration and deceleration, if any
-			plateau_steps -= (accelerate_steps + decelerate_steps) as i32;
+			plateau_steps -= accelerate_steps + decelerate_steps;
 
 			// Does accelerate_steps + decelerate_steps exceed step_event_count?
 			// Then we can't possibly reach the nominal rate, there will be no cruising.
@@ -451,14 +451,14 @@ impl<const N: usize> Planner<N>
 			if plateau_steps < 0
 			{
 				accelerate_steps_float =
-					((block.step_event_count as f32 + accelerate_steps_float - decelerate_steps_float) * 0.5).ceil();
-				accelerate_steps = (accelerate_steps_float.max(0.) as u32).min(block.step_event_count);
-				decelerate_steps = block.step_event_count - accelerate_steps;
+					((block.step_event_count as f32 + accelerate_steps_float - decelerate_steps_float) / 2.).ceil();
+				accelerate_steps = (accelerate_steps_float.max(0.) as u32).min(block.step_event_count) as i32;
+				decelerate_steps = block.step_event_count as i32 - accelerate_steps;
 			}
 		}
 
-		block.accelerate_until = accelerate_steps;
-		block.decelerate_after = block.step_event_count - decelerate_steps;
+		block.accelerate_until = accelerate_steps as u32;
+		block.decelerate_after = block.step_event_count - decelerate_steps as u32;
 		block.initial_speed = initial_rate;
 		block.final_speed = final_rate;
 	}
