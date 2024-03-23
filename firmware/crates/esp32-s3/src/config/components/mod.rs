@@ -34,7 +34,7 @@ pub fn configuration() -> ComponentsConfig
 		layer_fan_min_duty_cycle_to_move: Percentage::from_0_to_100(30.).unwrap(),
 		hotend_fan_min_duty_cycle_to_move: Percentage::from_0_to_100(30.).unwrap(),
 		hotend_pid: PidConfig {
-			pid_gains: TemperaturePidGains { p: 20., i: 2., d: 50. },
+			pid_gains: TemperaturePidGains { p: 100., i: 10., d: 750. },
 			thermistor: ThermistorConfig {
 				beta: 3_950,
 				resistance_at_t0: 100_000,
@@ -54,7 +54,7 @@ pub fn configuration() -> ComponentsConfig
 			},
 		},
 		heated_bed_pid: PidConfig {
-			pid_gains: TemperaturePidGains { p: 20., i: 2., d: 50. },
+			pid_gains: TemperaturePidGains { p: 1000., i: 10., d: 10. },
 			thermistor: ThermistorConfig {
 				beta: 3_950,
 				resistance_at_t0: 100_000,
