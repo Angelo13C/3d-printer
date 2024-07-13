@@ -1,10 +1,9 @@
 use std::time::Duration;
 
+use spin::MutexGuard;
+
 use super::{PasswordAttempt, PasswordProtection, Protection, ProtectionInput};
-use crate::{
-	printer::{communication::http::resources::ResourcesImpl, components::time::SystemTime},
-	utils::mutex::MutexGuard,
-};
+use crate::printer::{communication::http::resources::ResourcesImpl, components::time::SystemTime};
 
 /// Embeds a [`PasswordProtection`] to protect it from brute forces attacks.
 ///

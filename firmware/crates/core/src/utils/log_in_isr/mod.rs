@@ -9,8 +9,7 @@ mod from_isr
 
 pub(crate) use from_isr::info;
 use log::Level;
-
-use crate::utils::mutex::Mutex;
+use spin::Mutex;
 
 static LOGS: Mutex<Vec<(Level, String)>> = Mutex::new(Vec::new());
 

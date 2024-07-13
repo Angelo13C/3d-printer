@@ -1,3 +1,5 @@
+use spin::{Mutex, MutexGuard};
+
 use super::Flag;
 use crate::{
 	printer::components::motion::{
@@ -5,10 +7,7 @@ use crate::{
 		planner::{self, Block},
 		N_MOTORS,
 	},
-	utils::{
-		measurement::distance::Distance,
-		mutex::{Mutex, MutexGuard},
-	},
+	utils::measurement::distance::Distance,
 };
 
 static CURRENT_AND_NEXT_BLOCKS: Mutex<Communication> = Mutex::new(Communication {

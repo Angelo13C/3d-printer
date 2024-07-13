@@ -2,12 +2,10 @@ mod black_list;
 mod white_list;
 
 use embedded_svc::http::server::{Connection, Request};
+use spin::MutexGuard;
 
 use super::ProtectionInput;
-use crate::{
-	printer::{communication::http::resources::ResourcesImpl, components::Peripherals},
-	utils::mutex::MutexGuard,
-};
+use crate::printer::{communication::http::resources::ResourcesImpl, components::Peripherals};
 
 pub trait GetIpAddress
 {

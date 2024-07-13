@@ -3,10 +3,11 @@ use argon2::{
 	Params, PasswordHasher, PasswordVerifier,
 };
 pub use brute_force::BruteForceProtection;
+use spin::MutexGuard;
 
 use self::algorithm::AlgorithmIter;
 use super::{Protection, ProtectionInput};
-use crate::{printer::communication::http::resources::ResourcesImpl, utils::mutex::MutexGuard};
+use crate::printer::communication::http::resources::ResourcesImpl;
 
 mod brute_force;
 

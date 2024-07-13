@@ -1,12 +1,11 @@
 use std::sync::Arc;
 
+use spin::{Mutex, MutexGuard};
+
 use super::{command::CommandsSender, other::GCodeHistory};
-use crate::{
-	printer::{
-		communication::{ota::OverTheAirUpdater, security::Security},
-		components::{file_system::FileSystem, print_process::PrintProcess, Peripherals},
-	},
-	utils::mutex::{Mutex, MutexGuard},
+use crate::printer::{
+	communication::{ota::OverTheAirUpdater, security::Security},
+	components::{file_system::FileSystem, print_process::PrintProcess, Peripherals},
 };
 
 /// A container of resources that can be used by the [`callbacks`] of the http requests and also by the

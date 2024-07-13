@@ -1,8 +1,9 @@
 use serde::{ser::SerializeStruct, Serialize};
+use spin::Mutex;
 
 use crate::{
 	printer::components::{temperature::TemperaturePidController, Peripherals},
-	utils::{measurement::temperature::Temperature, mutex::Mutex},
+	utils::measurement::temperature::Temperature,
 };
 
 static PRINTER_STATE: Mutex<PrinterState> = Mutex::new(PrinterState::EMPTY);

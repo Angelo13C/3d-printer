@@ -4,17 +4,15 @@ use embedded_svc::{
 	ota::OtaUpdate,
 };
 use serde::{Deserialize, Serialize};
+use spin::MutexGuard;
 
-use crate::{
-	printer::{
-		communication::http::{
-			command::Command,
-			other::printer_state,
-			resources::{Resources, ResourcesImpl},
-		},
-		components::{file_system::regions::metadata::FileId, pauser, time::SystemTime, Peripherals},
+use crate::printer::{
+	communication::http::{
+		command::Command,
+		other::printer_state,
+		resources::{Resources, ResourcesImpl},
 	},
-	utils::mutex::MutexGuard,
+	components::{file_system::regions::metadata::FileId, pauser, time::SystemTime, Peripherals},
 };
 
 const SER_BUFFER_SIZE: usize = super::STACK_SIZE / 3;

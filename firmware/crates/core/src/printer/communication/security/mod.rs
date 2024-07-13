@@ -3,9 +3,10 @@ use std::time::Duration;
 use argon2::Params;
 use embedded_svc::http::server::{Connection, Request};
 use password::{BruteForceProtection, PasswordProtection};
+use spin::MutexGuard;
 
 use super::http::resources::ResourcesImpl;
-use crate::{printer::components::Peripherals, utils::mutex::MutexGuard};
+use crate::printer::components::Peripherals;
 
 mod ip_address;
 mod password;
