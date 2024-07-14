@@ -14,6 +14,7 @@ static CURRENT_AND_NEXT_BLOCKS: Mutex<Communication> = Mutex::new(Communication 
 	current_motion_profile_block: None,
 	next_motion_profile_block: None,
 	kinematics_functions: None,
+	z_axis_distance: None,
 });
 
 /// Data shared between the "main thread" and the ticker ISR.
@@ -25,6 +26,7 @@ pub struct Communication
 	pub current_motion_profile_block: Option<planner::Block<N_MOTORS>>,
 	next_motion_profile_block: Option<planner::Block<N_MOTORS>>,
 	pub kinematics_functions: Option<KinematicsFunctions>,
+	z_axis_distance: Option<Distance>,
 }
 
 impl Communication
@@ -33,6 +35,15 @@ impl Communication
 	{
 		self.current_motion_profile_block = self.next_motion_profile_block.take();
 	}
+
+	pub fn set_z_axis_distance(&mut self, distance: Distance)
+	{
+		self.z_axis_distance = Some(distance);
+	}
+pub fn get_z_axis_distance() -> Option<Distance>
+{
+	let mut communication = CURRENT_AND_NEXT_BLOCKS.lock();
+	communication.z_axis_distance.take()
 }
 
 /// Checks if the ticker ISR requires 1 or 2 blocks and eventually uses them.

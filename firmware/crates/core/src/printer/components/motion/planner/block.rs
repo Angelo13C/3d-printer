@@ -1,5 +1,7 @@
 use enumset::EnumSet;
 
+use crate::utils::measurement::distance::Distance;
+
 pub type StepsPerSecond = u32;
 
 /// Result of a planned move. It contains all the data necessary to allow the [`StepperMotorsTicker`] to make
@@ -21,6 +23,7 @@ pub struct Block<const N: usize>
 	pub acceleration_steps_per_sec2: f32,
 	pub acceleration_rate: u32,
 	pub millimeters: f32, // The remaining distance for this block to be executed in (mm)
+	pub travelled_z_distance: Distance,
 
 	pub accelerate_until: u32,
 	pub decelerate_after: u32,
@@ -49,6 +52,7 @@ impl<const N: usize> Default for Block<N>
 			acceleration_steps_per_sec2: Default::default(),
 			acceleration_rate: Default::default(),
 			millimeters: Default::default(),
+			travelled_z_distance: Default::default(),
 
 			accelerate_until: Default::default(),
 			decelerate_after: Default::default(),
