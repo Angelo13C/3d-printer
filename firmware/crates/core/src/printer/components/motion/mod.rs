@@ -1,5 +1,6 @@
 use std::{fmt::Debug, time::Duration};
 
+use bed_leveling::BedLevelingProcedure;
 use embedded_hal::digital::OutputPin;
 pub use linear::*;
 
@@ -48,6 +49,9 @@ pub struct MotionController<Timer: TimerTrait, Kinematics: KinematicsTrait, ZEnd
 
 	tmc2209_drivers: [TMC2209; N_MOTORS],
 	rotations_to_linear_motions: [RotationToLinearMotion; N_MOTORS],
+
+	bed_leveling_procedure: BedLevelingProcedure,
+
 	kinematics: Kinematics,
 
 	homing_procedure: HomingProcedure,
@@ -121,6 +125,7 @@ impl<Timer: TimerTrait, Kinematics: KinematicsTrait, ZEndstop: ZAxisProbe> Motio
 				configuration.planner_settings,
 			),
 			ticker,
+			bed_leveling_procedure: BedLevelingProcedure::new(configuration.bed_size),
 			kinematics: peripherals.kinematics,
 			bed_size: configuration.bed_size,
 			current_move: None,
@@ -214,6 +219,8 @@ impl<Timer: TimerTrait, Kinematics: KinematicsTrait, ZEndstop: ZAxisProbe> Motio
 		(set_target_position_axis)(z, Axis::Z as usize);
 		(set_target_position_axis)(e, Axis::E as usize);
 
+		self.bed_leveling_procedure.apply(&mut target_position);
+
 		self.planner.plan_move::<Kinematics>(
 			target_position,
 			calculate_microsteps_per_mm(&self.rotations_to_linear_motions, &self.tmc2209_drivers),
@@ -273,6 +280,8 @@ impl<Timer: TimerTrait, Kinematics: KinematicsTrait, ZEndstop: ZAxisProbe> Motio
 			&mut self.z_endstop,
 			self.bed_size,
 		)?;
+
+		self.bed_leveling_procedure.tick();
 
 		if let Some(current_move_steps_difference) = self.planner.tick()
 		{
@@ -340,6 +349,13 @@ impl<Timer: TimerTrait, Kinematics: KinematicsTrait, ZEndstop: ZAxisProbe> Motio
 	{
 		self.homing_procedure.is_homing()
 	}
+
+	pub fn start_bed_leveling(&mut self) -> Result<(), BlocksBufferIsFull>
+	{
+		self.bed_leveling_procedure.start::<N_MOTORS, Kinematics>(
+			&mut self.planner,
+			calculate_microsteps_per_mm(&self.rotations_to_linear_motions, &self.tmc2209_drivers),
+		)
 	}
 
 	/// Returns a mutable reference to the [`TMC2209`] driver you provided to [`Self::new`]
