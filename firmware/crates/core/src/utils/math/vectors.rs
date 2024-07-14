@@ -107,6 +107,14 @@ impl<const N: usize> Add<&Self> for VectorN<N>
 	}
 }
 
+impl<const N: usize> AddAssign<&Self> for VectorN<N>
+{
+	fn add_assign(&mut self, rhs: &Self)
+	{
+		*self = *self + rhs;
+	}
+}
+
 impl<const N: usize> Sub<&Self> for VectorN<N>
 {
 	type Output = Self;
