@@ -7,18 +7,20 @@ use std::{
 use embedded_hal::digital::OutputPin;
 
 use super::{
-	bed_leveling::{Probe, ZAxisProbe},
+	bed_leveling::{Probe, UnifiedBedLevelingProcedure, ZAxisProbe},
 	homing::endstop::Endstop,
 	planner::{self, Flag},
 	N_MOTORS,
 };
 use crate::{
 	printer::components::{
-		drivers::stepper_motor::StepperMotor,
-		hal::timer::{Timer as TimerTrait, TimerAdditionalFunctionality},
+		drivers::stepper_motor::*,
+		hal::timer::{self, Timer as TimerTrait, TimerAdditionalFunctionality},
+		motion::Axis,
 	},
 	utils::{
 		bresenham::Bresenham,
+		math::vectors::Vector2,
 		measurement::{distance::Distance, duration::SmallDuration, frequency::Frequency},
 	},
 };
@@ -39,6 +41,8 @@ macro_rules! generate_step_pulses {
 		)+
 	};
 }
+
+const DELAY_BETWEEN_TICKS_WITH_NO_MOVEMENT: Duration = Duration::from_micros(500);
 
 /// Attaches an interrupt to the timer you provide to [`Self::new`] that checks if stepper motors should take a step
 /// based on the [`planned block`] [`communicated to the ticker`], and eventually makes them take the step.
@@ -84,10 +88,11 @@ impl<Timer: TimerTrait> StepperMotorsTicker<Timer>
 			z_axis_motor,
 			extruder_motor,
 			timer: timer.get_additional_functionality(),
+			timer_frequency: timer.get_clock_frequency(),
 			block_parameters: None,
 			x_endstop,
 			y_endstop,
-			accel_step_rate: 0.,
+			accel_step_rate: DurationInTicks(0),
 		};
 
 		unsafe {
@@ -111,7 +116,7 @@ impl<Timer: TimerTrait> StepperMotorsTicker<Timer>
 	{
 		self.timer.enable_alarm(true).map_err(EnableError::EnableAlarm)?;
 
-		const START_TIME: Duration = Duration::from_micros(1);
+		const START_TIME: Duration = Duration::from_millis(100);
 		let mut timer_functionality = self.timer.get_additional_functionality();
 		let alarm_time = START_TIME + timer_functionality.get_time().map_err(EnableError::SetAlarm)?;
 		timer_functionality
@@ -166,8 +171,15 @@ impl<Timer: TimerTrait> StepperMotorsTicker<Timer>
 		>,
 	)
 	{
-		let start_isr_time = parameters.timer.get_time().unwrap().as_nanos() as u64;
-		let mut next_isr_tick = SmallDuration::from_micros(1);
+		let start_isr_time = parameters.timer.get_time_in_ticks().unwrap();
+		let mut next_isr_tick = DurationInTicks(timer::duration_to_counter(
+			DELAY_BETWEEN_TICKS_WITH_NO_MOVEMENT,
+			parameters.timer_frequency,
+		) as u32);
+
+		let speed_to_next_isr_tick =
+			|duration: DurationInTicks| DurationInTicks(parameters.timer_frequency.as_hertz() / duration.0);
+		let mul_steps = |first: u32, second: u32| ((((first as u64) * (second as u64)) + (1 << 23)) >> 24) as u32;
 
 		if let Some(mut communication) = planner::communicate_to_ticker::get_blocks()
 		{
@@ -210,52 +222,69 @@ impl<Timer: TimerTrait> StepperMotorsTicker<Timer>
 
 				if !is_end_reached
 				{
-					let block_parameters = parameters.block_parameters.get_or_insert_with(|| BlockTickParameters {
-						acceleration_time: SmallDuration::ZERO,
-						deceleration_time: SmallDuration::ZERO,
-						bresenham: Bresenham::new([0; N_MOTORS], block.steps),
+					let block_parameters = parameters.block_parameters.get_or_insert_with(|| {
+						fn set_motor_direction<DirPin: OutputPin, StepPin: OutputPin>(
+							motor: &mut StepperMotor<DirPin, StepPin>, steps: i32,
+						)
+						{
+							motor.set_rotation_direction(RotationalDirection::from_sign(steps));
+						}
+						(set_motor_direction)(&mut parameters.left_motor, block.steps[Axis::X as usize]);
+						(set_motor_direction)(&mut parameters.right_motor, block.steps[Axis::Y as usize]);
+						(set_motor_direction)(&mut parameters.z_axis_motor, block.steps[Axis::Z as usize]);
+						(set_motor_direction)(&mut parameters.extruder_motor, block.steps[Axis::E as usize]);
+
+						BlockTickParameters {
+							acceleration_time: DurationInTicks(0),
+							deceleration_time: DurationInTicks(0),
+							bresenham: Bresenham::new([0; N_MOTORS], block.steps),
+						}
 					});
 
 					if let Some(motors_that_take_steps) = block_parameters.bresenham.next()
 					{
-						new_block = false;
-
-						block.step_event_count += motors_that_take_steps.iter().filter(|&v| *v).count() as u32;
 						let [a, b, c, e] = motors_that_take_steps;
 
+						new_block = false;
 						generate_step_pulses!(a => parameters.left_motor,
 									b => parameters.right_motor,
 									c => parameters.z_axis_motor,
 									e => parameters.extruder_motor);
 
-						if block.step_event_count <= block.accelerate_until
+						if block_parameters.bresenham.steps_taken() <= block.accelerate_until
 						{
-							parameters.accel_step_rate = block_parameters.acceleration_time.as_seconds_f32()
-								* block.acceleration_rate as f32 + block.initial_speed;
-							parameters.accel_step_rate = parameters.accel_step_rate.min(block.nominal_speed);
+							parameters.accel_step_rate = DurationInTicks(
+								(mul_steps)(block_parameters.acceleration_time.0, block.acceleration_rate)
+									+ block.initial_speed,
+							);
+							parameters.accel_step_rate =
+								parameters.accel_step_rate.min(DurationInTicks(block.nominal_speed));
 
-							next_isr_tick = SmallDuration::from_seconds_f32(parameters.accel_step_rate);
+							next_isr_tick = (speed_to_next_isr_tick)(parameters.accel_step_rate);
 							block_parameters.acceleration_time += next_isr_tick;
 						}
-						else if block.step_event_count > block.decelerate_after
+						else if block_parameters.bresenham.steps_taken() > block.decelerate_after
 						{
-							let mut step_rate =
-								block_parameters.deceleration_time.as_seconds_f32() * block.acceleration_rate as f32;
+							let mut step_rate = DurationInTicks((mul_steps)(
+								block_parameters.deceleration_time.0,
+								block.acceleration_rate,
+							));
 							if step_rate < parameters.accel_step_rate
 							{
-								step_rate = (parameters.accel_step_rate - step_rate).max(block.final_speed);
+								step_rate =
+									(parameters.accel_step_rate - step_rate).max(DurationInTicks(block.final_speed));
 							}
 							else
 							{
-								step_rate = block.final_speed;
+								step_rate = DurationInTicks(block.final_speed);
 							}
 
-							next_isr_tick = SmallDuration::from_seconds_f32(step_rate);
+							next_isr_tick = (speed_to_next_isr_tick)(step_rate);
 							block_parameters.deceleration_time += next_isr_tick;
 						}
 						else
 						{
-							next_isr_tick = SmallDuration::from_seconds_f32(block.nominal_speed);
+							next_isr_tick = (speed_to_next_isr_tick)(DurationInTicks(block.nominal_speed));
 						}
 					}
 				}
@@ -270,8 +299,8 @@ impl<Timer: TimerTrait> StepperMotorsTicker<Timer>
 
 		// The timer's counter is not resetted, so instead of simply setting the alarm to the `next_isr_tick` the current
 		// time (`start_isr_time`) is added to it
-		let alarm = Duration::from_nanos(next_isr_tick.as_nanos() + start_isr_time);
-		parameters.timer.set_alarm(alarm).unwrap();
+		let alarm = start_isr_time + next_isr_tick.0 as u64;
+		parameters.timer.set_alarm_in_ticks(alarm).unwrap();
 	}
 }
 
@@ -335,18 +364,57 @@ struct TickParameters<
 	z_axis_motor: StepperMotor<ZAxisDirPin, ZAxisStepPin>,
 	extruder_motor: StepperMotor<ExtruderDirPin, ExtruderStepPin>,
 	timer: Timer,
+	timer_frequency: Frequency,
 
 	x_endstop: XEndstop,
 	y_endstop: YEndstop,
 
 	block_parameters: Option<BlockTickParameters>,
 
-	accel_step_rate: f32,
+	accel_step_rate: DurationInTicks,
 }
 
+#[derive(Debug)]
 struct BlockTickParameters
 {
-	acceleration_time: SmallDuration,
-	deceleration_time: SmallDuration,
+	acceleration_time: DurationInTicks,
+	deceleration_time: DurationInTicks,
 	bresenham: Bresenham<N_MOTORS>,
+}
+
+#[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Debug)]
+struct DurationInTicks(u32);
+impl std::ops::Add for DurationInTicks
+{
+	type Output = Self;
+
+	fn add(self, rhs: Self) -> Self::Output
+	{
+		Self(self.0 + rhs.0)
+	}
+}
+impl std::ops::AddAssign for DurationInTicks
+{
+	fn add_assign(&mut self, rhs: Self)
+	{
+		*self = *self + rhs
+	}
+}
+impl std::ops::Sub for DurationInTicks
+{
+	type Output = Self;
+
+	fn sub(self, rhs: Self) -> Self::Output
+	{
+		Self(self.0 - rhs.0)
+	}
+}
+impl std::ops::Mul<u32> for DurationInTicks
+{
+	type Output = Self;
+
+	fn mul(self, rhs: u32) -> Self::Output
+	{
+		Self(self.0 * rhs)
+	}
 }
