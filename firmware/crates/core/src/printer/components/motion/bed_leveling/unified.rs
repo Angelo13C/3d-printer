@@ -25,7 +25,7 @@ impl UnifiedBedLevelingProcedure
 		Self::default()
 	}
 
-	pub fn has_started(&self)
+	pub fn has_started(&self) -> bool
 	{
 		match self
 		{
@@ -78,7 +78,7 @@ impl UnifiedBedLevelingProcedure
 			let y = target_position[Axis::Y as usize];
 
 			let point_correction = inner.get_point_correction(Vector2::from_xy(x, y));
-			*target_position[Axis::Z as usize] += point_correction;
+			target_position[Axis::Z as usize] += point_correction;
 		}
 	}
 }

@@ -7,6 +7,7 @@ pub use z_axis_probe::*;
 
 use super::{
 	axes::Axis,
+	kinematics::Kinematics,
 	planner::{communicate_to_ticker, BlocksBufferIsFull, Flag, Planner},
 };
 use crate::utils::{
@@ -57,8 +58,8 @@ impl BedLevelingProcedure
 		// Restart from where the procedure stopped due to the block buffer being full
 		if self.current_point_planned_index != 0
 		{
-			start_y = (self.current_point_planned_index / 2) / Self::BED_LEVELING_GRID_SIZE.0 as u16;
-			start_x = (self.current_point_planned_index / 2) % Self::BED_LEVELING_GRID_SIZE.0 as u16;
+			start_y = ((self.current_point_planned_index / 2) / Self::BED_LEVELING_GRID_SIZE.0 as u16) as u8;
+			start_x = ((self.current_point_planned_index / 2) % Self::BED_LEVELING_GRID_SIZE.0 as u16) as u8;
 		}
 		// It's a new start
 		else
@@ -75,28 +76,29 @@ impl BedLevelingProcedure
 			distance_between_points.y() / Self::BED_LEVELING_GRID_SIZE.1,
 		);
 
-		const START_POSITION: Vector2 = Vector2::new([Self::DISTANCE_FROM_BED_MARGINS; 2]);
 		for y in start_y..Self::BED_LEVELING_GRID_SIZE.1
 		{
 			for x in start_x..Self::BED_LEVELING_GRID_SIZE.0
 			{
-				let mut target_position_array = planner.get_position().clone();
+				let mut target_position_array = planner.get_position().get_internal_array().clone();
 
-				target_position_array[Axis::X as usize] = START_POSITION.x() + x * distance_between_points.x();
-				target_position_array[Axis::Y as usize] = START_POSITION.y() + y * distance_between_points.y();
+				target_position_array[Axis::X as usize] =
+					Self::DISTANCE_FROM_BED_MARGINS + distance_between_points.x() * x;
+				target_position_array[Axis::Y as usize] =
+					Self::DISTANCE_FROM_BED_MARGINS + distance_between_points.y() * y;
 
 				if self.current_point_planned_index % 2 == 0
 				{
 					target_position_array[Axis::Z as usize] = Self::DISTANCE_FROM_BED;
 					let target_position = VectorN::new(target_position_array);
-					planner.plan_move(target_position, steps_per_mm, Self::MOVE_SPEED_MM_SECOND)?;
+					planner.plan_move::<K>(target_position, steps_per_mm, Self::MOVE_SPEED_MM_SECOND)?;
 					planner.mark_last_added_move_as_ready_to_go();
 					self.current_point_planned_index += 1;
 				}
 
 				target_position_array[Axis::Z as usize] = Distance::from_centimeters(-50);
 				let target_position = VectorN::new(target_position_array);
-				planner.plan_move(target_position, steps_per_mm, Self::PROBE_MOVE_SPEED_MM_SECOND)?;
+				planner.plan_move::<K>(target_position, steps_per_mm, Self::PROBE_MOVE_SPEED_MM_SECOND)?;
 				planner.set_flags_on_last_added_block(enum_set!(Flag::BedLeveling));
 				planner.mark_last_added_move_as_ready_to_go();
 				self.current_point_planned_index += 1;
@@ -120,7 +122,7 @@ impl BedLevelingProcedure
 
 			self.current_point_index += 1;
 
-			if self.current_point_index == Self::BED_LEVELING_GRID_SIZE.0 * Self::BED_LEVELING_GRID_SIZE.1
+			if self.current_point_index == Self::BED_LEVELING_GRID_SIZE.0 as u16 * Self::BED_LEVELING_GRID_SIZE.1 as u16
 			{
 				self.unified_bed_leveling.finish_procedure().unwrap();
 			}

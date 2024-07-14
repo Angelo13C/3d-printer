@@ -227,6 +227,15 @@ impl Debug for Distance
 	}
 }
 
+impl Mul<u8> for Distance
+{
+	type Output = Self;
+
+	fn mul(self, rhs: u8) -> Self::Output
+	{
+		self * rhs as i32
+	}
+}
 impl Mul<i32> for Distance
 {
 	type Output = Self;
@@ -250,6 +259,15 @@ impl MulAssign<f32> for Distance
 	fn mul_assign(&mut self, rhs: f32)
 	{
 		*self = *self * rhs;
+	}
+}
+impl Div<u8> for Distance
+{
+	type Output = Self;
+
+	fn div(self, rhs: u8) -> Self::Output
+	{
+		self / rhs as i32
 	}
 }
 impl Div<i32> for Distance

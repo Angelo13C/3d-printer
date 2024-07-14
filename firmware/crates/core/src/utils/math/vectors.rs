@@ -99,10 +99,8 @@ impl<const N: usize> Add<&Self> for VectorN<N>
 
 	fn add(mut self, rhs: &Self) -> Self::Output
 	{
-		for i in 0..N
-		{
-			self[i] += rhs[i]
-		}
+		self += rhs;
+
 		self
 	}
 }
@@ -111,7 +109,10 @@ impl<const N: usize> AddAssign<&Self> for VectorN<N>
 {
 	fn add_assign(&mut self, rhs: &Self)
 	{
-		*self = *self + rhs;
+		for i in 0..N
+		{
+			self[i] += rhs[i]
+		}
 	}
 }
 
@@ -186,6 +187,11 @@ impl<const N: usize> VectorN<N>
 	pub const fn new(components: [Distance; N]) -> Self
 	{
 		Self(components)
+	}
+
+	pub const fn get_internal_array(&self) -> &[Distance; N]
+	{
+		&self.0
 	}
 
 	/// Returns the square of the length of this vector in millimeters.
