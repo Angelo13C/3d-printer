@@ -29,6 +29,14 @@ use crate::{
 	},
 };
 
+/// Converts the provided `feed_rate` from mm/min to mm/s (which is what the [`Planner`] wants).
+///
+/// [`Planner`]: super::super::motion::planner::Planner
+fn convert_feed_rate(feed_rate: Param<identifier::F, f32>) -> Option<f32>
+{
+	feed_rate.value.map(|feed_rate| feed_rate / 60.)
+}
+
 #[derive(Clone, Copy, Debug, PartialEq, Default)]
 pub struct G0
 {
@@ -76,7 +84,7 @@ impl<P: Peripherals> GCodeCommand<P> for G0
 			self.y.value,
 			self.z.value,
 			self.e.value,
-			self.feed_rate.value,
+			convert_feed_rate(self.feed_rate),
 		)
 		{
 			Ok(move_id) =>
@@ -239,7 +247,7 @@ impl<P: Peripherals> GCodeCommand<P> for G61
 
 				match printer_components
 					.motion_controller
-					.plan_move(x, y, z, e, self.feed_rate.value)
+					.plan_move(x, y, z, e, convert_feed_rate(self.feed_rate))
 				{
 					Ok(_) => Status::Finished,
 					Err(_) => Status::Working,
