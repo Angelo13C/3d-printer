@@ -40,6 +40,8 @@ impl Communication
 	{
 		self.z_axis_distance = Some(distance);
 	}
+}
+
 pub fn get_z_axis_distance() -> Option<Distance>
 {
 	let mut communication = CURRENT_AND_NEXT_BLOCKS.lock();
