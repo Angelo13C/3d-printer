@@ -561,3 +561,25 @@ impl<P: Peripherals> GCodeCommand<P> for M107
 		}
 	}
 }
+
+#[derive(Clone, Copy, Debug, PartialEq, Default)]
+pub struct M105;
+impl<P: Peripherals> GCodeCommand<P> for M105
+{
+	fn execute(&mut self, printer_components: &mut Printer3DComponents<P>, _: &mut GCodeExecuter<P>) -> Status
+	{
+		let hotend_temperature = printer_components
+			.hotend_pid_controller
+			.get_last_sample_of_current_temperature();
+		let bed_temperature = printer_components
+			.heated_bed_pid_controller
+			.get_last_sample_of_current_temperature();
+		log::info!(
+			"M105: Report temperature, hotend: {:#?}, bed: {:#?}",
+			hotend_temperature,
+			bed_temperature
+		);
+
+		Status::Finished
+	}
+}
