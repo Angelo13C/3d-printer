@@ -17,6 +17,7 @@ use crate::utils::{
 pub enum HomingProcedure
 {
 	None,
+	ShouldStart,
 	Doing(HomingMove),
 }
 
@@ -30,9 +31,11 @@ impl HomingProcedure
 		&mut self, planner: &mut Planner<N>, calculate_steps_per_mm: impl FnOnce() -> [f32; N],
 	) -> Result<(), BlocksBufferIsFull>
 	{
-		*self = Self::Doing(HomingMove::X);
+		*self = Self::ShouldStart;
 
 		Self::plan_move::<N, K>(HomingMove::X, planner, calculate_steps_per_mm)?;
+
+		*self = Self::Doing(HomingMove::X);
 
 		Ok(())
 	}
@@ -55,18 +58,16 @@ impl HomingProcedure
 				{
 					if !Self::is_homing_move_being_executed(planner)
 					{
-						*self = Self::Doing(HomingMove::Y);
-
 						Self::plan_move::<N, K>(HomingMove::Y, planner, calculate_steps_per_mm)
 							.map_err(|_| TickError::HomingX)?;
+
+						*self = Self::Doing(HomingMove::Y);
 					}
 				},
 				HomingMove::Y =>
 				{
 					if !Self::is_homing_move_being_executed(planner)
 					{
-						*self = Self::Doing(HomingMove::CenteringForZAxis { bed_size });
-
 						// Move the carriage to the center of the bed
 						Self::plan_move::<N, K>(
 							HomingMove::CenteringForZAxis { bed_size },
@@ -74,20 +75,22 @@ impl HomingProcedure
 							calculate_steps_per_mm,
 						)
 						.map_err(|_| TickError::HomingY)?;
+
+						*self = Self::Doing(HomingMove::CenteringForZAxis { bed_size });
 					}
 				},
 				HomingMove::CenteringForZAxis { bed_size: _ } =>
 				{
 					if !Self::is_homing_move_being_executed(planner)
 					{
-						*self = Self::Doing(HomingMove::Z);
-
 						z_endstop
 							.prepare_for_homing()
 							.map_err(TickError::PreparingZAxisToProbe)?;
 
 						Self::plan_move::<N, K>(HomingMove::Z, planner, calculate_steps_per_mm)
 							.map_err(|_| TickError::HomingZ)?;
+
+						*self = Self::Doing(HomingMove::Z);
 					}
 				},
 				HomingMove::Z =>
