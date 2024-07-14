@@ -37,7 +37,7 @@ pub mod ticker;
 /// Number of stepper motors controlled by the machine.
 pub const N_MOTORS: usize = 4;
 
-const DEFAULT_FEED_RATE: f32 = 3_000.;
+const DEFAULT_FEED_RATE: f32 = 50.;
 
 /// Controls all the stuff (moves, homing, bed levelling..) related to the movement of everything inside the machine.
 pub struct MotionController<Timer: TimerTrait, Kinematics: KinematicsTrait, ZEndstop: ZAxisProbe>
