@@ -336,10 +336,10 @@ impl<Timer: TimerTrait, Kinematics: KinematicsTrait, ZEndstop: ZAxisProbe> Motio
 		Ok(())
 	}
 
-	/// TODO!
-	pub fn start_bed_leveling(&mut self)
+	pub fn is_homing(&self) -> bool
 	{
-		todo!();
+		self.homing_procedure.is_homing()
+	}
 	}
 
 	/// Returns a mutable reference to the [`TMC2209`] driver you provided to [`Self::new`]

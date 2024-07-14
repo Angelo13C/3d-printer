@@ -186,15 +186,29 @@ pub struct G28
 	pub x: Param<identifier::X, NoValue>,
 	pub y: Param<identifier::Y, NoValue>,
 	pub z: Param<identifier::Z, NoValue>,
+
+	pub has_started_homing: bool,
 }
 impl<P: Peripherals> GCodeCommand<P> for G28
 {
 	fn prepare(&mut self, printer_components: &mut Printer3DComponents<P>, _: &mut GCodeExecuter<P>) -> Status
 	{
-		match printer_components.motion_controller.start_homing()
+		if !self.has_started_homing
 		{
-			Ok(_) => Status::Finished,
-			Err(_) => Status::Working,
+			if printer_components.motion_controller.start_homing().is_err()
+			{
+				return Status::Working;
+			}
+			self.has_started_homing = true;
+		}
+
+		if printer_components.motion_controller.is_homing()
+		{
+			Status::Working
+		}
+		else
+		{
+			Status::Finished
 		}
 	}
 }
