@@ -257,6 +257,7 @@ impl<const N: usize> Planner<N>
 		let inverse_move_duration_s = inverse_move_length * move_speed_mm_s;
 
 		block.millimeters = move_length;
+		block.travelled_z_distance = displacement[Axis::Z as usize];
 
 		block.nominal_speed_in_mm_sec = move_speed_mm_s;
 		block.nominal_speed = (block.step_event_count as f32 * inverse_move_duration_s).ceil() as StepsPerSecond;

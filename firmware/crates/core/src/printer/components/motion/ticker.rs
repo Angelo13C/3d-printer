@@ -220,6 +220,19 @@ impl<Timer: TimerTrait> StepperMotorsTicker<Timer>
 					}
 				}
 
+				if block.flags.contains(Flag::BedLeveling) && is_z_axis_triggered()
+				{
+					is_end_reached = true;
+
+					let block_parameters = parameters.block_parameters.unwrap();
+					// This assumes that a move with the Flag::BedLevelingProbe moves only 1 motor which is the Z axis motor
+					let travelled_distance_along_z_axis = (block_parameters.bresenham.steps_taken()
+						* block.travelled_z_distance.as_tens_of_nanometers() as u32)
+						/ block.step_event_count;
+					communication
+						.set_z_axis_distance(Distance::from_tens_of_nanometers(travelled_distance_along_z_axis));
+				}
+
 				if !is_end_reached
 				{
 					let block_parameters = parameters.block_parameters.get_or_insert_with(|| {
