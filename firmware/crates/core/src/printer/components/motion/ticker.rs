@@ -1,4 +1,4 @@
-use std::{
+use core::{
 	fmt::Debug,
 	sync::atomic::{AtomicBool, Ordering},
 	time::Duration,
