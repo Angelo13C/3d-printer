@@ -69,6 +69,15 @@ impl TMC2209
 		Ok(self_)
 	}
 
+	pub fn set_enabled<Uart: UartTrait>(&mut self, enabled: bool, uart_driver: &mut Uart) -> Result<(), Uart::Error>
+	{
+		match enabled
+		{
+			true => self.enable(uart_driver),
+			false => self.disable(uart_driver),
+		}
+	}
+
 	/// Enable the TMC2209 via software (UART).
 	///
 	/// This switches on the power stage on the TMC2209, making the motor able to move.
