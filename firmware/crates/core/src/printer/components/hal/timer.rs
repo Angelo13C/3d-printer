@@ -33,6 +33,13 @@ pub trait Timer
 	///
 	/// When the timer is disabled it won't increase the time it is keeping (which means that it also won't fire alarms).
 	fn enable_alarm(&mut self, enable: bool) -> Result<(), Self::Error>;
+
+	fn get_alarm_in_ticks(&self) -> Result<u64, Self::Error>;
+	fn get_alarm(&self) -> Result<Duration, Self::Error>
+	{
+		let alarm_in_ticks = self.get_alarm_in_ticks()?;
+		Ok(ticks_to_duration(alarm_in_ticks, self.get_clock_frequency()))
+	}
 }
 
 /// Check [`Timer::get_additional_functionality`].
