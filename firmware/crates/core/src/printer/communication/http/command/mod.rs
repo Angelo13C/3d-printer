@@ -22,7 +22,7 @@ impl<P: Peripherals> Command<P>
 		{
 			Command::AddGCodeCommandsToBuffer(commands) =>
 			{
-				print_process::add_commands_in_buffer_count(commands.len() as u16);
+				//print_process::add_commands_in_buffer_count(commands.len() as u16);
 
 				for command in commands
 				{
