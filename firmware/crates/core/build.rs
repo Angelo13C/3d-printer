@@ -109,34 +109,31 @@ fn generate_g_code_deserializer() -> Result<(), Box<dyn std::error::Error>>
 				{
 					for segment in field_type.path.segments
 					{
-						if segment.ident.to_string() == "Param"
+						if segment.ident == "Param"
 						{
 							if let syn::PathArguments::AngleBracketed(angle_bracket_args) = segment.arguments
 							{
 								let variable_name = field.ident.as_ref().unwrap().to_string();
 								let [parameter_identifier, parameter_type] = std::array::from_fn(|index| {
-									if let GenericArgument::Type(ty) = &angle_bracket_args.args[index]
+									if let GenericArgument::Type(syn::Type::Path(ty)) = &angle_bracket_args.args[index]
 									{
-										if let syn::Type::Path(ty) = ty
+										let segment = ty.path.segments.last().unwrap();
+										let mut result = segment.ident.to_string();
+										if let syn::PathArguments::AngleBracketed(args) = &segment.arguments
 										{
-											let segment = ty.path.segments.last().unwrap();
-											let mut result = segment.ident.to_string();
-											if let syn::PathArguments::AngleBracketed(args) = &segment.arguments
+											result += "<";
+
+											for arg in &args.args
 											{
-												result += "<";
-
-												for arg in &args.args
+												if let syn::GenericArgument::Type(arg_type) = arg
 												{
-													if let syn::GenericArgument::Type(arg_type) = arg
-													{
-														result += &format!("{}", arg_type.to_token_stream());
-													}
+													result += &format!("{}", arg_type.to_token_stream());
 												}
-												result += ">";
 											}
-
-											return result;
+											result += ">";
 										}
+
+										return result;
 									}
 									String::new()
 								});
@@ -156,7 +153,7 @@ fn generate_g_code_deserializer() -> Result<(), Box<dyn std::error::Error>>
 		}
 	}
 
-	fs::write(&dest_path, g_code_commands_parsed.into_code())?;
+	fs::write(dest_path, g_code_commands_parsed.into_code())?;
 
 	Ok(())
 }
