@@ -47,7 +47,10 @@ impl<P: Peripherals + 'static> MultiThreadCommunication<P>
 				{
 					if let Some(watchdog) = watchdog.as_mut()
 					{
-						watchdog.feed();
+						if let Err(error) = watchdog.feed()
+						{
+							log::error!("Watchdog feed error: {error:#?}");
+						}
 					}
 
 					if let Err(error) = communication.tick()
