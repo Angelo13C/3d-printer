@@ -32,6 +32,7 @@ pub struct PidController<CHP: PwmPin, TADC: Adc, TP: AdcPin<TADC>>
 	pid_control: pid_control::PIDController,
 	safety: TemperatureSafety,
 
+	has_target_temperature: bool,
 	last_current_temperature_sample: Option<Temperature>,
 }
 
@@ -61,6 +62,7 @@ impl<CHP: PwmPin, TADC: Adc, TP: AdcPin<TADC>> PidController<CHP, TADC, TP>
 			cartridge_heater,
 			pid_control,
 			safety,
+			has_target_temperature: false,
 			last_current_temperature_sample: None,
 		}
 	}
@@ -110,18 +112,27 @@ impl<CHP: PwmPin, TADC: Adc, TP: AdcPin<TADC>> PidController<CHP, TADC, TP>
 	}
 
 	/// Returns the [`Temperature`] the PID controller is trying to reach.
-	pub fn get_target_temperature(&self) -> Temperature
+	pub fn get_target_temperature(&self) -> Option<Temperature>
 	{
-		Temperature::from_kelvin(self.pid_control.target() as f32)
+		self.has_target_temperature
+			.then_some(Temperature::from_kelvin(self.pid_control.target() as f32))
 	}
 
 	/// Sets the [`Temperature`] the PID controller will try to reach.
 	///
 	/// # Warning
 	/// You need to call [`PidController::tick`] after this to effectively make the PID controller work to reach it.
-	pub fn set_target_temperature(&mut self, target_temperature: Temperature)
+	pub fn set_target_temperature(&mut self, target_temperature: Option<Temperature>)
 	{
-		self.pid_control.set_target(target_temperature.as_kelvin() as f64)
+		if let Some(target_temperature) = target_temperature
+		{
+			self.pid_control.set_target(target_temperature.as_kelvin() as f64);
+			self.has_target_temperature = true;
+		}
+		else
+		{
+			self.has_target_temperature = false;
+		}
 	}
 
 	/// Make the PID controller work to try to reach its [`target temperature`].
