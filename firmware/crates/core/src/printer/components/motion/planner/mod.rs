@@ -44,6 +44,8 @@ const MINIMUM_PLANNER_SPEED: f32 = 0.05; // (mm/s)
 
 const JUNCTION_DEVIATION_MM: f32 = 0.02;
 
+const DELAY_IN_NUMBER_OF_TICKS_BEFORE_DELIVERING: u8 = 120;
+
 /// The planning involves calculating the most optimal speed and acceleration profiles
 pub struct Planner<const N: usize>
 {
@@ -57,6 +59,7 @@ pub struct Planner<const N: usize>
 
 	blocks: AllocRingBuffer<Block<N>>,
 	ready_to_go_blocks_count: usize,
+	delay_in_number_of_ticks_before_delivering: u8,
 	settings: Settings<N>,
 
 	most_optimized_block_index: usize,
@@ -70,10 +73,15 @@ pub struct MoveId(u32);
 impl MoveId
 {
 	const NULL: Self = Self(0);
+	const EMPTY: Self = Self(u32::MAX);
 
 	pub fn is_null(&self) -> bool
 	{
 		*self == Self::NULL
+	}
+	pub fn is_empty(&self) -> bool
+	{
+		*self == Self::EMPTY
 	}
 
 	const fn next(other: Self) -> Self
@@ -97,6 +105,10 @@ impl std::fmt::Debug for MoveId
 		{
 			write!(f, "MoveId::NULL")
 		}
+		else if self.is_empty()
+		{
+			write!(f, "MoveId::EMPTY")
+		}
 		else
 		{
 			f.debug_tuple("MoveId").field(&self.0).finish()
@@ -108,36 +120,53 @@ impl Planner<N_MOTORS>
 {
 	pub fn tick(&mut self) -> Option<[i32; N_MOTORS]>
 	{
-		if self.has_any_move_planned() && self.ready_to_go_blocks_count > 0
+		if self.delay_in_number_of_ticks_before_delivering > 0
 		{
-			let mut next_position = None;
-
-			communicate_to_ticker::store_blocks_if_necessary(|mut two_blocks_required| {
-				if self.ready_to_go_blocks_count < 2
-				{
-					two_blocks_required = false;
-				}
-
-				self.current_move_id = MoveId::next(self.current_move_id);
-
-				let used_blocks_count = 1 + two_blocks_required as usize;
-				self.most_optimized_block_index -= used_blocks_count;
-				self.ready_to_go_blocks_count -= used_blocks_count;
-
-				// Safety: above we check the ring buffer isn't empty and this function is called at most once, so there must be at least 1 block in the buffer
-				let first = unsafe { self.blocks.dequeue().unwrap_unchecked() };
-				let second = two_blocks_required.then(|| self.blocks.dequeue()).flatten();
-
-				next_position = self.blocks.front().map(|block| block.steps.clone());
-
-				(first, second)
-			});
-
-			next_position
+			self.delay_in_number_of_ticks_before_delivering =
+				self.delay_in_number_of_ticks_before_delivering.saturating_sub(1);
+			None
 		}
 		else
 		{
-			None
+			// Only blocks that don't have the recalculate flag can be used
+			let ready_to_go_blocks = self
+				.blocks
+				.iter()
+				.take(core::cmp::min(2, self.ready_to_go_blocks_count))
+				.take_while(|block| !block.flags.contains(Flag::Recalculate))
+				.count();
+
+			if self.has_any_move_planned() && ready_to_go_blocks > 0
+			{
+				let mut next_position = None;
+
+				communicate_to_ticker::store_blocks_if_necessary(|mut two_blocks_required| {
+					if ready_to_go_blocks < 2
+					{
+						two_blocks_required = false;
+					}
+
+					self.current_move_id = MoveId::next(self.current_move_id);
+
+					let used_blocks_count = 1 + two_blocks_required as usize;
+					self.most_optimized_block_index -= used_blocks_count;
+					self.ready_to_go_blocks_count -= used_blocks_count;
+
+					// Safety: above we check the ring buffer isn't empty and this function is called at most once, so there must be at least 1 block in the buffer
+					let first = unsafe { self.blocks.dequeue().unwrap_unchecked() };
+					let second = two_blocks_required.then(|| self.blocks.dequeue()).flatten();
+
+					next_position = self.blocks.front().map(|block| block.steps.clone());
+
+					(first, second)
+				});
+
+				next_position
+			}
+			else
+			{
+				None
+			}
 		}
 	}
 }
@@ -162,6 +191,7 @@ impl<const N: usize> Planner<N>
 			previous_nominal_speed: 0.,
 			most_optimized_block_index: 0,
 			ready_to_go_blocks_count: 0,
+			delay_in_number_of_ticks_before_delivering: 0,
 			stepper_ticker_frequency: stepper_motors_ticker.get_tick_frequency(),
 		}
 	}
@@ -194,7 +224,7 @@ impl<const N: usize> Planner<N>
 
 	pub fn has_move_been_executed(&self, move_to_check: MoveId) -> bool
 	{
-		move_to_check <= self.current_move_id || move_to_check.is_null()
+		move_to_check <= self.current_move_id || move_to_check.is_null() || move_to_check.is_empty()
 	}
 
 	/// Plans a move that will make the tool move to the `target_position` starting from the `target_position` of the last
@@ -221,7 +251,7 @@ impl<const N: usize> Planner<N>
 		let mut displacement = target_position.clone() - &self.current_position;
 		if displacement == VectorN::ZERO
 		{
-			return Ok(self.last_move_id);
+			return Ok(MoveId::EMPTY);
 		}
 
 		let mut block = Block::<N>::default();
@@ -400,6 +430,11 @@ impl<const N: usize> Planner<N>
 		self.previous_nominal_speed = block.nominal_speed_in_mm_sec;
 
 		self.current_position = target_position.clone();
+
+		if self.blocks.is_empty()
+		{
+			self.delay_in_number_of_ticks_before_delivering = DELAY_IN_NUMBER_OF_TICKS_BEFORE_DELIVERING;
+		}
 
 		self.blocks.push(block);
 
