@@ -58,13 +58,21 @@ impl PrinterState
 		{
 			self.hotend_current_temperature = Some(hotend_current_temperature);
 		}
-		self.hotend_target_temperature = Some(hotend_pid_controller.get_target_temperature());
+		self.hotend_target_temperature = Some(
+			hotend_pid_controller
+				.get_target_temperature()
+				.unwrap_or(Temperature::from_kelvin(0.)),
+		);
 
 		if let Some(bed_current_temperature) = bed_pid_controller.get_last_sample_of_current_temperature()
 		{
 			self.bed_current_temperature = Some(bed_current_temperature);
 		}
-		self.bed_target_temperature = Some(bed_pid_controller.get_target_temperature());
+		self.bed_target_temperature = Some(
+			bed_pid_controller
+				.get_target_temperature()
+				.unwrap_or(Temperature::from_kelvin(0.)),
+		);
 	}
 }
 
