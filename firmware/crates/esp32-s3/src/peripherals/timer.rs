@@ -59,6 +59,11 @@ impl TimerTrait for Timer
 		self.driver.enable(enable)
 	}
 
+	fn get_alarm_in_ticks(&self) -> Result<u64, Self::Error>
+	{
+		self.driver.alarm()
+	}
+
 	fn get_additional_functionality(&self) -> Self::AdditionalFunctionality
 	{
 		TimerInInterrupt {
@@ -122,7 +127,8 @@ impl TimerInInterruptTrait for TimerInInterrupt
 		Ok(self.counter_to_duration(self.get_time_in_ticks()?))
 	}
 
-	fn get_time_in_ticks(&self) -> Result<u64, Self::Error> {
+	fn get_time_in_ticks(&self) -> Result<u64, Self::Error>
+	{
 		let value = if esp_idf_hal::interrupt::active()
 		{
 			unsafe { esp_idf_sys::timer_group_get_counter_value_in_isr(self.group, self.index) }
