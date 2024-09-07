@@ -28,6 +28,11 @@ impl Timer for MockTimer
 	{
 		todo!()
 	}
+
+	fn get_alarm_in_ticks(&self) -> Result<u64, Self::Error>
+	{
+		todo!()
+	}
 }
 
 pub struct MockTimerAdditionalFunctionality;
