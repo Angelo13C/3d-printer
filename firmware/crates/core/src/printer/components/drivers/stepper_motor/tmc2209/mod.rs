@@ -62,7 +62,7 @@ impl TMC2209
 		self_.enable_automatic_gradient_adaptation(uart_driver)?;
 		self_.set_microsteps_per_step(microsteps_per_step, uart_driver)?;
 		self_.enable_stealth_chop(uart_driver)?;
-		self_.set_reply_delay(ReplyDelay::BitTime5, uart_driver);
+		self_.set_reply_delay(ReplyDelay::BitTime5, uart_driver)?;
 
 		self_.enable(uart_driver)?;
 
