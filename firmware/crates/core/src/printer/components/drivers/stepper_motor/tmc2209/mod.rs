@@ -57,7 +57,7 @@ impl TMC2209
 
 		self_.initialize_uart(uart_driver)?;
 
-		self_.set_current_scaling(Some(Percentage::from_0_to_100(100.).unwrap()), None, uart_driver)?;
+		self_.set_current_scaling(Some(Percentage::from_0_to_100(60.).unwrap()), None, uart_driver)?;
 		self_.enable_automatic_current_scaling(uart_driver)?;
 		self_.enable_automatic_gradient_adaptation(uart_driver)?;
 		self_.set_microsteps_per_step(microsteps_per_step, uart_driver)?;
