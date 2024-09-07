@@ -34,7 +34,11 @@ pub fn configuration() -> ComponentsConfig
 		layer_fan_min_duty_cycle_to_move: Percentage::from_0_to_100(30.).unwrap(),
 		hotend_fan_min_duty_cycle_to_move: Percentage::from_0_to_100(30.).unwrap(),
 		hotend_pid: PidConfig {
-			pid_gains: TemperaturePidGains { p: 100., i: 10., d: 750. },
+			pid_gains: TemperaturePidGains {
+				p: 100.,
+				i: 10.,
+				d: 750.,
+			},
 			thermistor: ThermistorConfig {
 				beta: 3_950,
 				resistance_at_t0: 100_000,
@@ -54,7 +58,11 @@ pub fn configuration() -> ComponentsConfig
 			},
 		},
 		heated_bed_pid: PidConfig {
-			pid_gains: TemperaturePidGains { p: 1000., i: 10., d: 10. },
+			pid_gains: TemperaturePidGains {
+				p: 1000.,
+				i: 10.,
+				d: 10.,
+			},
 			thermistor: ThermistorConfig {
 				beta: 3_950,
 				resistance_at_t0: 100_000,
@@ -111,14 +119,14 @@ pub fn configuration() -> ComponentsConfig
 				Distance::from_millimeters(348),
 				Distance::from_millimeters(-55),
 			),
-			planner_blocks_count: 128,
+			planner_blocks_count: 512,
 			planner_settings: motion::planner::Settings {
 				min_feedrate_mm_s: 0.2,
 				min_travel_feedrate_mm_s: 0.5,
-				max_feedrate_mm_s: [500., 500., 10., 45.],
-				retract_acceleration: 3_000.,
-				print_acceleration: 3_000.,
-				travel_acceleration: 4_000.,
+				max_feedrate_mm_s: [200., 200., 10., 45.],
+				retract_acceleration: 1_500.,
+				print_acceleration: 1_500.,
+				travel_acceleration: 2_000.,
 				max_acceleration_mm_per_s2: [9000., 9000., 100., 10000.],
 			},
 		},

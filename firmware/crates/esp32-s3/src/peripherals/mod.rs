@@ -323,16 +323,16 @@ impl Peripherals
 			watchdog_creator: WatchdogCreator(TWDTDriver::new(
 				peripherals.twdt,
 				&TWDTConfig {
-					duration: Duration::from_secs(10),
+					duration: Duration::from_secs(100),
 					panic_on_trigger: true,
 					subscribed_idle_tasks: EnumSet::EMPTY,
 				},
 			)?),
 			system_time: Some(SystemTime::new()?),
 			uart_driver: Some(UARTDriver(UartDriver::new(
-				peripherals.uart2,
-				peripherals.pins.gpio17,
+				peripherals.uart1,
 				peripherals.pins.gpio18,
+				peripherals.pins.gpio17,
 				None as Option<Gpio0>,
 				None as Option<Gpio0>,
 				&crate::config::components::UART_CONFIGURATION,
