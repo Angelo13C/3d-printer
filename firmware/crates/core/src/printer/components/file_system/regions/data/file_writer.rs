@@ -5,7 +5,7 @@ use embedded_hal::spi::{ErrorType, SpiDevice};
 use crate::printer::components::{
 	drivers::spi_flash_memory::FlashMemoryChip,
 	file_system::{
-		regions::metadata::{FileId, FileMetadata, FileMetadataValidator},
+		regions::metadata::{FileMetadata, FileMetadataValidator},
 		FileSystem,
 	},
 };
