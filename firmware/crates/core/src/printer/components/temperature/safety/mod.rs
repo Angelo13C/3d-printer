@@ -38,7 +38,7 @@ impl TemperatureSafety
 
 	/// Returns a set of all the errors that happened. If no error has happened the set is empty.
 	pub fn is_temperature_safe(
-		&mut self, current_temperature: Temperature, target_temperature: Temperature, delta_time: f32,
+		&mut self, current_temperature: Temperature, target_temperature: Option<Temperature>, delta_time: f32,
 	) -> EnumSet<TemperatureError>
 	{
 		let mut errors = EnumSet::empty();
@@ -48,23 +48,26 @@ impl TemperatureSafety
 			errors.insert(TemperatureError::CurrentTemperatureOutsideAllowedRange);
 		}
 
-		if !self.allowed_temperature_range.is_temperature_safe(target_temperature)
+		if let Some(target_temperature) = target_temperature
 		{
-			errors.insert(TemperatureError::TargetTemperatureOutsideAllowedRange);
-		}
+			if !self.allowed_temperature_range.is_temperature_safe(target_temperature)
+			{
+				errors.insert(TemperatureError::TargetTemperatureOutsideAllowedRange);
+			}
 
-		if !self
-			.keep_target_temperature
-			.is_temperature_safe(current_temperature, target_temperature, delta_time)
-		{
-			errors.insert(TemperatureError::CantKeepTargetTemperature);
-		}
+			if !self
+				.keep_target_temperature
+				.is_temperature_safe(current_temperature, target_temperature, delta_time)
+			{
+				errors.insert(TemperatureError::CantKeepTargetTemperature);
+			}
 
-		if !self
-			.rise_to_target_temperature
-			.is_temperature_safe(current_temperature, target_temperature, delta_time)
-		{
-			errors.insert(TemperatureError::CantRiseFastEnoughToTargetTemperature);
+			if !self
+				.rise_to_target_temperature
+				.is_temperature_safe(current_temperature, target_temperature, delta_time)
+			{
+				errors.insert(TemperatureError::CantRiseFastEnoughToTargetTemperature);
+			}
 		}
 
 		errors
