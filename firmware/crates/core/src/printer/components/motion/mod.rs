@@ -316,11 +316,16 @@ impl<Timer: TimerTrait, Kinematics: KinematicsTrait, ZEndstop: ZAxisProbe> Motio
 		Ok(())
 	}
 
-	pub fn set_paused(&mut self, paused: bool) -> Result<(), SetPausedError<Timer>>
+	pub fn set_paused(&mut self, paused: bool, uart_driver: &mut impl UartTrait) -> Result<(), SetPausedError<Timer>>
 	{
 		if self.is_paused != paused
 		{
 			self.is_paused = paused;
+
+			for tmc_driver in &mut self.tmc2209_drivers
+			{
+				tmc_driver.set_enabled(!paused, uart_driver);
+			}
 
 			match paused
 			{
