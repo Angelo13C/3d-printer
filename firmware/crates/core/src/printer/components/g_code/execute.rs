@@ -22,6 +22,8 @@ pub struct GCodeExecuter<P: Peripherals>
 	/// (it returns [`Status::Finished`]) this field becomes `None` and a new command is taken (if possible) from the `command_buffer`.
 	current_command: Option<Box<dyn GCodeCommand<P>>>,
 
+	current_command_being_executed_index: u32,
+
 	position_mode: PositionMode,
 	extruder_position_mode: PositionMode,
 
@@ -32,6 +34,10 @@ impl<P: Peripherals> GCodeExecuter<P>
 {
 	pub fn tick(&mut self, printer_components: &mut Printer3DComponents<P>) -> Result<(), TickError>
 	{
+		print_process::set_commands_in_buffer_count(
+			(self.commands_to_prepare.len() + self.command_buffer.len()) as u16,
+		);
+
 		let mut prepare_another_command = true;
 		while prepare_another_command && (!self.commands_to_prepare.is_empty() || !self.command_buffer.is_empty())
 		{
@@ -70,7 +76,10 @@ impl<P: Peripherals> GCodeExecuter<P>
 							prepare_another_command = false;
 						}
 					},
-					Status::Finished => print_process::remove_commands_in_buffer_count(1),
+					Status::Finished =>
+					{
+						self.current_command_being_executed_index += 1;
+					},
 					Status::Error(error) => return Err(TickError::ExecutingCommand { error }),
 				}
 			}
@@ -130,6 +139,11 @@ impl<P: Peripherals> GCodeExecuter<P>
 	pub fn add_command_to_buffer(&mut self, command: Box<dyn GCodeCommand<P>>)
 	{
 		self.commands_to_prepare.push_back(command);
+	}
+
+	pub fn add_commands_to_buffer(&mut self, commands: Vec<Box<dyn GCodeCommand<P>>>)
+	{
+		self.commands_to_prepare.extend(commands);
 	}
 
 	/// Save the provided `position` at the specified `slot`, so that you can later retrieve it using [`Self::get_position(slot)`].
@@ -212,6 +226,7 @@ impl<P: Peripherals> Default for GCodeExecuter<P>
 			commands_to_prepare: VecDeque::with_capacity(120),
 			command_buffer: VecDeque::with_capacity(100),
 			current_command: Default::default(),
+			current_command_being_executed_index: 0,
 			position_mode: Default::default(),
 			extruder_position_mode: Default::default(),
 			saved_positions: Default::default(),
