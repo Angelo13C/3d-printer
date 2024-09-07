@@ -7,7 +7,7 @@ use crate::{
 		planner::{self, Block},
 		N_MOTORS,
 	},
-	utils::measurement::distance::Distance,
+	utils::{bresenham::Bresenham, measurement::distance::Distance},
 };
 
 static CURRENT_AND_NEXT_BLOCKS: Mutex<Communication> = Mutex::new(Communication {
@@ -15,6 +15,7 @@ static CURRENT_AND_NEXT_BLOCKS: Mutex<Communication> = Mutex::new(Communication 
 	next_motion_profile_block: None,
 	kinematics_functions: None,
 	z_axis_distance: None,
+	bresenham: None,
 });
 
 /// Data shared between the "main thread" and the ticker ISR.
@@ -27,6 +28,8 @@ pub struct Communication
 	next_motion_profile_block: Option<planner::Block<N_MOTORS>>,
 	pub kinematics_functions: Option<KinematicsFunctions>,
 	z_axis_distance: Option<Distance>,
+
+	pub bresenham: Option<Bresenham<N_MOTORS>>,
 }
 
 impl Communication

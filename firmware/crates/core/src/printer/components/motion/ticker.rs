@@ -7,7 +7,7 @@ use core::{
 use embedded_hal::digital::OutputPin;
 
 use super::{
-	bed_leveling::{Probe, UnifiedBedLevelingProcedure, ZAxisProbe},
+	bed_leveling::{Probe, ZAxisProbe},
 	homing::endstop::Endstop,
 	planner::{self, Flag},
 	N_MOTORS,
@@ -20,8 +20,7 @@ use crate::{
 	},
 	utils::{
 		bresenham::Bresenham,
-		math::vectors::Vector2,
-		measurement::{distance::Distance, duration::SmallDuration, frequency::Frequency},
+		measurement::{distance::Distance, frequency::Frequency},
 	},
 };
 
@@ -144,6 +143,11 @@ impl<Timer: TimerTrait> StepperMotorsTicker<Timer>
 		self.timer.get_additional_functionality().get_time()
 	}
 
+	pub fn get_alarm_time(&self) -> Result<Duration, Timer::Error>
+	{
+		self.timer.get_alarm()
+	}
+
 	fn tick_isr<
 		LeftDirPin: OutputPin,
 		LeftStepPin: OutputPin,
@@ -188,6 +192,11 @@ impl<Timer: TimerTrait> StepperMotorsTicker<Timer>
 			let kinematics_functions = communication.kinematics_functions.clone();
 
 			let mut z_axis_distance = None;
+
+			if let Some(block_param) = parameters.block_parameters.as_ref()
+			{
+				communication.bresenham = Some(block_param.bresenham.clone());
+			}
 
 			if let Some(block) = communication.current_motion_profile_block.as_mut()
 			{
@@ -243,7 +252,9 @@ impl<Timer: TimerTrait> StepperMotorsTicker<Timer>
 							motor: &mut StepperMotor<DirPin, StepPin>, steps: i32,
 						)
 						{
-							motor.set_rotation_direction(RotationalDirection::from_sign(steps));
+							motor
+								.set_rotation_direction(RotationalDirection::from_sign(steps))
+								.unwrap();
 						}
 						(set_motor_direction)(&mut parameters.left_motor, block.steps[Axis::X as usize]);
 						(set_motor_direction)(&mut parameters.right_motor, block.steps[Axis::Y as usize]);
