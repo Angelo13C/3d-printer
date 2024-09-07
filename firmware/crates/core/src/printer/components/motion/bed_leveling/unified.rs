@@ -1,5 +1,5 @@
 use crate::{
-	printer::components::motion::{axes::Axis, kinematics::Kinematics},
+	printer::components::motion::axes::Axis,
 	utils::{
 		math::{
 			self,
