@@ -70,7 +70,7 @@ impl BedLevelingProcedure
 				.start(self.bed_size, Self::BED_LEVELING_GRID_SIZE, Distance::ZERO);
 		}
 
-		let distance_between_points = (self.bed_size - &Vector2::new([Self::DISTANCE_FROM_BED_MARGINS * 2; 2]));
+		let distance_between_points = self.bed_size - &Vector2::new([Self::DISTANCE_FROM_BED_MARGINS * 2; 2]);
 		let distance_between_points = Vector2::from_xy(
 			distance_between_points.x() / Self::BED_LEVELING_GRID_SIZE.0,
 			distance_between_points.y() / Self::BED_LEVELING_GRID_SIZE.1,
@@ -112,13 +112,13 @@ impl BedLevelingProcedure
 		Ok(())
 	}
 
-	pub fn tick(&mut self)
+	pub fn tick(&mut self) -> Result<(), ()>
 	{
 		if let Some(probing_distance) = communicate_to_ticker::get_z_axis_distance()
 		{
 			let point_correction = probing_distance - Self::DISTANCE_FROM_BED;
 			self.unified_bed_leveling
-				.set_point_correction(self.current_point_index, point_correction);
+				.set_point_correction(self.current_point_index, point_correction)?;
 
 			self.current_point_index += 1;
 
@@ -127,6 +127,8 @@ impl BedLevelingProcedure
 				self.unified_bed_leveling.finish_procedure().unwrap();
 			}
 		}
+
+		Ok(())
 	}
 
 	pub fn apply<const N: usize>(&mut self, target_position: &mut VectorN<N>)
