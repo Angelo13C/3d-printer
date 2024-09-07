@@ -55,7 +55,10 @@ impl<P: Peripherals> GCodeCommand<P> for G0
 	{
 		if !self.is_move_ready_to_go
 		{
-			printer_components.motion_controller.mark_last_move_as_ready_to_go();
+			if !self.move_id.is_empty()
+			{
+				printer_components.motion_controller.mark_last_move_as_ready_to_go();
+			}
 			self.is_move_ready_to_go = true;
 		}
 
@@ -128,7 +131,7 @@ impl<P: Peripherals> GCodeCommand<P> for G1
 		}
 		.execute(printer_components, g_code_executer);
 
-		self.is_move_ready_to_go = false;
+		self.is_move_ready_to_go = true;
 
 		status
 	}
@@ -368,7 +371,7 @@ fn set_target_temperature<CHP: PwmPin, TADC: Adc, TP: AdcPin<TADC>>(
 	if let Some(target_temperature) = temperature
 	{
 		let target_temperature = Temperature::from_celsius(*target_temperature as f32);
-		pid_controller.set_target_temperature(target_temperature);
+		pid_controller.set_target_temperature(Some(target_temperature));
 	}
 
 	Status::Finished
@@ -385,12 +388,18 @@ fn wait_for_target_temperature<CHP: PwmPin, TADC: Adc, TP: AdcPin<TADC>>(
 	{
 		Ok(current_temperature) =>
 		{
-			let target_temperature = pid_controller.get_target_temperature();
-			if current_temperature < target_temperature
-				|| (target_temperature_cooling_and_heating.value.is_some()
-					&& current_temperature > target_temperature + ACCEPTABLE_TEMPERATURE_RANGE)
+			if let Some(target_temperature) = pid_controller.get_target_temperature()
 			{
-				Status::Working
+				if current_temperature < target_temperature
+					|| (target_temperature_cooling_and_heating.value.is_some()
+						&& current_temperature > target_temperature + ACCEPTABLE_TEMPERATURE_RANGE)
+				{
+					Status::Working
+				}
+				else
+				{
+					Status::Finished
+				}
 			}
 			else
 			{
@@ -525,7 +534,7 @@ impl<P: Peripherals> GCodeCommand<P> for M106
 
 		let fan_speed = self.fan_speed.value.unwrap_or(255);
 
-		match fan.set_speed(Percentage::from_0_to_1(fan_speed as f32 / 255.).unwrap())
+		match fan.set_speed(Percentage::from_0_to_1(fan_speed as f32 / 255.).unwrap_or(Percentage::FULL))
 		{
 			Ok(_) => Status::Finished,
 			Err(_) => Status::Error(format!(
