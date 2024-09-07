@@ -13,6 +13,7 @@ pub mod time;
 
 use std::fmt::Debug;
 
+use motion::planner::communicate_to_ticker;
 pub use peripherals::*;
 
 use self::{
@@ -224,8 +225,17 @@ impl<P: Peripherals> Printer3DComponents<P>
 
 		printer_state::tick::<P>(&self.hotend_pid_controller, &self.heated_bed_pid_controller);
 
+		let mut is_moving = !pauser::is_paused();
+		if is_moving
+		{
+			if let Some(g_code_executer) = self.g_code_executer.as_ref()
+			{
+				is_moving = g_code_executer.has_command_to_execute() || communicate_to_ticker::is_block_available();
+			}
+		}
+
 		self.motion_controller
-			.set_paused(pauser::is_paused())
+			.set_paused(!is_moving, &mut self.uart_driver)
 			.map_err(TickError::PausingMotionController)?;
 		self.motion_controller.tick().map_err(TickError::MotionController)?;
 
@@ -255,7 +265,7 @@ pub enum TickError<ZEndstop: ZAxisProbe, Timer: TimerTrait>
 	GCodeExecuter(g_code::execute::TickError),
 	HeatedBedPidController(temperature::PidUpdateError),
 	HotendPidController(temperature::PidUpdateError),
-	MotionController(motion::homing::TickError<Probe<ZEndstop>>),
+	MotionController(motion::TickError<Probe<ZEndstop>>),
 	PausingMotionController(motion::SetPausedError<Timer>),
 }
 
