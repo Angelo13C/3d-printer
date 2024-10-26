@@ -30,6 +30,22 @@ pub struct GCodeExecuter<P: Peripherals>
 	saved_positions: [VectorN<4>; SAVED_POSITIONS_COUNT],
 }
 
+impl<P: Peripherals> core::fmt::Debug for GCodeExecuter<P>
+{
+	fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+	{
+		f.debug_struct("GCodeExecuter")
+			.field("commands_to_prepare", &self.commands_to_prepare.len())
+			.field("command_buffer", &self.command_buffer.len())
+			.field("current_command", &self.current_command.is_some())
+			.field("current_command_index", &self.current_command_being_executed_index)
+			.field("position_mode", &self.position_mode)
+			.field("extruder_position_mode", &self.extruder_position_mode)
+			.field("saved_positions", &self.saved_positions)
+			.finish()
+	}
+}
+
 impl<P: Peripherals> GCodeExecuter<P>
 {
 	pub fn tick(&mut self, printer_components: &mut Printer3DComponents<P>) -> Result<(), TickError>
