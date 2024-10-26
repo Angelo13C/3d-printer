@@ -1,3 +1,12 @@
+//! This module provides the functionality for WiFi communication in the microcontroller.
+//!
+//! It defines the [`WifiCommunicator`] struct that allows the device to connect to WiFi networks and
+//! handle HTTP requests through a server. The module includes methods for setting up the WiFi driver,
+//! starting the connection, and registering request handlers.
+//!
+//! The [`WifiCommunicator`] is essential for enabling network communication, allowing commands
+//! to be received and statuses to be reported back to external sources.
+
 mod http_server;
 
 use std::fmt::Debug;
@@ -20,11 +29,11 @@ pub struct WifiCommunicator<WifiDriver: Wifi, Server: HttpServer>
 
 impl<WifiDriver: Wifi, Server: HttpServer> WifiCommunicator<WifiDriver, Server>
 {
-	/// Setup the provided `wifi` to work as a client based on the provided `configuration`, and returns a new
-	/// [`WifiCommunicator`] when the connection is successfully created.
+	/// Sets up the provided `wifi` to work as a client based on the provided `configuration`,
+	/// and returns a new [`WifiCommunicator`] when the connection is successfully created.
 	///
-	/// Returns `Err(CreationError)` if there has been any problem setting the configuration of the WiFi, starting it or
-	/// connecting it to the network.
+	/// Returns `Err(CreationError)` if there has been any problem setting the configuration
+	/// of the WiFi, starting it, or connecting to the network.
 	pub async fn new(
 		mut wifi: WifiDriver, server: Server, configuration: CreationConfig,
 	) -> Result<Self, CreationError<WifiDriver>>
@@ -38,6 +47,7 @@ impl<WifiDriver: Wifi, Server: HttpServer> WifiCommunicator<WifiDriver, Server>
 		Ok(Self { driver: wifi, server })
 	}
 
+	/// Returns a reference to the WiFi driver.
 	pub fn get_driver(&self) -> &WifiDriver
 	{
 		&self.driver
