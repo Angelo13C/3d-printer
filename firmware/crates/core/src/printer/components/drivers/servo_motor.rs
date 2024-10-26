@@ -1,3 +1,9 @@
+//! This module provides the implementation for controlling a servo motor using PWM signals.
+//!
+//! The [`ServoMotor`] struct allows for positioning a servo motor by sending pulse durations
+//! on a specified pin. The [`ServoPosition`] struct represents the angle at which the servo
+//! should be set.
+
 use crate::{
 	printer::components::hal::pwm::PwmPin,
 	utils::{
