@@ -1,3 +1,9 @@
+//! Ticker module for managing stepper motor operations in a motion controller.
+//!
+//! This module provides the [`StepperMotorsTicker`] struct, which manages the timing and control
+//! of stepper motors based on planned motion blocks. It integrates with a timer to generate
+//! step pulses at the correct intervals, enabling precise motor control for the printer.
+
 use core::{
 	fmt::Debug,
 	sync::atomic::{AtomicBool, Ordering},
@@ -353,16 +359,31 @@ fn is_z_axis_triggered() -> bool
 	Z_AXIS_ENDSTOP_TRIGGERED.swap(false, Ordering::Relaxed)
 }
 
+/// An enumeration of possible errors that can occur during the creation of a
+/// [`StepperMotorsTicker`].
+///
+/// This enum captures different types of errors that may arise when initializing
+/// the ticker, such as issues with the timer callback or endstop triggering.
 #[derive(Debug)]
 pub enum CreationError<Timer: TimerTrait, ZEndstop: ZAxisProbe>
 {
+	/// An error that occurs when setting the timer's alarm callback.
 	OnAlarm(Timer::Error),
+
+	/// An error that occurs when an endstop is triggered during setup.
 	OnEndstopTriggered(ZEndstop::OnEndReachedError),
 }
 
+/// An enumeration of possible errors that can occur when enabling the ticker.
+///
+/// This enum captures errors related to enabling the alarm of the timer or setting
+/// the alarm time.
 pub enum EnableError<Timer: TimerTrait>
 {
+	/// An error that occurs when attempting to enable the timer alarm.
 	EnableAlarm(Timer::Error),
+
+	/// An error that occurs when setting the alarm time in the timer's additional functionality.
 	SetAlarm(<Timer::AdditionalFunctionality as TimerAdditionalFunctionality>::Error),
 }
 
