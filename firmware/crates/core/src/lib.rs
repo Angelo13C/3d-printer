@@ -32,7 +32,6 @@
 //! [TMC2209]: printer::components::drivers::stepper_motor::tmc2209
 //! [OTA updates]: printer::communication::ota
 //! [Pausing and resuming]: printer::components::pauser
-#![feature(async_fn_in_trait)]
 
 extern crate alloc;
 
