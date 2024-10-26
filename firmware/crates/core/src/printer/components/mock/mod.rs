@@ -1,4 +1,13 @@
 #![allow(unused_variables)]
+//! This module provides mock implementations for each trait in the HAL (Hardware Abstraction Layer) module.
+//! These mock structs are useful for testing and simulation purposes, allowing developers to test functionality
+//! without requiring actual hardware.
+//!
+//! Each mock struct corresponds to a specific trait defined in the HAL module, providing a way to simulate
+//! the behavior of the hardware without needing the physical components.
+//!
+//! The [`MockError`] type is defined to represent errors that may occur in the mock implementations, and it
+//! implements various error traits for compatibility with HAL and other embedded systems libraries.
 
 mod adc;
 mod connection;
