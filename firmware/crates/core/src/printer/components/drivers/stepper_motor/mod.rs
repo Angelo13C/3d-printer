@@ -1,3 +1,9 @@
+//! This module provides an interface for controlling stepper motors through a stepper driver, such as the `TMC2209`.
+//!
+//! # Safety Warning
+//! Ensure that the stepper motor is wired correctly to the driver to avoid unexpected behavior.
+//! Refer to the stepper motor and driver documentation for proper wiring instructions.
+
 mod direction;
 pub mod tmc2209;
 
