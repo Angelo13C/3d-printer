@@ -1,3 +1,20 @@
+//! This module provides a representation of temperature values.
+//!
+//! The [`Temperature`] struct allows you to work with temperature measurements in both
+//! `Celsius` and `Kelvin`. It provides methods for creating instances from `Celsius` and
+//! `Kelvin`, as well as converting between the two scales. The temperature values are
+//! represented as floating-point numbers to allow for fractional temperatures.
+//!
+//! # Examples
+//!
+//! ```
+//! # use firmware_core::utils::measurement::temperature::Temperature;
+//! #
+//! let temp_c = Temperature::from_celsius(25.0);
+//! let temp_k = Temperature::from_kelvin(298.15);
+//! assert_eq!(temp_c.as_kelvin(), temp_k.as_kelvin());
+//! ```
+
 use std::{
 	fmt::Debug,
 	ops::{Add, Sub},
