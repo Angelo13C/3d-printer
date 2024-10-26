@@ -1,3 +1,5 @@
+//! Let the main thread communicate with the ticker ISR.
+
 use spin::{Mutex, MutexGuard};
 
 use super::Flag;
