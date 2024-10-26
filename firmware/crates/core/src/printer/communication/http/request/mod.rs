@@ -1,3 +1,16 @@
+//! This module defines the possible HTTP requests that the firmware can handle.
+//! Each request is associated with an HTTP method, a URI, and a callback function
+//! that processes the request. The requests cover various functionalities related
+//! to the 3D printer, such as managing files, controlling print jobs, and
+//! retrieving printer status.
+//
+//! The module provides:
+//!
+//! - An enum `HttpRequest` that lists all supported API endpoints and their
+//!   corresponding HTTP methods and URIs.
+//! - Functions to retrieve the method, URI, and callback for each request,
+//!   facilitating interaction with the HTTP server.
+
 mod callbacks;
 
 use embedded_svc::http::{
