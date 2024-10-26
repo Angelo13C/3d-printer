@@ -1,3 +1,18 @@
+//! This module provides the [`SmallDuration`] struct for representing durations
+//! of time with high precision (up to 10 nanoseconds). It includes various
+//! methods to create durations from different time units (seconds, milliseconds,
+//! microseconds, and tens of nanoseconds) and convert between these units.
+//!
+//! # Examples
+//!
+//! ```
+//! use firmware_core::utils::measurement::duration::SmallDuration;
+//!
+//! let duration = SmallDuration::from_seconds(2);
+//! assert_eq!(duration.as_millis(), 2000);
+//! assert_eq!(duration.as_seconds_f32(), 2.0);
+//! ```
+
 use std::{
 	fmt::Debug,
 	ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign},
@@ -6,7 +21,7 @@ use std::{
 use super::frequency::Frequency;
 
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
-/// A duration of time with a `10 nanoseconds` sensitivity and a range of values that goes up to `10*2^32ns` (which is almost 43 seconds).
+/// A duration of time with a `10 nanoseconds` sensitivity and a range of values that goes up to `10*2^32ns` (which is almost `43` seconds).
 pub struct SmallDuration
 {
 	tens_nano_seconds: u32,
