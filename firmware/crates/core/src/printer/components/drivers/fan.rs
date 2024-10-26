@@ -1,3 +1,9 @@
+//! This module provides the implementation for a fan interface that can be controlled
+//! through a PWM signal in a 3D printer.
+//!
+//! The `Fan` struct allows for speed control of the fan, which is dependent on a
+//! minimum duty cycle to start spinning.
+
 use crate::{
 	printer::components::hal::pwm::PwmPin,
 	utils::math::{self, Percentage},
