@@ -1,11 +1,11 @@
 //! This module contains everything related to making the 3D printer able to communicate with the external world.
-//! This could be thanks to:
+//! Communication methods may include:
 //! - WiFi
 //! - USB (not supported yet)
 //! - Bluetooth (not supported yet)
 //!
-//! The data exchange with the external world is used to monitor the printer's status, make it execute commands
-//! (like start printing a 3D model)...
+//! The data exchange with the external world is used to monitor the printer's status and execute commands
+//! (like starting the printing of a 3D model).
 
 use std::{fmt::Debug, sync::mpsc::SendError, time::Duration};
 
@@ -38,23 +38,39 @@ pub mod security;
 
 pub use multi_thread::*;
 
+// Module components that facilitate communication.
 use super::components::{
 	file_system::{self, regions::RegionsConfig, FileSystem},
 	print_process::{self, PrintProcessError},
 	Peripherals,
 };
 
+/// A struct for managing communication with external entities.
 pub struct Communication<P: Peripherals + 'static>
 {
+	/// WiFi communicator instance for managing WiFi communications.
 	wifi: WifiCommunicator<P::WifiDriver, P::Server>,
 	#[cfg(feature = "usb")]
+	/// USB communicator instance for managing USB communications (not yet implemented).
 	usb: UsbCommunicator<P::UsbSensePin, P::UsbBus>,
 
+	/// Resources required for HTTP communication and OTA updates.
 	resources: Resources<P>,
 }
 
 impl<P: Peripherals + 'static> Communication<P>
 {
+	/// Creates a new `Communication` instance with the specified peripherals and configurations.
+	///
+	/// # Arguments
+	///
+	/// * `peripherals` - The peripherals required for communication.
+	/// * `configuration` - The configuration settings for communication.
+	/// * `command_sender` - A sender for commands to be communicated to the main thread.
+	///
+	/// # Returns
+	///
+	/// A result containing the newly created `Communication` instance or an error if creation fails.
 	pub fn new(
 		peripherals: &mut P, configuration: CommunicationConfig, command_sender: CommandsSender<P>,
 	) -> Result<
@@ -114,7 +130,7 @@ impl<P: Peripherals + 'static> Communication<P>
 			PrintProcess::new(configuration.max_commands_in_buffer_before_reading_new),
 		);
 
-		log::info!("Register all the HTTP uri handlers");
+		log::info!("Register all the HTTP URI handlers");
 
 		wifi.register_all_requests(http_handler_resources.clone())
 			.map_err(CreationError::WifiRegisterRequests)?;
@@ -129,6 +145,14 @@ impl<P: Peripherals + 'static> Communication<P>
 		})
 	}
 
+	/// Executes periodic tasks for the communication module.
+	///
+	/// This method performs tasks like checking if the print process requires new lines to be read from the file system,
+	/// handling OTA updates...
+	///
+	/// # Returns
+	///
+	/// A result indicating success or failure of the tick operation.
 	pub fn tick(&mut self) -> Result<(), TickError<P>>
 	{
 		if let Some(mut resources) = self.resources.try_lock()
@@ -156,25 +180,34 @@ impl<P: Peripherals + 'static> Communication<P>
 	}
 }
 
+/// Errors that may occur during the creation of the `Communication` struct.
 pub enum CreationError<WifiDriver: Wifi, WifiCommunicator: Communicator, Spi: SpiDevice<u8>, ServerError: Debug>
 {
 	/// A peripheral from the provided ones is missing (`name` is the name of the peripheral that's missing).
 	/// This means that `peripherals.take_...()` returned `None` instead of `Some`.
 	PeripheralMissing
 	{
-		name: &'static str,
+		name: &'static str
 	},
 
+	/// An error related to security configuration.
 	Security(security::CreationError),
+	/// An error related to the WiFi communicator.
 	Wifi(communicator::wifi::CreationError<WifiDriver>),
+	/// An error occurred while registering WiFi requests.
 	WifiRegisterRequests(WifiCommunicator::Error),
+	/// An error related to the HTTP server.
 	HttpServer(ServerError),
+	/// An error related to the file system.
 	FileSystem(file_system::CreationError<Spi>),
 }
 
+/// Errors that may occur during the tick operation of the `Communication` struct.
 pub enum TickError<P: Peripherals>
 {
+	/// An error occurred while sending a command.
 	Send(SendError<Command<P>>),
+	/// An error occurred during the print process tick operation.
 	PrintProcessTick(PrintProcessError<P::FlashSpi>),
 }
 
@@ -210,15 +243,22 @@ impl<WifiDriver: Wifi, WifiCommunicator: Communicator, Spi: SpiDevice<u8>, Serve
 	}
 }
 
+/// Configuration settings for the communication module.
 pub struct CommunicationConfig
 {
+	/// Configuration settings for the WiFi connection.
 	pub wifi: WifiCreationConfig,
 	#[cfg(feature = "usb")]
+	/// Configuration settings for USB communication (not yet implemented).
 	pub usb: UsbCreationConfig,
 
+	/// Configuration settings for the file system.
 	pub file_system: RegionsConfig,
+	/// Security configuration settings.
 	pub security: security::Configuration,
 
+	/// Maximum number of commands that can be buffered before needing to read new ones.
 	pub max_commands_in_buffer_before_reading_new: u16,
+	/// Delay duration between communication ticks.
 	pub delay_between_ticks: Duration,
 }
