@@ -1,3 +1,8 @@
+//! This module provides various utility functions and types that assist in the firmware's
+//! functionality. It includes operations for mathematical calculations, measurements, and
+//! data conversions. The utilities are designed to simplify common tasks and improve code
+//! reusability across different components of the firmware.
+
 pub mod bresenham;
 pub mod log_in_isr;
 pub mod math;
@@ -6,7 +11,7 @@ pub mod measurement;
 /// Converts the provided `slice` to an array of the same type and with the length `N`.
 ///
 /// # Panics
-/// Panics if the length of the slice is less than `N`.
+/// This function will panic if the length of the provided slice is less than `N`.
 ///
 /// # Examples
 /// ```
@@ -16,7 +21,7 @@ pub mod measurement;
 /// assert_eq!(slice_to_array(&array), array);
 /// ```
 ///
-/// This instead will panic because the array has a length of 3 which is less than 4:
+/// This example will panic because the array has a length of 3, which is less than 4:
 /// ```should_panic
 /// # use firmware_core::utils::*;
 /// #
