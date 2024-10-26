@@ -1,3 +1,11 @@
+//! This module contains all the components necessary for the 3D printer to actually operate.
+//!
+//! It includes various configurations, drivers, motion control, temperature management,
+//! and the overall control structures that enable the printer's functionality.
+//!
+//! # Key struct
+//! - [`Printer3DComponents`]: A struct representing the components of the 3D printer.
+
 pub mod config;
 pub mod drivers;
 pub mod file_system;
@@ -30,6 +38,10 @@ use self::{
 };
 use super::communication::http::other::printer_state;
 
+/// This struct encapsulates all the elements required to make a 3D print possible, including fans,
+/// motion control, temperature controllers, and the G-code executer.
+///
+/// It manages the initialization and operation of these components.
 pub struct Printer3DComponents<P: Peripherals>
 {
 	pub layer_fan: Fan<P::FanPin>,
@@ -50,6 +62,21 @@ pub struct Printer3DComponents<P: Peripherals>
 
 impl<P: Peripherals> Printer3DComponents<P>
 {
+	/// Creates a new instance of `Printer3DComponents`.
+	///
+	/// This method initializes the printer components using the provided
+	/// peripherals and configuration settings. It ensures all necessary
+	/// components are properly set up.
+	///
+	/// # Arguments
+	///
+	/// * `peripherals` - The hardware peripherals required for the printer.
+	/// * `config` - Configuration settings for the printer's components.
+	///
+	/// # Returns
+	///
+	/// A `Result` containing the initialized [`Printer3DComponents`] instance
+	/// or a [`CreationError`] if an error occurs.
 	pub fn new(
 		peripherals: &mut P, config: ComponentsConfig,
 	) -> Result<Self, CreationError<P::StepperTickerTimer, P::ZAxisEndstop, P::UartDriver>>
@@ -202,6 +229,11 @@ impl<P: Peripherals> Printer3DComponents<P>
 	}
 
 	pub fn tick(&mut self) -> Result<(), TickError<P::ZAxisEndstop, P::StepperTickerTimer>>
+	/// Updates the state of the printer components, performing necessary tasks.
+	///
+	/// This method should be called periodically to ensure the printer operates
+	/// correctly. It manages tasks related to temperature control, motion, and
+	/// G-code execution.
 	{
 		// Time elapsed since the last time you called Self::tick.
 		let delta_time = self.clock.get_delta_time().as_secs_f64();
