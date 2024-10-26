@@ -1,4 +1,9 @@
-//! Check [`PrintProcess`].
+//! This module manages the process of printing files by parsing G-code commands.
+//!
+//! It provides the [`PrintProcess`] struct, which is responsible for controlling
+//! the printing workflow, including reading files from the file system, parsing
+//! G-code commands, and executing them. It also handles the buffer management
+//! for G-code commands and ensures that the print process progresses correctly.
 
 use std::{
 	fmt::Debug,
@@ -26,10 +31,25 @@ use super::{
 };
 
 static COMMANDS_IN_BUFFER: AtomicU16 = AtomicU16::new(0);
+/// Sets the number of commands currently in the buffer.
+///
+/// This function allows you to update the count of commands that are in the buffer.
+/// It stores the value atomically, ensuring thread-safe access to the count.
+///
+/// # Parameters
+/// - `commands_count`: The number of commands currently in the buffer.
 pub fn set_commands_in_buffer_count(commands_count: u16)
 {
 	COMMANDS_IN_BUFFER.store(commands_count, Ordering::Relaxed);
 }
+
+/// Gets the current count of commands in the buffer.
+///
+/// This function retrieves the number of commands that are currently stored in the buffer.
+/// The value is fetched atomically to ensure thread safety.
+///
+/// # Returns
+/// The number of commands currently in the buffer.
 pub fn get_commands_in_buffer_count() -> u16
 {
 	COMMANDS_IN_BUFFER.load(Ordering::Relaxed)
@@ -291,9 +311,15 @@ pub enum PrintProcessError<Spi: SpiDevice<u8>>
 	CouldntParseLine(String),
 }
 
+/// Contains the parsed result of a line intended for execution.
+///
+/// This struct holds information about a G-code line that has been parsed. It includes
+/// both the command and any associated comments found in the line.
 pub struct LineToExecuteParsed<'a, P: Peripherals>
 {
+	/// An optional comment associated with the G-code line.
 	pub comment: Option<&'a str>,
+	/// An optional G-code command parsed from the line.
 	pub command: Option<Box<dyn GCodeCommand<P>>>,
 }
 
