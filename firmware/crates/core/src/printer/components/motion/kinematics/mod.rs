@@ -1,3 +1,5 @@
+//! A module for different kinematics implementations, such as Cartesian and CoreXY.
+
 mod cartesian;
 mod core_xy;
 
