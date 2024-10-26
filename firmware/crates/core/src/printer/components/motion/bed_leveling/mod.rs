@@ -1,3 +1,5 @@
+//! Bed leveling module for managing the process of leveling the bed in 3D printers.
+
 mod unified;
 mod z_axis_probe;
 
