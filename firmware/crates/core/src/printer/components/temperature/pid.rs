@@ -121,7 +121,8 @@ impl<CHP: PwmPin, TADC: Adc, TP: AdcPin<TADC>> PidController<CHP, TADC, TP>
 	/// Sets the [`Temperature`] the PID controller will try to reach.
 	///
 	/// # Warning
-	/// You need to call [`PidController::tick`] after this to effectively make the PID controller work to reach it.
+	/// You need to call [`PidController::tick`] after this to effectively make the PID controller work to reach it,
+	/// even when setting `None` as the `target_tempearture`.
 	pub fn set_target_temperature(&mut self, target_temperature: Option<Temperature>)
 	{
 		if let Some(target_temperature) = target_temperature
