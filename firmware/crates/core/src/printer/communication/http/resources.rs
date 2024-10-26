@@ -1,3 +1,14 @@
+//! This module defines a container for shared resources used by the HTTP request callbacks and the
+//! [`Communication`] struct. The resources are managed through an `Arc<Mutex>`, ensuring safe concurrent
+//! access across threads.
+//!
+//! The `Resources` struct wraps a `ResourcesImpl` instance and provides methods for locking and
+//! accessing the underlying resources. It includes various components necessary for handling
+//! requests related to the 3D printer's operations, including file management, print processes,
+//! and security features.
+//!
+//! [`Communication`]: super::super::Communication
+
 use std::sync::Arc;
 
 use spin::{Mutex, MutexGuard};
