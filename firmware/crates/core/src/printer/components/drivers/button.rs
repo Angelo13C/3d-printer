@@ -1,3 +1,9 @@
+//! This module provides the implementation for a button interface that can be used
+//! to detect button presses in a microcontroller-based system.
+//!
+//! The `Button` struct uses an input pin to determine if the button is pressed and
+//! allows for interrupt-based callbacks to handle button presses.
+
 use embedded_hal::digital::{ErrorType, InputPin};
 
 use crate::printer::components::{
