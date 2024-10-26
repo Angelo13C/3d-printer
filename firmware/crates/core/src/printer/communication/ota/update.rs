@@ -48,9 +48,12 @@ impl<'a, Ota: OtaTrait> OverTheAirUpdate<'a, Ota>
 	}
 }
 
+/// Errors that can occur during the OTA update writing process.
 pub enum OverTheAirUpdateWriteError<Ota: OtaTrait>
 {
+	/// Error occurred during writing to the OTA.
 	OtaWrite(<Ota as ErrorType>::Error),
+	/// More bytes were written than the update size.
 	WrittenMoreBytesThanUpdateSize,
 }
 
@@ -66,6 +69,7 @@ impl<Ota: OtaTrait> std::fmt::Debug for OverTheAirUpdateWriteError<Ota>
 	}
 }
 
+/// Checks if the OTA update has been completed.
 pub(super) fn has_completed_update() -> bool
 {
 	HAS_COMPLETED_UPDATE.load(Ordering::Relaxed)
