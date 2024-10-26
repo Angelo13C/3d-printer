@@ -1,3 +1,7 @@
+//! This module provides the [`Distance`] type for representing distances
+//! with high precision, as well as an enum for common measurement units.
+//! It supports various conversions and arithmetic operations on distances.
+
 use std::{
 	default::Default,
 	fmt::Debug,
