@@ -132,6 +132,8 @@ impl<CHP: PwmPin, TADC: Adc, TP: AdcPin<TADC>> PidController<CHP, TADC, TP>
 		}
 		else
 		{
+			self.pid_control.set_target(0.);
+			self.pid_control.reset();
 			self.has_target_temperature = false;
 		}
 	}
@@ -141,32 +143,49 @@ impl<CHP: PwmPin, TADC: Adc, TP: AdcPin<TADC>> PidController<CHP, TADC, TP>
 	/// [`target temperature`]: `Self::get_target_temperature`
 	pub fn tick(&mut self, delta_time: f64, adc: &mut TADC) -> Result<(), TickError>
 	{
+		let (current_temperature, should_stop_heating) = self.evaluate_safety(delta_time, adc)?;
+		let pwm_percentage = match should_stop_heating
+		{
+			true => Percentage::ZERO,
+			false =>
+			{
+				let pwm_value = self
+					.pid_control
+					.update(current_temperature.as_kelvin() as f64, delta_time);
+				Percentage::from_0_to_1(math::map(
+					pwm_value,
+					Self::PID_CONTROL_MIN_LIMIT..=Self::PID_CONTROL_MAX_LIMIT,
+					0_f64..=1_f64,
+				) as f32)
+				.unwrap()
+			},
+		};
+
+		self.cartridge_heater
+			.set_heat_percentage(pwm_percentage)
+			.map_err(|_| TickError::SetCartridgeHeaterPercentage)
+	}
+
+	fn evaluate_safety(&mut self, delta_time: f64, adc: &mut TADC) -> Result<(Temperature, bool), TickError>
+	{
 		let current_temperature = self
 			.get_current_temperature(adc)
 			.map_err(|_| TickError::CantReadTemperature)?;
 
-		let safety_errors =
-			self.safety
-				.is_temperature_safe(current_temperature, self.get_target_temperature(), delta_time as f32);
+		let target_temperature = self.get_target_temperature();
+
+		let safety_errors = self
+			.safety
+			.is_temperature_safe(current_temperature, target_temperature, delta_time as f32);
 		if !safety_errors.is_empty()
 		{
+			self.cartridge_heater
+				.set_heat_percentage(Percentage::ZERO)
+				.map_err(|_| TickError::SetCartridgeHeaterPercentage)?;
 			return Err(TickError::ReadTemperatureIsWrong(safety_errors));
 		}
 
-		let mut pwm_value = self
-			.pid_control
-			.update(current_temperature.as_kelvin() as f64, delta_time);
-		pwm_value = math::map(
-			pwm_value,
-			Self::PID_CONTROL_MIN_LIMIT..=Self::PID_CONTROL_MAX_LIMIT,
-			0_f64..=1_f64,
-		);
-
-		self.cartridge_heater
-			.set_heat_percentage(Percentage::from_0_to_1(pwm_value as f32).unwrap())
-			.map_err(|_| TickError::SetCartridgeHeaterPercentage)?;
-
-		Ok(())
+		Ok((current_temperature, target_temperature.is_none()))
 	}
 }
 
