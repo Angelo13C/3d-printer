@@ -1,3 +1,19 @@
+//! This module provides an interface for interacting with SPI flash memory chips.
+//!
+//! It handles operations such as programming data, reading data, erasing blocks, and validating chip IDs.
+//!
+//! The module is designed to work with different types of flash memory chips by utilizing the `FlashMemoryChip` trait.
+//!
+//! # Features
+//! - **Programming and Reading**: Read and write data to flash memory pages.
+//! - **Erase Functionality**: Erase blocks of flash memory efficiently.
+//! - **ID Validation**: Validate the manufacturer and device IDs to ensure proper communication with the chip.
+//! - **Feature Management**: Get and set various features of the flash memory chip.
+//!
+//! # Safety Warning
+//! It's crucial to understand how flash memory operates to avoid unexpected results or wear and tear on the memory.
+//! Refer to the [flash memory overview](https://flashdba.com/2014/06/20/understanding-flash-blocks-pages-and-program-erases/) for more details.
+
 use core::{
 	fmt::Debug,
 	ops::{Range, RangeInclusive},
