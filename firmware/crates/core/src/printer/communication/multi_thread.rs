@@ -13,15 +13,31 @@ use crate::printer::components::{
 	Peripherals, Printer3DComponents,
 };
 
+/// Manages multi-threaded communication for the 3D printer.
+///
+/// This struct handles the communication in a separate thread, allowing the main
+/// application to interact with the printer without blocking. It receives commands
+/// and executes them in the context of the printer's components.
 pub struct MultiThreadCommunication<P: Peripherals + 'static>
 {
+	/// The handle for the spawned thread running the communication loop.
 	join_handle: JoinHandle<()>,
+	/// The receiver for commands sent from the communication thread.
 	command_receiver: CommandsReceiver<SendablePeripherals<P>>,
 }
 
 impl<P: Peripherals + 'static> MultiThreadCommunication<P>
 {
-	/// Starts a new thread, creating a new instance of [`Communication`] and calling [`Communication::tick`] it in a `loop`.
+	/// Starts a new thread for communication and executes the `tick` method in a loop.
+	///
+	/// # Arguments
+	///
+	/// * `peripherals` - Mutable reference to the peripherals required for communication.
+	/// * `configuration` - Configuration settings for the communication.
+	///
+	/// # Returns
+	///
+	/// A result containing the new `MultiThreadCommunication` instance or an error if creation fails.
 	pub fn new(peripherals: &mut P, configuration: CommunicationConfig) -> Result<Self, std::io::Error>
 	{
 		let (command_sender, command_receiver) = CommandsSender::new();
@@ -71,14 +87,21 @@ impl<P: Peripherals + 'static> MultiThreadCommunication<P>
 		})
 	}
 
+	/// Retrieves a reference to the join handle of the communication thread.
+	///
+	/// # Returns
+	///
+	/// A reference to the `JoinHandle` of the communication thread.
 	pub fn get_join_handle(&self) -> &JoinHandle<()>
 	{
 		&self.join_handle
 	}
 
-	/// Executes all the [`commands`] received from the communication thread.
+	/// Executes all commands received from the communication thread.
 	///
-	/// [`commands`]: crate::printer::communication::http::command
+	/// # Arguments
+	///
+	/// * `components` - Mutable reference to the printer's components where commands will be executed.
 	pub fn tick(&self, components: &mut Printer3DComponents<SendablePeripherals<P>>)
 	{
 		for command in self.command_receiver.iterate_received_commands()
@@ -88,15 +111,22 @@ impl<P: Peripherals + 'static> MultiThreadCommunication<P>
 	}
 }
 
+/// Represents peripherals that can be sent between threads.
+///
+/// This enum allows for safe transmission of peripheral data across thread boundaries
+/// in the context of communication and components management.
 pub enum SendablePeripherals<P: Peripherals>
 {
+	/// Contains peripherals required for the components thread.
 	ComponentsThread
 	{
 		watchdog_creator: Option<P::WatchdogCreator>,
 
 		stepper_ticker_timer: Option<P::StepperTickerTimer>,
+
 		kinematics: Option<P::Kinematics>,
 
+		/// Motor control pins for various axes.
 		left_motor_dir_pin: Option<P::LeftDirPin>,
 		left_motor_step_pin: Option<P::LeftStepPin>,
 		right_motor_dir_pin: Option<P::RightDirPin>,
@@ -106,47 +136,71 @@ pub enum SendablePeripherals<P: Peripherals>
 		extruder_motor_dir_pin: Option<P::ExtruderDirPin>,
 		extruder_motor_step_pin: Option<P::ExtruderStepPin>,
 
+		/// UART driver for serial communication.
 		uart_driver: Option<P::UartDriver>,
 
+		/// Endstop sensors for the axes.
 		x_axis_endstop: Option<P::XAxisEndstop>,
 		y_axis_endstop: Option<P::YAxisEndstop>,
 		z_axis_endstop: Option<P::ZAxisEndstop>,
 
+		/// Fan control pins.
 		layer_fan_pin: Option<P::FanPin>,
 		hotend_fan_pin: Option<P::FanPin>,
 
+		/// Heater and thermistor pins for the bed and hotend.
 		bed_cartridge_heater_pin: Option<P::HeatedBedHeaterPin>,
 		bed_thermistor_pin: Option<P::HeatedBedAdcPin>,
 
 		hotend_cartridge_heater_pin: Option<P::CartridgeHeaterPin>,
 		hotend_thermistor_pin: Option<P::HotendAdcPin>,
 
+		/// ADC for reading sensor values.
 		adc: Option<P::Adc>,
 
+		/// System time for managing delays.
 		system_time: Option<P::SystemTime>,
 	},
+	/// Contains peripherals required for the communication thread.
 	CommunicationThread
 	{
 		watchdog_creator: Option<P::WatchdogCreator>,
 
 		system_time: Option<P::SystemTime>,
+		/// Flash chip for memory operations.
 		flash_chip: Option<P::FlashChip>,
+		/// SPI interface for the flash chip.
 		flash_spi: Option<P::FlashSpi>,
+		/// WiFi driver for connectivity.
 		wifi_driver: Option<P::WifiDriver>,
+		/// HTTP server for handling requests.
 		server: Option<Box<dyn FnOnce() -> Result<P::Server, P::ServerError> + Send>>,
+		/// OTA (Over-the-Air) update interface.
 		ota: Option<P::Ota>,
 
 		#[cfg(feature = "usb")]
+		/// USB bus for USB communication.
 		usb_bus: Option<P::UsbBus>,
 		#[cfg(feature = "usb")]
+		/// USB sense pin for detecting USB connections.
 		usb_sense_pin: Option<P::UsbSensePin>,
 	},
 }
 
+/// Safety trait implementation for sending `SendablePeripherals` across threads.
 unsafe impl<P: Peripherals> Send for SendablePeripherals<P> {}
 
 impl<P: Peripherals> SendablePeripherals<P>
 {
+	/// Constructs a `SendablePeripherals` instance for the communication thread.
+	///
+	/// # Arguments
+	///
+	/// * `peripherals` - Mutable reference to the peripherals from which data will be taken.
+	///
+	/// # Returns
+	///
+	/// A `SendablePeripherals` instance configured for the communication thread.
 	pub fn of_communication_thread(peripherals: &mut P) -> Self
 	{
 		Self::CommunicationThread {
@@ -164,6 +218,15 @@ impl<P: Peripherals> SendablePeripherals<P>
 		}
 	}
 
+	/// Constructs a `SendablePeripherals` instance for the components thread.
+	///
+	/// # Arguments
+	///
+	/// * `peripherals` - Mutable reference to the peripherals from which data will be taken.
+	///
+	/// # Returns
+	///
+	/// A `SendablePeripherals` instance configured for the components thread.
 	pub fn of_components_thread(peripherals: &mut P) -> Self
 	{
 		Self::ComponentsThread {
