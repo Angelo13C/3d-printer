@@ -1,3 +1,6 @@
+//! Submodule for handling endstop functionality, which is critical for detecting
+//! limits and homing operations in motion control systems.
+
 use std::fmt::Debug;
 
 /// Type that can be used as an [`endstop`].
