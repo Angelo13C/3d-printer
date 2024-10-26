@@ -38,8 +38,15 @@ fn copy_partition_table()
 {
 	const PARTITION_TABLE_PATH: &str = "partitions.csv";
 	let output_directory_path = std::env::var("OUT_DIR").unwrap();
-	let output_file_path = Path::new(&output_directory_path).parent().unwrap().parent().unwrap().parent().unwrap().join(Path::new(PARTITION_TABLE_PATH));
-	
+	let output_file_path = Path::new(&output_directory_path)
+		.parent()
+		.unwrap()
+		.parent()
+		.unwrap()
+		.parent()
+		.unwrap()
+		.join(Path::new(PARTITION_TABLE_PATH));
+
 	std::fs::File::create(output_file_path.clone()).unwrap();
 	std::fs::copy(PARTITION_TABLE_PATH, output_file_path).unwrap();
 }
