@@ -4,7 +4,6 @@
 //! reusability across different components of the firmware.
 
 pub mod bresenham;
-pub mod log_in_isr;
 pub mod math;
 pub mod measurement;
 
