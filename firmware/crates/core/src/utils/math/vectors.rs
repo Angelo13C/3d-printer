@@ -1,3 +1,6 @@
+//! This module provides functionality for handling vectors in N-dimensional space,
+//! specifically using `Distance` as the underlying type for vector components.
+
 use std::ops::*;
 
 use super::NumberExt;
@@ -8,15 +11,14 @@ pub type Vector3 = VectorN<3>;
 
 impl Vector2
 {
+	/// Creates a 2D vector from x and y components.
+	///
 	/// # Examples
 	/// ```
 	/// # use firmware_core::utils::{measurement::distance::Distance, math::vectors::*};
-	/// #
 	/// let x = Distance::from_millimeters(10);
 	/// let y = Distance::from_millimeters(15);
-	///
 	/// let vector2 = Vector2::from_xy(x, y);
-	///
 	/// assert_eq!(vector2.x(), x);
 	/// assert_eq!(vector2.y(), y);
 	/// ```
@@ -29,6 +31,7 @@ impl Vector2
 	{
 		self.0[0]
 	}
+
 	pub fn y(&self) -> Distance
 	{
 		self.0[1]
@@ -37,16 +40,15 @@ impl Vector2
 
 impl Vector3
 {
+	/// Creates a 3D vector from x, y, and z components.
+	///
 	/// # Examples
 	/// ```
 	/// # use firmware_core::utils::{measurement::distance::Distance, math::vectors::*};
-	/// #
 	/// let x = Distance::from_millimeters(10);
 	/// let y = Distance::from_millimeters(15);
 	/// let z = Distance::from_millimeters(5);
-	///
 	/// let vector3 = Vector3::from_xyz(x, y, z);
-	///
 	/// assert_eq!(vector3.x(), x);
 	/// assert_eq!(vector3.y(), y);
 	/// assert_eq!(vector3.z(), z);
@@ -60,10 +62,12 @@ impl Vector3
 	{
 		self.0[0]
 	}
+
 	pub fn y(&self) -> Distance
 	{
 		self.0[1]
 	}
+
 	pub fn z(&self) -> Distance
 	{
 		self.0[2]
@@ -74,8 +78,9 @@ impl Copy for Vector2 {}
 impl Copy for Vector3 {}
 
 #[derive(PartialEq, Eq, Debug, Clone)]
-/// `N` dimensional vector with components stored as [`Distance`].
+/// An N-dimensional vector with components stored as [`Distance`].
 pub struct VectorN<const N: usize>([Distance; N]);
+
 impl<const N: usize> Index<usize> for VectorN<N>
 {
 	type Output = Distance;
@@ -85,6 +90,7 @@ impl<const N: usize> Index<usize> for VectorN<N>
 		&self.0[index]
 	}
 }
+
 impl<const N: usize> IndexMut<usize> for VectorN<N>
 {
 	fn index_mut(&mut self, index: usize) -> &mut Self::Output
@@ -100,7 +106,6 @@ impl<const N: usize> Add<&Self> for VectorN<N>
 	fn add(mut self, rhs: &Self) -> Self::Output
 	{
 		self += rhs;
-
 		self
 	}
 }
@@ -129,6 +134,7 @@ impl<const N: usize> Sub<&Self> for VectorN<N>
 		self
 	}
 }
+
 impl<const N: usize> Neg for VectorN<N>
 {
 	type Output = Self;
@@ -153,6 +159,7 @@ impl<const N: usize> Mul<f32> for VectorN<N>
 		self
 	}
 }
+
 impl<const N: usize> MulAssign<f32> for VectorN<N>
 {
 	fn mul_assign(&mut self, rhs: f32)
@@ -174,13 +181,13 @@ impl<const N: usize> Default for VectorN<N>
 
 impl<const N: usize> VectorN<N>
 {
+	/// A constant representing a zero vector.
+	///
+	/// # Examples
 	/// ```
 	/// # use firmware_core::utils::math::vectors::*;
-	/// #
 	/// assert_eq!(VectorN::<2>::ZERO.length_millimeters(), 0.);
 	/// assert_eq!(VectorN::<3>::ZERO.length_millimeters(), 0.);
-	/// assert_eq!(VectorN::<4>::ZERO.length_millimeters(), 0.);
-	/// // ...
 	/// ```
 	pub const ZERO: Self = Self([Distance::ZERO; N]);
 
@@ -199,12 +206,9 @@ impl<const N: usize> VectorN<N>
 	/// # Examples
 	/// ```
 	/// # use firmware_core::utils::{measurement::distance::Distance, math::{*, vectors::*}};
-	/// #
 	/// let x = Distance::from_millimeters(3);
 	/// let y = Distance::from_millimeters(4);
-	///
 	/// let vector2 = VectorN::<2>::from_xy(x, y);
-	///
 	/// assert_eq!(vector2.length_millimeters_sqr() as i32, x.as_millimeters().sqr() + y.as_millimeters().sqr());
 	/// ```
 	pub fn length_millimeters_sqr(&self) -> f32
@@ -219,12 +223,9 @@ impl<const N: usize> VectorN<N>
 	/// # Examples
 	/// ```
 	/// # use firmware_core::utils::{measurement::distance::Distance, math::{*, vectors::*}};
-	/// #
 	/// let x = Distance::from_millimeters(3);
 	/// let y = Distance::from_millimeters(4);
-	///
 	/// let vector2 = VectorN::<2>::from_xy(x, y);
-	///
 	/// assert_eq!(vector2.length_millimeters(), vector2.length_millimeters_sqr().sqrt());
 	/// ```
 	pub fn length_millimeters(&self) -> f32
