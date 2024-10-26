@@ -1,3 +1,18 @@
+//! This module provides an interface for reading temperatures from a thermistor connected to a microcontroller.
+//!
+//! A `Thermistor` is connected through an ADC pin and uses a voltage divider to convert temperature changes
+//! into voltage levels that the microcontroller can read. The module includes methods to initialize the thermistor
+//! and read the current temperature.
+//!
+//! # Usage
+//! To use this module, create a `Thermistor` instance by providing the ADC pin, beta constant, resistance
+//! at `T0`, and the resistance of the other resistor in the voltage divider. Then call `read_temperature`
+//! to get the temperature measurement.
+//!
+//! # Safety Note
+//! Ensure proper wiring of the thermistor in a voltage divider configuration to avoid incorrect readings.
+//! For detailed wiring instructions, refer to the documentation on connecting a thermistor to a microcontroller.
+
 use std::marker::PhantomData;
 
 use crate::{
