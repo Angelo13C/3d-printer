@@ -1,3 +1,9 @@
+//! Defines mechanisms for checking if a temperature is within an allowed range.
+//!
+//! This module provides the [`AllowedTemperatureRangeSafety`] struct, which ensures that a given
+//! temperature is within a specified safe range. It is useful for enforcing safety constraints
+//! in temperature control systems.
+
 use std::ops::RangeInclusive;
 
 use crate::utils::measurement::temperature::Temperature;
@@ -27,12 +33,16 @@ pub struct AllowedTemperatureRangeSafety
 
 impl AllowedTemperatureRangeSafety
 {
+	/// Creates a new instance of `AllowedTemperatureRangeSafety` with the specified allowed range.
+	///
 	/// Check [`struct's documentation`](Self).
 	pub const fn new(allowed_range: RangeInclusive<Temperature>) -> Self
 	{
 		Self { allowed_range }
 	}
 
+	/// Checks if the provided temperature is within the allowed range.
+	///
 	/// Check [`struct's documentation`](Self).
 	pub fn is_temperature_safe(&self, temperature: Temperature) -> bool
 	{
