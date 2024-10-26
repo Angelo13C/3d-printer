@@ -1,3 +1,6 @@
+//! Module for managing the homing procedure of the printer, which ensures that the tool is positioned correctly
+//! before starting any printing operations.
+
 pub mod endstop;
 
 use enumset::enum_set;
@@ -13,20 +16,31 @@ use crate::utils::{
 	measurement::distance::Distance,
 };
 
+/// Represents the current state of the homing procedure.
 #[derive(Clone, PartialEq, Eq)]
 pub enum HomingProcedure
 {
+	/// No homing procedure is currently active.
 	None,
+	/// Indicates that the homing procedure should start.
 	ShouldStart,
+	/// Indicates that a homing move is currently being executed.
 	Doing(HomingMove),
 }
 
 impl HomingProcedure
 {
-	/// Movement speed at which the printer is homed.
+	/// Movement speed at which the printer is homed, in millimeters per second.
 	const MOVE_SPEED_MM_SECOND: f32 = 40.;
 
-	/// Starts the homing procedure, by first homing the X axis.
+	/// Starts the homing procedure, beginning with the X axis.
+	///
+	/// # Parameters
+	/// - `planner`: A mutable reference to the planner that manages motion planning.
+	/// - `calculate_steps_per_mm`: A function that calculates the number of steps required per millimeter for each axis.
+	///
+	/// # Returns
+	/// Returns `Ok(())` if successful, or an error if the blocks buffer is full.
 	pub fn start_homing<const N: usize, K: Kinematics>(
 		&mut self, planner: &mut Planner<N>, calculate_steps_per_mm: impl FnOnce() -> [f32; N],
 	) -> Result<(), BlocksBufferIsFull>
@@ -40,11 +54,25 @@ impl HomingProcedure
 		Ok(())
 	}
 
+	/// Checks if a homing procedure is currently active.
+	///
+	/// # Returns
+	/// Returns `true` if homing is in progress, otherwise `false`.
 	pub fn is_homing(&self) -> bool
 	{
 		*self != Self::None
 	}
 
+	/// Executes the tick function for the homing procedure, progressing through the different axes.
+	///
+	/// # Parameters
+	/// - `planner`: A mutable reference to the planner that manages motion planning.
+	/// - `calculate_steps_per_mm`: A function that calculates the number of steps required per millimeter for each axis.
+	/// - `z_endstop`: A mutable reference to the Z-axis endstop.
+	/// - `bed_size`: A `Vector2` representing the size of the bed.
+	///
+	/// # Returns
+	/// Returns `Ok(())` if successful, or an error if an issue occurs during the tick.
 	pub fn tick<const N: usize, K: Kinematics, ZEndstop: Endstop>(
 		&mut self, planner: &mut Planner<N>, calculate_steps_per_mm: impl FnOnce() -> [f32; N],
 		z_endstop: &mut ZEndstop, bed_size: Vector2,
@@ -97,7 +125,7 @@ impl HomingProcedure
 				{
 					if !Self::is_homing_move_being_executed(planner)
 					{
-						*self = Self::None
+						*self = Self::None;
 					}
 				},
 			}
@@ -128,20 +156,32 @@ impl HomingProcedure
 	}
 }
 
+/// Represents the different stages of the homing process.
 #[derive(Clone, PartialEq, Eq)]
 pub enum HomingMove
 {
+	/// Homing move for the X axis.
 	X,
+	/// Homing move for the Y axis.
 	Y,
+	/// Centering move for the Z axis.
 	CenteringForZAxis
 	{
-		bed_size: Vector2,
+		bed_size: Vector2
 	},
+	/// Homing move for the Z axis.
 	Z,
 }
 
 impl HomingMove
 {
+	/// Gets the target position for the specified homing move.
+	///
+	/// # Parameters
+	/// - `N`: The number of dimensions in the motion space.
+	///
+	/// # Returns
+	/// A `VectorN<N>` representing the target position for the homing move.
 	fn target_position<const N: usize>(&self) -> VectorN<N>
 	{
 		const HOMING_DISTANCE: Distance = Distance::from_centimeters(-100);
@@ -161,12 +201,17 @@ impl HomingMove
 	}
 }
 
+/// Errors that can occur during the homing tick process.
 #[derive(Clone, Copy, PartialEq, Eq)]
 pub enum TickError<ZEndstop: Endstop>
 {
+	/// Error during the X axis homing move.
 	HomingX,
+	/// Error during the Y axis homing move.
 	HomingY,
+	/// Error during the Z axis homing move.
 	HomingZ,
+	/// Error while preparing the Z axis for probing.
 	PreparingZAxisToProbe(ZEndstop::HomingError),
 }
 
