@@ -1,3 +1,7 @@
+//! This module contains mathematical utilities and extensions for various calculations
+//! used in the firmware. It provides functions for mapping values between ranges,
+//! linear interpolation, constraining values to a specified range...
+
 mod number_ext;
 mod percentage;
 pub mod vectors;
@@ -7,7 +11,19 @@ use std::ops::{Add, Div, Mul, RangeInclusive, Sub};
 pub use number_ext::*;
 pub use percentage::*;
 
-/// Map a value from a range to another.
+/// Map a value from a specified range to another range.
+///
+/// This function takes a value and linearly maps it from the `from` range to the `to` range.
+///
+/// # Examples
+/// ```
+/// # use firmware_core::utils::math::map;
+/// # use std::ops::RangeInclusive;
+/// #
+/// assert_eq!(map(5, 0..=10, 0..=100), 50);
+/// assert_eq!(map(0, 0..=10, 0..=100), 0);
+/// assert_eq!(map(10, 0..=10, 0..=100), 100);
+/// ```
 pub fn map<T>(value: T, from: RangeInclusive<T>, to: RangeInclusive<T>) -> T
 where T: Clone + Copy + Sub<T, Output = T> + Mul<T, Output = T> + Add<T, Output = T> + Div<T, Output = T>
 {
@@ -32,13 +48,14 @@ where T: Clone + Copy + Sub<T, Output = T> + Mul<f32, Output = T> + Add<T, Outpu
 	*range.start() + (*range.end() - *range.start()) * t
 }
 
-/// Returns `value` if `value` is contained in the provided `range`, `range.start()` if `value` is smaller
-/// than `range.start()` and `range.end()` if `value` is greater than `range.end()`.
+/// Constrains a value within a specified range.
+///
+/// Returns `value` if it is within the provided `range`, `range.start()` if `value` is smaller
+/// than `range.start()`, and `range.end()` if `value` is greater than `range.end()`.
 ///
 /// # Examples
 /// ```
 /// # use firmware_core::utils::math::constrain;
-/// #
 /// assert_eq!(constrain(10, 0..=20), 10);
 /// assert_eq!(constrain(-5, 0..=20), 0);
 /// assert_eq!(constrain(40, 0..=20), 20);
