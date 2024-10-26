@@ -22,7 +22,7 @@ pub fn configuration() -> CommunicationConfig
 			wifi_client_configuration: ClientConfiguration {
 				ssid: env!("WIFI_SSID").into(),
 				bssid: None,
-				auth_method: AuthMethod::WPA2Personal,
+				auth_method: AuthMethod::WPA2WPA3Personal,
 				password: env!("WIFI_PASSWORD").into(),
 				channel: None,
 			},
