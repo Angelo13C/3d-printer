@@ -157,6 +157,11 @@ impl<P: Peripherals + 'static> Communication<P>
 	{
 		if let Some(mut resources) = self.resources.try_lock()
 		{
+			if resources.ota_updater.needs_reboot()
+			{
+				resources.ota_updater.reboot();
+			}
+
 			let (file_system, print_process) = resources.get_file_system_and_print_process();
 			match print_process.tick(file_system, print_process::get_commands_in_buffer_count())
 			{
