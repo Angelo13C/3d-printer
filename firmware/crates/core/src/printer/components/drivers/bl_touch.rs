@@ -1,3 +1,17 @@
+//! This module provides the implementation for the BLTouch sensor, which is used for
+//! auto bed leveling in 3D printers.
+//!
+//! The BLTouch sensor operates by using a servo motor to control a probe that can touch
+//! the printing bed. This module handles the commands to move the probe, as well as
+//! the interaction with the bed leveling process.
+//!
+//! # Components
+//! - [`BLTouch`]: The main struct that represents the BLTouch sensor.
+//! - [`BLTouchCommand`]: An enumeration of commands that the BLTouch can execute.
+//!
+//! For more information about the BLTouch sensor, see the official documentation at
+//! [Antclabs](https://www.antclabs.com/bltouch-v3).
+
 use std::fmt::Debug;
 
 use embedded_hal::digital::{ErrorType, InputPin};
@@ -28,6 +42,10 @@ pub struct BLTouch<CP: PwmPin, ZP: InputPin + InterruptPin>
 
 impl<CP: PwmPin, ZP: InputPin + InterruptPin> BLTouch<CP, ZP>
 {
+	/// Creates a new instance of `BLTouch` with the specified control and Z-min pins.
+	///
+	/// # Errors
+	/// Returns an error if the control pin initialization fails.
 	pub fn new(control_pin: CP, z_min_pin: ZP) -> Result<Self, CP::Error>
 	{
 		Ok(Self {
