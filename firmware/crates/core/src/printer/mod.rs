@@ -114,7 +114,7 @@ pub enum CreationError<P: Peripherals>
 pub enum TickError<P: Peripherals>
 {
 	WatchdogReset(<<P::WatchdogCreator as WatchdogCreator>::Watchdog as Watchdog>::Error),
-	Components(components::TickError<P::ZAxisEndstop, P::StepperTickerTimer>),
+	Components(components::TickError<P::ZAxisEndstop, P::UartDriver, P::StepperTickerTimer>),
 }
 
 impl<P: Peripherals> Debug for TickError<P>

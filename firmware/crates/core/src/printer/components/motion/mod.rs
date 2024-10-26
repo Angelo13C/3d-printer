@@ -339,7 +339,9 @@ impl<Timer: TimerTrait, Kinematics: KinematicsTrait, ZEndstop: ZAxisProbe> Motio
 		Ok(())
 	}
 
-	pub fn set_paused(&mut self, paused: bool, uart_driver: &mut impl UartTrait) -> Result<(), SetPausedError<Timer>>
+	pub fn set_paused<Uart: UartTrait>(
+		&mut self, paused: bool, uart_driver: &mut Uart,
+	) -> Result<(), SetPausedError<Uart, Timer>>
 	{
 		if self.is_paused != paused
 		{
@@ -347,13 +349,15 @@ impl<Timer: TimerTrait, Kinematics: KinematicsTrait, ZEndstop: ZAxisProbe> Motio
 
 			for tmc_driver in &mut self.tmc2209_drivers
 			{
-				tmc_driver.set_enabled(!paused, uart_driver);
+				tmc_driver
+					.set_enabled(!paused, uart_driver)
+					.map_err(SetPausedError::TMCDriver)?;
 			}
 
 			match paused
 			{
-				true => self.ticker.disable().map_err(SetPausedError::TryingToPause)?,
-				false => self.ticker.enable().map_err(SetPausedError::TryingToResume)?,
+				true => self.ticker.disable().map_err(SetPausedError::TryingToPauseTicker)?,
+				false => self.ticker.enable().map_err(SetPausedError::TryingToResumeTicker)?,
 			}
 		}
 
@@ -497,20 +501,22 @@ impl<ZEndstop: Endstop> Debug for TickError<ZEndstop>
 /// An error that can occur when you [`pause or resume`] a [`MotionController`].
 ///
 /// [`pause or resume`]: MotionController::set_paused
-pub enum SetPausedError<Timer: TimerTrait>
+pub enum SetPausedError<Uart: UartTrait, Timer: TimerTrait>
 {
-	TryingToPause(Timer::Error),
-	TryingToResume(ticker::EnableError<Timer>),
+	TMCDriver(Uart::Error),
+	TryingToPauseTicker(Timer::Error),
+	TryingToResumeTicker(ticker::EnableError<Timer>),
 }
 
-impl<Timer: TimerTrait> Debug for SetPausedError<Timer>
+impl<Uart: UartTrait, Timer: TimerTrait> Debug for SetPausedError<Uart, Timer>
 {
 	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result
 	{
 		match self
 		{
-			Self::TryingToPause(arg0) => f.debug_tuple("TryingToPause").field(arg0).finish(),
-			Self::TryingToResume(arg0) => f.debug_tuple("TryingToResume").field(arg0).finish(),
+			Self::TMCDriver(arg0) => f.debug_tuple("TMCDriver").field(arg0).finish(),
+			Self::TryingToPauseTicker(arg0) => f.debug_tuple("TryingToPause").field(arg0).finish(),
+			Self::TryingToResumeTicker(arg0) => f.debug_tuple("TryingToResume").field(arg0).finish(),
 		}
 	}
 }

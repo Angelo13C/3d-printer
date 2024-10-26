@@ -228,12 +228,12 @@ impl<P: Peripherals> Printer3DComponents<P>
 		})
 	}
 
-	pub fn tick(&mut self) -> Result<(), TickError<P::ZAxisEndstop, P::StepperTickerTimer>>
 	/// Updates the state of the printer components, performing necessary tasks.
 	///
 	/// This method should be called periodically to ensure the printer operates
 	/// correctly. It manages tasks related to temperature control, motion, and
 	/// G-code execution.
+	pub fn tick(&mut self) -> Result<(), TickError<P::ZAxisEndstop, P::UartDriver, P::StepperTickerTimer>>
 	{
 		// Time elapsed since the last time you called Self::tick.
 		let delta_time = self.clock.get_delta_time().as_secs_f64();
@@ -292,16 +292,16 @@ pub enum CreationError<Timer: TimerTrait, ZEndstop: ZAxisProbe, Uart: UartTrait>
 }
 
 /// An error that can occur when you tick a [`Printer3DComponents`] struct.
-pub enum TickError<ZEndstop: ZAxisProbe, Timer: TimerTrait>
+pub enum TickError<ZEndstop: ZAxisProbe, Uart: UartTrait, Timer: TimerTrait>
 {
 	GCodeExecuter(g_code::execute::TickError),
 	HeatedBedPidController(temperature::PidUpdateError),
 	HotendPidController(temperature::PidUpdateError),
 	MotionController(motion::TickError<Probe<ZEndstop>>),
-	PausingMotionController(motion::SetPausedError<Timer>),
+	PausingMotionController(motion::SetPausedError<Uart, Timer>),
 }
 
-impl<ZEndstop: ZAxisProbe, Timer: TimerTrait> Debug for TickError<ZEndstop, Timer>
+impl<ZEndstop: ZAxisProbe, Uart: UartTrait, Timer: TimerTrait> Debug for TickError<ZEndstop, Uart, Timer>
 {
 	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result
 	{
