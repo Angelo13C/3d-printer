@@ -33,8 +33,10 @@ pub const STACK_SIZE: usize = 30_000;
 /// [`callback function`]: Self::get_callback
 pub enum HttpRequest
 {
+	Hello,
 	/// List the metadatas of all the G-code files saved in the file system.
 	ListFiles,
+	OptionsListFiles,
 	/// Delete a specific file from the file system.
 	DeleteFile,
 	/// Start printing a specific file.
@@ -44,11 +46,13 @@ pub enum HttpRequest
 	/// Get the status of the current print (if a print is in execution), providing some info like the expected duration,
 	/// the name of the file being printed...
 	GetPrintStatus,
+	OptionsGetPrintStatus,
 	/// Pause or resume (based on the previous state) the current print.
 	PauseOrResume,
 	/// Get the status of various components of the machine (like the current temperature of the hotend, or the target
 	/// temperature of the bed).
 	PrinterState,
+	OptionsPrinterState,
 	/// Moves the tool of the machine by the specified amount on the possible directions.
 	Move,
 	/// Provide the history of G-code commands that have been read from the file system to print the current file.
@@ -56,6 +60,7 @@ pub enum HttpRequest
 	/// being tracked can't be long), and a large amount of time between different requests might lead to some G-code
 	/// commands that have been executed by the printer to not appear in the history.
 	ListGCodeCommandsInMemory,
+	OptionsListGCodeCommandsInMemory,
 	/// "Manually" add the provided G-code commands to the command buffer of the current print process.
 	SendGCodeCommands,
 	/// Over-The-Air update.
@@ -74,15 +79,20 @@ impl HttpRequest
 	{
 		match self
 		{
+			HttpRequest::Hello => Method::Get,
 			HttpRequest::ListFiles => Method::Get,
+			HttpRequest::OptionsListFiles => Method::Options,
+			HttpRequest::SendFile => Method::Post,
 			HttpRequest::DeleteFile => Method::Delete,
 			HttpRequest::PrintFile => Method::Post,
-			HttpRequest::SendFile => Method::Post,
 			HttpRequest::GetPrintStatus => Method::Get,
+			HttpRequest::OptionsGetPrintStatus => Method::Options,
 			HttpRequest::PauseOrResume => Method::Post,
 			HttpRequest::PrinterState => Method::Get,
+			HttpRequest::OptionsPrinterState => Method::Options,
 			HttpRequest::Move => Method::Post,
 			HttpRequest::ListGCodeCommandsInMemory => Method::Get,
+			HttpRequest::OptionsListGCodeCommandsInMemory => Method::Options,
 			HttpRequest::SendGCodeCommands => Method::Post,
 			HttpRequest::OTAUpdate => Method::Post,
 		}
@@ -96,17 +106,22 @@ impl HttpRequest
 	{
 		match self
 		{
-			HttpRequest::ListFiles => "/list-files",
-			HttpRequest::DeleteFile => "/delete-file",
-			HttpRequest::PrintFile => "/print-file",
-			HttpRequest::SendFile => "/send-file",
-			HttpRequest::GetPrintStatus => "/print-status",
-			HttpRequest::PauseOrResume => "/pause-or-resume",
-			HttpRequest::PrinterState => "/printer-state",
-			HttpRequest::Move => "/move",
-			HttpRequest::ListGCodeCommandsInMemory => "/list-gcode-commands-in-memory",
-			HttpRequest::SendGCodeCommands => "/send-gcode-commands",
-			HttpRequest::OTAUpdate => "/ota-update",
+			HttpRequest::Hello => "/v1/hello",
+			HttpRequest::ListFiles => "/v1/files",
+			HttpRequest::OptionsListFiles => "/v1/files",
+			HttpRequest::SendFile => "/v1/files",
+			HttpRequest::DeleteFile => "/v1/files",
+			HttpRequest::PrintFile => "/v1/print",
+			HttpRequest::GetPrintStatus => "/v1/print/status",
+			HttpRequest::OptionsGetPrintStatus => "/v1/print/status",
+			HttpRequest::PauseOrResume => "/v1/print/toggle-pause",
+			HttpRequest::PrinterState => "/v1/printer/state",
+			HttpRequest::OptionsPrinterState => "/v1/printer/state",
+			HttpRequest::ListGCodeCommandsInMemory => "/v1/gcode-commands",
+			HttpRequest::OptionsListGCodeCommandsInMemory => "/v1/gcode-commands",
+			HttpRequest::SendGCodeCommands => "/v1/gcode-commands",
+			HttpRequest::Move => "/v1/move",
+			HttpRequest::OTAUpdate => "/v1/ota-update",
 		}
 	}
 
@@ -119,15 +134,20 @@ impl HttpRequest
 	{
 		match self
 		{
+			HttpRequest::Hello => callbacks::hello,
 			HttpRequest::ListFiles => callbacks::list_files,
+			HttpRequest::OptionsListFiles => callbacks::options_list_files,
 			HttpRequest::DeleteFile => callbacks::delete_file,
 			HttpRequest::PrintFile => callbacks::print_file,
 			HttpRequest::SendFile => callbacks::send_file,
 			HttpRequest::GetPrintStatus => callbacks::get_print_status,
+			HttpRequest::OptionsGetPrintStatus => callbacks::options_get_print_status,
 			HttpRequest::PauseOrResume => callbacks::pause_or_resume,
 			HttpRequest::PrinterState => callbacks::printer_state,
+			HttpRequest::OptionsPrinterState => callbacks::options_printer_state,
 			HttpRequest::Move => callbacks::move_,
 			HttpRequest::ListGCodeCommandsInMemory => callbacks::list_g_code_commands_in_memory,
+			HttpRequest::OptionsListGCodeCommandsInMemory => callbacks::options_list_g_code_commands_in_memory,
 			HttpRequest::SendGCodeCommands => callbacks::send_g_code_commands,
 			HttpRequest::OTAUpdate => callbacks::ota_update,
 		}

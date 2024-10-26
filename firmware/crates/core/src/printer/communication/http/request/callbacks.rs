@@ -1,8 +1,4 @@
-use embedded_svc::{
-	http::server::{Connection, HandlerError, Request},
-	io::Write,
-	ota::OtaUpdate,
-};
+use embedded_svc::http::server::{Connection, HandlerError, Request, Response};
 use serde::{Deserialize, Serialize};
 use spin::MutexGuard;
 
@@ -38,6 +34,20 @@ macro_rules! send_response {
 	}};
 }
 
+pub fn hello<C: Connection, P: Peripherals>(
+	request: Request<&mut C>, resources: Resources<P>,
+) -> Result<(), HandlerError>
+{
+	log::info!("Start handling `hello` HTTP request");
+
+	let mut response = ok_response(request)?;
+	response.flush()?;
+
+	log::info!("Successfully handled `hello` HTTP request");
+
+	Ok(())
+}
+
 pub fn list_files<C: Connection, P: Peripherals>(
 	mut request: Request<&mut C>, resources: Resources<P>,
 ) -> Result<(), HandlerError>
@@ -63,7 +73,7 @@ pub fn list_files<C: Connection, P: Peripherals>(
 	{
 		name: String,
 		size_in_bytes: u32,
-		id: u32,
+		file_id: u32,
 	}
 	let mut response_message = Vec::<File>::with_capacity(file_metadatas.len());
 
@@ -76,13 +86,17 @@ pub fn list_files<C: Connection, P: Peripherals>(
 				response_message.push(File {
 					name: file_name,
 					size_in_bytes: file_metadata.file_data_length + file_metadata.file_name_length,
-					id: u32::from_le_bytes(file_metadata.id.to_bytes()),
+					file_id: u32::from_le_bytes(file_metadata.id.to_bytes()),
 				});
 			}
 		}
 	}
 
-	let mut response = request.into_ok_response()?;
+	let response_message = HttpResponse {
+		files: response_message,
+	};
+
+	let mut response = ok_response(request)?;
 	send_response!(
 		BUFFER_SIZE = SER_BUFFER_SIZE,
 		CALLBACK = "list_files",
@@ -93,6 +107,13 @@ pub fn list_files<C: Connection, P: Peripherals>(
 	log::info!("Successfully handled `list-files` HTTP request");
 
 	Ok(())
+}
+
+pub fn options_list_files<C: Connection, P: Peripherals>(
+	request: Request<&mut C>, _: Resources<P>,
+) -> Result<(), HandlerError>
+{
+	options_callback(request, "list-files", "")
 }
 
 pub fn delete_file<C: Connection, P: Peripherals>(
@@ -174,7 +195,7 @@ pub fn send_file<C: Connection, P: Peripherals>(
 	let mut file_writer = resources
 		.file_system
 		.create_file(file_name, file_length)
-		.map_err(|error| HandlerError::new("Not enough space available in the flash memory"))?;
+		.map_err(|_| HandlerError::new("Not enough space available in the flash memory"))?;
 
 	let mut buffer = [0; super::STACK_SIZE];
 	while let Ok(read_bytes) = request.read(&mut buffer)
@@ -258,7 +279,7 @@ pub fn get_print_status<C: Connection, P: Peripherals>(
 		},
 	};
 
-	let mut response = request.into_ok_response()?;
+	let mut response = ok_response(request)?;
 	send_response!(
 		BUFFER_SIZE = SER_BUFFER_SIZE,
 		CALLBACK = "get_print_status",
@@ -271,6 +292,13 @@ pub fn get_print_status<C: Connection, P: Peripherals>(
 	Ok(())
 }
 
+pub fn options_get_print_status<C: Connection, P: Peripherals>(
+	request: Request<&mut C>, _: Resources<P>,
+) -> Result<(), HandlerError>
+{
+	options_callback(request, "print-status", "")
+}
+
 pub fn pause_or_resume<C: Connection, P: Peripherals>(
 	mut request: Request<&mut C>, resources: Resources<P>,
 ) -> Result<(), HandlerError>
@@ -281,7 +309,7 @@ pub fn pause_or_resume<C: Connection, P: Peripherals>(
 
 	pauser::toggle_pause();
 
-	let mut response = request.into_ok_response()?;
+	let mut response = ok_response(request)?;
 	response.flush()?;
 
 	log::info!("Successfully handled `pause-or-resume` HTTP request");
@@ -297,7 +325,7 @@ pub fn printer_state<C: Connection, P: Peripherals>(
 
 	let _ = check_security(&mut request, &mut resources.lock())?;
 
-	let mut response = request.into_ok_response()?;
+	let mut response = ok_response(request)?;
 	send_response!(
 		BUFFER_SIZE = 400,
 		CALLBACK = "printer_state",
@@ -308,6 +336,13 @@ pub fn printer_state<C: Connection, P: Peripherals>(
 	log::info!("Successfully handled `printer-state` HTTP request");
 
 	Ok(())
+}
+
+pub fn options_printer_state<C: Connection, P: Peripherals>(
+	request: Request<&mut C>, _: Resources<P>,
+) -> Result<(), HandlerError>
+{
+	options_callback(request, "printer-state", "")
 }
 
 pub fn move_<C: Connection, P: Peripherals>(
@@ -355,7 +390,10 @@ pub fn ota_update<C: Connection, P: Peripherals>(
 			Ok(written_percentage) => log::info!("OTA update {written_percentage}"),
 			Err(error) =>
 			{
-				update.abort();
+				if let Err(error) = update.abort()
+				{
+					return Err(HandlerError::new(&format!("Abort update: {:#?}", error)));
+				}
 				return Err(HandlerError::new(&format!("Write: {:#?}", error)));
 			},
 		}
@@ -364,6 +402,9 @@ pub fn ota_update<C: Connection, P: Peripherals>(
 	update
 		.complete()
 		.map_err(|error| HandlerError::new(&format!("Complete: {:#?}", error)))?;
+
+	let mut response = ok_response(request)?;
+	response.flush()?;
 
 	log::info!("Successfully handled `ota-update` HTTP request");
 
@@ -379,22 +420,16 @@ pub fn list_g_code_commands_in_memory<C: Connection, P: Peripherals>(
 	let mut resources = get_resources(&resources)?;
 	let _ = check_security(&mut request, &mut resources)?;
 
-	#[derive(Deserialize)]
-	#[serde(rename_all = "camelCase")]
-	struct HttpRequest
-	{
-		requested_line: u32,
-	}
+	let starting_line = request
+		.header("Starting-Line")
+		.ok_or(HandlerError::new("The request doesn't have a `Starting-Line` header"))?;
+	let starting_line = starting_line
+		.parse::<u32>()
+		.map_err(|_| HandlerError::new("The `Starting-Line` header is not a valid number"))?;
 
-	let http_request = deserialize_request!(
-		BUFFER_SIZE = 100,
-		CALLBACK = "list_g_code_commands_in_memory",
-		HttpRequest,
-		request
-	);
 	let (lines, line_of_first_command) = resources
 		.g_code_history
-		.get_lines_from_history(http_request.requested_line)
+		.get_lines_from_history(starting_line)
 		.unwrap_or(("", 0));
 
 	#[derive(Serialize)]
@@ -410,7 +445,7 @@ pub fn list_g_code_commands_in_memory<C: Connection, P: Peripherals>(
 		commands: lines,
 	};
 
-	let mut response = request.into_ok_response()?;
+	let mut response = ok_response(request)?;
 	send_response!(
 		BUFFER_SIZE = SER_BUFFER_SIZE,
 		CALLBACK = "list_g_code_commands_in_memory",
@@ -421,6 +456,13 @@ pub fn list_g_code_commands_in_memory<C: Connection, P: Peripherals>(
 	log::info!("Successfully handled `list-gcode-commands-in-memory` HTTP request");
 
 	Ok(())
+}
+
+pub fn options_list_g_code_commands_in_memory<C: Connection, P: Peripherals>(
+	request: Request<&mut C>, _: Resources<P>,
+) -> Result<(), HandlerError>
+{
+	options_callback(request, "gcode-commands", ", Starting-Line")
 }
 
 pub fn send_g_code_commands<C: Connection, P: Peripherals>(
@@ -468,6 +510,31 @@ pub fn send_g_code_commands<C: Connection, P: Peripherals>(
 	Ok(())
 }
 
+fn options_callback<C: Connection>(
+	request: Request<&mut C>, callback_name: &str, allowed_headers: &str,
+) -> Result<(), HandlerError>
+{
+	log::info!("Start handling `{callback_name}` HTTP request (OPTIONS)");
+
+	let mut response = request.into_response(
+		204,
+		Some("No-Content"),
+		&[
+			("Access-Control-Allow-Origin", "*"),
+			("Access-Control-Allow-Methods", "GET, POST, OPTIONS"),
+			(
+				"Access-Control-Allow-Headers",
+				&format!("Content-Type, Password{}", allowed_headers),
+			),
+		],
+	)?;
+	response.flush()?;
+
+	log::info!("Successfully handled `{callback_name}` HTTP request (OPTIONS)");
+
+	Ok(())
+}
+
 fn get_resources<P: Peripherals>(resources: &Resources<P>) -> Result<MutexGuard<'_, ResourcesImpl<P>>, HandlerError>
 {
 	resources
@@ -494,4 +561,18 @@ fn check_security<C: Connection, P: Peripherals>(
 	}
 
 	result
+}
+
+fn ok_response<C: Connection>(request: Request<&mut C>) -> Result<Response<&mut C>, C::Error>
+{
+	request.into_response(
+		200,
+		Some("OK"),
+		&[
+			("Access-Control-Allow-Origin", "*"),
+			("Access-Control-Allow-Methods", "GET, POST, OPTIONS"),
+			("Access-Control-Allow-Headers", "Content-Type"),
+			("Content-Type", "application/json"),
+		],
+	)
 }
