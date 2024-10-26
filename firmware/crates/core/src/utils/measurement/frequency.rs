@@ -1,3 +1,19 @@
+//! This module provides a representation of frequency values.
+//!
+//! The [`Frequency`] struct allows you to work with frequency measurements, providing
+//! methods for creating instances from hertz and converting from `SmallDuration`.
+//! The frequency is sensitive to `1Hz` and can represent values up to nearly `4.3GHz`.
+//!
+//! # Examples
+//!
+//! ```
+//! # use firmware_core::utils::measurement::{frequency::Frequency, duration::SmallDuration};
+//! #
+//! let freq = Frequency::from_hertz(100);
+//! assert_eq!(freq.as_hertz(), 100);
+//! assert_eq!(Into::<Frequency>::into(SmallDuration::from_millis(50)), Frequency::from_hertz(20));
+//! ```
+
 use std::ops::Div;
 
 use super::duration::SmallDuration;
