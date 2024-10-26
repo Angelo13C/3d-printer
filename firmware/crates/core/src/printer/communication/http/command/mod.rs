@@ -16,6 +16,7 @@ pub enum Command<P: Peripherals>
 
 impl<P: Peripherals> Command<P>
 {
+	/// Executes the command on the provided components.
 	pub fn execute(self, components: &mut Printer3DComponents<P>)
 	{
 		match self
