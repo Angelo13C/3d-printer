@@ -1,6 +1,6 @@
 //! # This crate
 //! This is the core part of the firmware for a [3D printer](https://en.wikipedia.org/wiki/3D_printing), and it's still in development.
-//! 
+//!
 //! This crate is an Hardware Abstraction Layer (HAL), meaning it provides an implementation of:
 //! - [Communication] with the external world, through an [HTTP server] (over [WiFi]) for example
 //! - A basic [file system] to store and later retrieve G-code files from a [flash memory]
@@ -10,12 +10,12 @@
 //! - Some drivers for various components (like [BLTouch], [TMC2209], [fans]...)
 //! - [OTA updates]
 //! - [Pausing and resuming] a print
-//! 
-//! But it doesn't provide any platform specific implementation, which is done by other crates (like the esp32-s3 one).
-//! 
+//!
+//! But it doesn't provide any platform specific implementation, which is done by other crates (like the `esp32-s3` one).
+//!
 //! This makes the adding of support for a new platform easy since only the specific hardware implementations need to be written.
 //! (which means implementing some traits from [embedded_hal] and some other custom traits present in this crate).
-//! 
+//!
 //! [Communication]: printer::communication
 //! [HTTP server]: printer::communication::http
 //! [WiFi]: printer::communication::communicator::wifi
