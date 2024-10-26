@@ -1,3 +1,10 @@
+//! A module for managing time in the printer.
+//!
+//! This module provides the [`Clock`] struct to keep track of the current system time and
+//! the delta time between ticks of the printer. It also defines the [`SystemTime`] trait,
+//! which allows for custom implementations of time management suited to different microcontroller
+//! environments.
+
 use std::{fmt::Debug, time::Duration};
 
 /// A clock used to keep track of the [`SystemTime`] and the delta time between ticks of the printer.
