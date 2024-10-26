@@ -1,3 +1,14 @@
+//! This module is responsible for managing all aspects of motion control within the machine,
+//! including movement planning, homing, and bed leveling. It integrates various components like
+//! stepper motors, kinematics, and timers to facilitate precise movement.
+//!
+//! ## Overview
+//!
+//! The primary structure in this module is [`MotionController`], which orchestrates the movement
+//! of up to four stepper motors. It provides functionalities to plan moves, execute them, and
+//! manage homing and bed leveling procedures. The module also contains sub-modules for handling
+//! specific aspects of motion control, such as axes, kinematics, and motion planning.
+
 use std::{fmt::Debug, time::Duration};
 
 use bed_leveling::BedLevelingProcedure;
@@ -69,6 +80,10 @@ pub struct MotionController<Timer: TimerTrait, Kinematics: KinematicsTrait, ZEnd
 
 impl<Timer: TimerTrait, Kinematics: KinematicsTrait, ZEndstop: ZAxisProbe> MotionController<Timer, Kinematics, ZEndstop>
 {
+	/// Constructs a new `MotionController` with the provided parameters and configuration.
+	///
+	/// The method initializes all necessary components for motion control, including the stepper
+	/// motors and timers.
 	pub fn new<
 		LeftDirPin: OutputPin + Send + 'static,
 		LeftStepPin: OutputPin + Send + 'static,
@@ -274,6 +289,14 @@ impl<Timer: TimerTrait, Kinematics: KinematicsTrait, ZEndstop: ZAxisProbe> Motio
 			return Ok(());
 		}
 
+		//log::info!("Is locked: {}", planner::communicate_to_ticker::is_mutex_locked());
+		/*
+		log::info!(
+			"Time: {:#?}, alarm: {:#?}",
+			self.ticker.get_time(),
+			self.ticker.get_alarm_time()
+		);*/
+
 		self.homing_procedure
 			.tick::<N_MOTORS, Kinematics, _>(
 				&mut self.planner,
@@ -387,7 +410,7 @@ struct CurrentMove
 	start_time: Option<Duration>,
 }
 
-/// Data necessary to create a [`MotionController`].
+/// Parameters required to create a [`MotionController`].
 pub struct CreationParameters<
 	Timer: TimerTrait,
 	Kinematics: KinematicsTrait,
@@ -417,6 +440,7 @@ pub struct CreationParameters<
 	pub z_endstop: ZEndstop,
 }
 
+/// Configuration data for stepper motors and motion control.
 pub struct CreationConfig
 {
 	pub left_motor: MotorConfig,
@@ -432,7 +456,7 @@ pub struct CreationConfig
 	pub planner_settings: Settings<N_MOTORS>,
 }
 
-/// Data necessary to configure a stepper motor.
+/// Configuration for an individual motor.
 pub struct MotorConfig
 {
 	pub tmc2209_address: UARTAddress,
