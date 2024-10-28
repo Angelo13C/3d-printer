@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates\core\src\printer\components\drivers\spi_flash_memory\mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../..\..\..\../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../..\..\..\../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../..\..\..\../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../..\..\..\../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../..\..\..\../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../..\..\..\../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../..\..\..\../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../..\..\..\../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../..\..\..\../" data-static-root-path="../../..\..\..\../static.files/" data-current-crate="firmware_core" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0-nightly (a2f5f9691 2023-11-02)" data-channel="nightly" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../..\..\..\../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../..\..\..\../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../..\..\..\../src-files.js"></script><script defer src="../../..\..\..\../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../..\..\..\../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../..\..\..\../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../..\..\..\../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../..\..\..\../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../..\..\..\../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../..\..\..\../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../..\..\..\../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/core/src/printer/components/drivers/spi_flash_memory/mod.rs`."><title>mod.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../../../static.files/rustdoc-198729e5.css"><meta name="rustdoc-vars" data-root-path="../../../../../../" data-static-root-path="../../../../../../static.files/" data-current-crate="firmware_core" data-themes="" data-resource-suffix="" data-rustdoc-version="1.84.0-nightly (df4ca44d3 2024-10-27)" data-channel="nightly" data-search-js="search-c5a66128.js" data-settings-js="settings-0f613d39.js" ><script src="../../../../../../static.files/storage-59e33391.js"></script><script defer src="../../../../../../static.files/src-script-56102188.js"></script><script defer src="../../../../../../src-files.js"></script><script defer src="../../../../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">firmware_core/printer/components/drivers/spi_flash_memory/</div>mod.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -432,7 +433,30 @@
 <a href="#432" id="432">432</a>
 <a href="#433" id="433">433</a>
 <a href="#434" id="434">434</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>std::{
+<a href="#435" id="435">435</a>
+<a href="#436" id="436">436</a>
+<a href="#437" id="437">437</a>
+<a href="#438" id="438">438</a>
+<a href="#439" id="439">439</a>
+<a href="#440" id="440">440</a>
+<a href="#441" id="441">441</a>
+<a href="#442" id="442">442</a></pre></div><pre class="rust"><code><span class="doccomment">//! This module provides an interface for interacting with SPI flash memory chips.
+//!
+//! It handles operations such as programming data, reading data, erasing blocks, and validating chip IDs.
+//!
+//! The module is designed to work with different types of flash memory chips by utilizing the `FlashMemoryChip` trait.
+//!
+//! # Features
+//! - **Programming and Reading**: Read and write data to flash memory pages.
+//! - **Erase Functionality**: Erase blocks of flash memory efficiently.
+//! - **ID Validation**: Validate the manufacturer and device IDs to ensure proper communication with the chip.
+//! - **Feature Management**: Get and set various features of the flash memory chip.
+//!
+//! # Safety Warning
+//! It's crucial to understand how flash memory operates to avoid unexpected results or wear and tear on the memory.
+//! Refer to the [flash memory overview](https://flashdba.com/2014/06/20/understanding-flash-blocks-pages-and-program-erases/) for more details.
+
+</span><span class="kw">use </span>core::{
 	fmt::Debug,
 	ops::{Range, RangeInclusive},
 };
@@ -456,7 +480,7 @@
 <span class="doccomment">/// A flash memory connected to the microcontroller through a SPI interface.
 ///
 /// # Warning
-/// It&#39;s really important to understand how a [flash memory works] before you use any of the method in this struct,
+/// It's really important to understand how a [flash memory works] before you use any of the method in this struct,
 /// or you might have unexpected results and/or wear out the memory.
 ///
 /// [flash memory works]: &lt;https://flashdba.com/2014/06/20/understanding-flash-blocks-pages-and-program-erases/&gt;
@@ -482,9 +506,9 @@
 	/// The program will only affect the data area of a page, not the ECC one.
 	///
 	/// # Warning
-	/// You can&#39;t update some data in the memory you programmed before without erasing it first.
+	/// You can't update some data in the memory you programmed before without erasing it first.
 	///
-	/// Check [`struct&#39;s documentation`](Self#warning).
+	/// Check [`struct's documentation`](Self#warning).
 	</span><span class="kw">pub fn </span>program(<span class="kw-2">&amp;mut </span><span class="self">self</span>, data: <span class="kw-2">&amp;</span>[u8], address: u32) -&gt; <span class="prelude-ty">Result</span>&lt;(), &lt;Spi <span class="kw">as </span>ErrorType&gt;::Error&gt;
 	{
 		<span class="kw">if </span>data.len() == <span class="number">0
@@ -538,8 +562,6 @@
 	/// The read will only affect the data area of a page, not the ECC one.
 	</span><span class="kw">pub fn </span>read(<span class="kw-2">&amp;mut </span><span class="self">self</span>, address: u32, data: <span class="kw-2">&amp;mut </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;(), &lt;Spi <span class="kw">as </span>ErrorType&gt;::Error&gt;
 	{
-		<span class="macro">log::info!</span>(<span class="string">&quot;Read {} bytes starting from the address: {}&quot;</span>, data.len(), address);
-
 		<span class="kw">if </span>data.len() == <span class="number">0
 		</span>{
 			<span class="kw">return </span><span class="prelude-val">Ok</span>(());
@@ -580,11 +602,11 @@
 	<span class="doccomment">/// Moves the bytes in the `from` address range to the address range of the same size that starts at
 	/// `to_start_address`.
 	///
-	/// It&#39;s an internal move because bytes aren&#39;t copied in the microcontroller and then programmed
+	/// It's an internal move because bytes aren't copied in the microcontroller and then programmed
 	/// at the right location, but everything is done in the flash memory chip.
 	///
 	/// # Warning
-	/// Check [`struct&#39;s documentation`](Self#warning).
+	/// Check [`struct's documentation`](Self#warning).
 	</span><span class="kw">pub fn </span>internal_data_move(
 		<span class="kw-2">&amp;mut </span><span class="self">self</span>, from: RangeInclusive&lt;u32&gt;, to_start_address: u32,
 	) -&gt; <span class="prelude-ty">Result</span>&lt;(), &lt;Spi <span class="kw">as </span>ErrorType&gt;::Error&gt;
@@ -631,22 +653,16 @@
 	/// Returns `Ok(())` if all the blocks have been reset successfully, otherwise returns `Err(...)`.
 	///
 	/// # Warning
-	/// Check [`struct&#39;s documentation`](Self#warning).
+	/// Check [`struct's documentation`](Self#warning).
 	</span><span class="kw">pub fn </span>erase_blocks(<span class="kw-2">&amp;mut </span><span class="self">self</span>, block_indices_to_erase: RangeInclusive&lt;u16&gt;)
 		-&gt; <span class="prelude-ty">Result</span>&lt;(), &lt;Spi <span class="kw">as </span>ErrorType&gt;::Error&gt;
 	{
-		<span class="macro">log::info!</span>(<span class="string">&quot;Erase blocks: {block_indices_to_erase:#?}&quot;</span>);
-
 		<span class="kw">for </span>block_index <span class="kw">in </span>block_indices_to_erase
 		{
 			Command::WriteEnable::&lt;Chip&gt;.execute(<span class="kw-2">&amp;mut </span><span class="self">self</span>.spi)<span class="question-mark">?</span>;
-			<span class="kw">let </span>status = <span class="self">self</span>.get_features(FeatureRegister::Status)<span class="question-mark">?</span>;
-			<span class="macro">log::info!</span>(<span class="string">&quot;Status BEFORE: {status:b}&quot;</span>);
 
 			<span class="kw">let </span>row_address = RowAddress::from_memory_address(Chip::get_address_of_block_index(block_index));
 			Command::BlockErase::&lt;Chip&gt; { row_address }.execute(<span class="kw-2">&amp;mut </span><span class="self">self</span>.spi)<span class="question-mark">?</span>;
-			<span class="kw">let </span>status = <span class="self">self</span>.get_features(FeatureRegister::Status)<span class="question-mark">?</span>;
-			<span class="macro">log::info!</span>(<span class="string">&quot;Status: {status:b}&quot;</span>);
 
 			<span class="self">self</span>.wait_for_operation_to_finish()<span class="question-mark">?</span>;
 		}
@@ -796,13 +812,13 @@
 <span class="doccomment">/// An error returned from [`SpiFlashMemory::validate_id`].
 </span><span class="kw">pub enum </span>ValidateIdError&lt;Spi: SpiDevice&lt;u8&gt;&gt;
 {
-	<span class="doccomment">/// Only the `Manufacturer ID` read from the SPI device doesn&#39;t match the one assigned in the
+	<span class="doccomment">/// Only the `Manufacturer ID` read from the SPI device doesn't match the one assigned in the
 	/// [`FlashMemoryChip`] trait.
 	</span>ManufacturerIdDoesntMatch,
-	<span class="doccomment">/// Only the `Device ID` read from the SPI device doesn&#39;t match the one assigned in the
+	<span class="doccomment">/// Only the `Device ID` read from the SPI device doesn't match the one assigned in the
 	/// [`FlashMemoryChip`] trait.
 	</span>DeviceIdDoesntMatch,
-	<span class="doccomment">/// Both the `Manufacturer ID` and the `Device ID` read from the SPI device don&#39;t match the ones
+	<span class="doccomment">/// Both the `Manufacturer ID` and the `Device ID` read from the SPI device don't match the ones
 	/// assigned in the [`FlashMemoryChip`] trait.
 	</span>BothIdsDontMatch,
 	<span class="doccomment">/// It has been impossible to communicate via SPI and so no validation has been performed.
@@ -811,14 +827,14 @@
 
 <span class="kw">impl</span>&lt;Spi: SpiDevice&lt;u8&gt;&gt; Debug <span class="kw">for </span>ValidateIdError&lt;Spi&gt;
 {
-	<span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; std::fmt::Result
+	<span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; std::fmt::Result
 	{
 		<span class="kw">match </span><span class="self">self
 		</span>{
-			<span class="self">Self</span>::ManufacturerIdDoesntMatch =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;ManufacturerIdDoesntMatch&quot;</span>),
-			<span class="self">Self</span>::DeviceIdDoesntMatch =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;DeviceIdDoesntMatch&quot;</span>),
-			<span class="self">Self</span>::BothIdsDontMatch =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;BothIdsDontMatch&quot;</span>),
-			<span class="self">Self</span>::CoudlntReadSpi(arg0) =&gt; f.debug_tuple(<span class="string">&quot;CoudlntReadSpi&quot;</span>).field(arg0).finish(),
+			<span class="self">Self</span>::ManufacturerIdDoesntMatch =&gt; <span class="macro">write!</span>(f, <span class="string">"ManufacturerIdDoesntMatch"</span>),
+			<span class="self">Self</span>::DeviceIdDoesntMatch =&gt; <span class="macro">write!</span>(f, <span class="string">"DeviceIdDoesntMatch"</span>),
+			<span class="self">Self</span>::BothIdsDontMatch =&gt; <span class="macro">write!</span>(f, <span class="string">"BothIdsDontMatch"</span>),
+			<span class="self">Self</span>::CoudlntReadSpi(arg0) =&gt; f.debug_tuple(<span class="string">"CoudlntReadSpi"</span>).field(arg0).finish(),
 		}
 	}
 }

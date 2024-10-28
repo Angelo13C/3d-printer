@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates\core\src\printer\components\g_code\parser.rs`."><title>parser.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../..\..\../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../..\..\../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../..\..\../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../..\..\../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../..\..\../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../..\..\../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../..\..\../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../..\..\../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../..\..\../" data-static-root-path="../../..\..\../static.files/" data-current-crate="firmware_core" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0-nightly (a2f5f9691 2023-11-02)" data-channel="nightly" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../..\..\../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../..\..\../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../..\..\../src-files.js"></script><script defer src="../../..\..\../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../..\..\../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../..\..\../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../..\..\../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../..\..\../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../..\..\../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../..\..\../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../..\..\../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/core/src/printer/components/g_code/parser.rs`."><title>parser.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../../static.files/rustdoc-198729e5.css"><meta name="rustdoc-vars" data-root-path="../../../../../" data-static-root-path="../../../../../static.files/" data-current-crate="firmware_core" data-themes="" data-resource-suffix="" data-rustdoc-version="1.84.0-nightly (df4ca44d3 2024-10-27)" data-channel="nightly" data-search-js="search-c5a66128.js" data-settings-js="settings-0f613d39.js" ><script src="../../../../../static.files/storage-59e33391.js"></script><script defer src="../../../../../static.files/src-script-56102188.js"></script><script defer src="../../../../../src-files.js"></script><script defer src="../../../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">firmware_core/printer/components/g_code/</div>parser.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -178,8 +179,7 @@
 <a href="#178" id="178">178</a>
 <a href="#179" id="179">179</a>
 <a href="#180" id="180">180</a>
-<a href="#181" id="181">181</a>
-</pre></div><pre class="rust"><code><span class="doccomment">//! This module contains utilities to convert strings (which could be read from the [`file system`]) to
+<a href="#181" id="181">181</a></pre></div><pre class="rust"><code><span class="doccomment">//! This module contains utilities to convert strings (which could be read from the [`file system`]) to
 //! executable [`G-code commands`].
 //!
 //! All the parsing is automatically generated by the `build.rs` script.
@@ -198,9 +198,9 @@
 };
 <span class="kw">use </span><span class="kw">crate</span>::utils::measurement::distance::<span class="kw-2">*</span>;
 
-<span class="doccomment">/// Check the [`module&#39;s`] documentation.
+<span class="doccomment">/// Check the [`module's`] documentation.
 ///
-/// [`module&#39;s`]: self
+/// [`module's`]: self
 </span><span class="attr">#[derive(Clone, Copy, Default)]
 </span><span class="kw">pub struct </span>GCodeParser
 {
@@ -217,7 +217,7 @@
 	/// #
 	/// let g_code_parser = GCodeParser::default();
 	///
-	/// assert_command(&amp;g_code_parser, &quot;G0 X50 Z20.1&quot;, G0 {
+	/// assert_command(&amp;g_code_parser, "G0 X50 Z20.1", G0 {
 	/// 	x: Param::from(Distance::from_millimeters(50)),
 	/// 	y: Param::from(None),
 	/// 	z: Param::from(Distance::from_micrometers(20_100)),
@@ -227,7 +227,7 @@
 	/// 	..Default::default()
 	/// });
 	///
-	/// assert_command(&amp;g_code_parser, &quot;G1 Y0.5 Z-5.15 F4000.40&quot;, G1 {
+	/// assert_command(&amp;g_code_parser, "G1 Y0.5 Z-5.15 F4000.40", G1 {
 	/// 	x: Param::from(None),
 	/// 	y: Param::from(Distance::from_micrometers(500)),
 	/// 	z: Param::from(Distance::from_micrometers(-5_150)),
@@ -237,26 +237,26 @@
 	/// 	..Default::default()
 	/// });
 	///
-	/// assert_command(&amp;g_code_parser, &quot;M104 S60&quot;, M104 {
+	/// assert_command(&amp;g_code_parser, "M104 S60", M104 {
 	/// 	target_temperature: Param::from(60),
 	/// });
 	///
-	/// fn assert_command&lt;C: GCodeCommand&lt;MockPeripherals&gt; + PartialEq + &#39;static&gt;(g_code_parser: &amp;GCodeParser, line: &amp;&#39;static str, expected_value: C)
+	/// fn assert_command&lt;C: GCodeCommand&lt;MockPeripherals&gt; + PartialEq + 'static&gt;(g_code_parser: &amp;GCodeParser, line: &amp;'static str, expected_value: C)
 	/// {
-	/// 	if let GCodeLine::Command(result) = g_code_parser.parse_line::&lt;&#39;static, MockPeripherals&gt;(line)
+	/// 	if let GCodeLine::Command(result) = g_code_parser.parse_line::&lt;'static, MockPeripherals&gt;(line)
 	/// 	{
 	/// 		assert_eq!(result.as_any().downcast_ref::&lt;C&gt;().unwrap(), &amp;expected_value);
 	/// 	}
 	/// 	else {
-	/// 		panic!(&quot;Not a command&quot;);
+	/// 		panic!("Not a command");
 	/// 	}
 	/// }
 	/// ```
-	</span><span class="kw">pub fn </span>parse_line&lt;<span class="lifetime">&#39;a</span>, P: Peripherals&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, line: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str) -&gt; GCodeLine&lt;<span class="lifetime">&#39;a</span>, P&gt;
+	</span><span class="kw">pub fn </span>parse_line&lt;<span class="lifetime">'a</span>, P: Peripherals&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, line: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str) -&gt; GCodeLine&lt;<span class="lifetime">'a</span>, P&gt;
 	{
 		<span class="kw">let </span><span class="kw-2">mut </span>line_without_comment = line;
 		<span class="kw">let </span><span class="kw-2">mut </span>comment_position = <span class="prelude-val">None</span>;
-		<span class="kw">if let </span><span class="prelude-val">Some</span>(semi_colon_position) = line.find(<span class="string">&#39;;&#39;</span>)
+		<span class="kw">if let </span><span class="prelude-val">Some</span>(semi_colon_position) = line.find(<span class="string">';'</span>)
 		{
 			line_without_comment = <span class="kw-2">&amp;</span>line[<span class="number">0</span>..semi_colon_position];
 			comment_position = <span class="prelude-val">Some</span>(semi_colon_position + <span class="number">1</span>);
@@ -285,7 +285,7 @@
 
 <span class="doccomment">/// This enum is the result of parsing a line using [`GCodeParser`].
 </span><span class="attr">#[derive(Debug)]
-</span><span class="kw">pub enum </span>GCodeLine&lt;<span class="lifetime">&#39;a</span>, P: Peripherals&gt;
+</span><span class="kw">pub enum </span>GCodeLine&lt;<span class="lifetime">'a</span>, P: Peripherals&gt;
 {
 	<span class="doccomment">/// An empty line.
 	///
@@ -313,7 +313,7 @@
 	/// ```text
 	/// ;3 hours
 	/// ```
-	</span>Comment(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str),
+	</span>Comment(<span class="kw-2">&amp;</span><span class="lifetime">'a </span>str),
 
 	<span class="doccomment">/// A line that contains both a command and a comment.
 	///
@@ -321,9 +321,9 @@
 	/// ```text
 	/// G1 Y30;This is the comment
 	/// ```
-	</span>CommandAndComment(Box&lt;<span class="kw">dyn </span>GCodeCommand&lt;P&gt;&gt;, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str),
+	</span>CommandAndComment(Box&lt;<span class="kw">dyn </span>GCodeCommand&lt;P&gt;&gt;, <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str),
 
-	<span class="doccomment">/// It may either be that the line contains a command that isn&#39;t supported by this firmware,
+	<span class="doccomment">/// It may either be that the line contains a command that isn't supported by this firmware,
 	/// or it may be an invalid gcode command in general.
 	///
 	/// # Examples
@@ -338,16 +338,16 @@
 	</span>Error,
 }
 
-<span class="doccomment">/// **This function is generated at compile time by the build.rs file and you shouldn&#39;t touch it.**
+<span class="doccomment">/// **This function is generated at compile time by the build.rs file and you shouldn't touch it.**
 </span><span class="kw">fn </span>parse&lt;P: Peripherals&gt;(command: <span class="kw-2">&amp;</span>str, parameters: SplitWhitespace, units: Units) -&gt; <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="kw">dyn </span>GCodeCommand&lt;P&gt;&gt;&gt;
 {
 	<span class="kw">use </span>parameters::identifier::<span class="kw-2">*</span>;
 
-	<span class="kw">return </span><span class="macro">include!</span>(<span class="macro">concat!</span>(<span class="macro">env!</span>(<span class="string">&quot;OUT_DIR&quot;</span>), <span class="string">&quot;/g_code_deserializer.rs&quot;</span>));
+	<span class="kw">return </span><span class="macro">include!</span>(<span class="macro">concat!</span>(<span class="macro">env!</span>(<span class="string">"OUT_DIR"</span>), <span class="string">"/g_code_deserializer.rs"</span>));
 }
 
 <span class="doccomment">/// This function is used by [`parse`].
-</span><span class="kw">fn </span>find_identifier&lt;<span class="lifetime">&#39;a</span>, I: GCodeParameterIdentifier&gt;(words: SplitWhitespace&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; <span class="prelude-ty">Option</span>&lt;(I, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str)&gt;
+</span><span class="kw">fn </span>find_identifier&lt;<span class="lifetime">'a</span>, I: GCodeParameterIdentifier&gt;(words: SplitWhitespace&lt;<span class="lifetime">'a</span>&gt;) -&gt; <span class="prelude-ty">Option</span>&lt;(I, <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str)&gt;
 {
 	<span class="kw">for </span>word <span class="kw">in </span>words
 	{

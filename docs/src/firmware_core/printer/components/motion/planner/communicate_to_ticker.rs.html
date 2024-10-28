@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates\core\src\printer\components\motion\planner\communicate_to_ticker.rs`."><title>communicate_to_ticker.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../..\..\..\../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../..\..\..\../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../..\..\..\../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../..\..\..\../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../..\..\..\../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../..\..\..\../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../..\..\..\../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../..\..\..\../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../..\..\..\../" data-static-root-path="../../..\..\..\../static.files/" data-current-crate="firmware_core" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0-nightly (a2f5f9691 2023-11-02)" data-channel="nightly" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../..\..\..\../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../..\..\..\../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../..\..\..\../src-files.js"></script><script defer src="../../..\..\..\../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../..\..\..\../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../..\..\..\../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../..\..\..\../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../..\..\..\../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../..\..\..\../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../..\..\..\../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../..\..\..\../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/core/src/printer/components/motion/planner/communicate_to_ticker.rs`."><title>communicate_to_ticker.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../../../static.files/rustdoc-198729e5.css"><meta name="rustdoc-vars" data-root-path="../../../../../../" data-static-root-path="../../../../../../static.files/" data-current-crate="firmware_core" data-themes="" data-resource-suffix="" data-rustdoc-version="1.84.0-nightly (df4ca44d3 2024-10-27)" data-channel="nightly" data-search-js="search-c5a66128.js" data-settings-js="settings-0f613d39.js" ><script src="../../../../../../static.files/storage-59e33391.js"></script><script defer src="../../../../../../static.files/src-script-56102188.js"></script><script defer src="../../../../../../src-files.js"></script><script defer src="../../../../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">firmware_core/printer/components/motion/planner/</div>communicate_to_ticker.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -139,52 +140,29 @@
 <a href="#139" id="139">139</a>
 <a href="#140" id="140">140</a>
 <a href="#141" id="141">141</a>
-<a href="#142" id="142">142</a>
-<a href="#143" id="143">143</a>
-<a href="#144" id="144">144</a>
-<a href="#145" id="145">145</a>
-<a href="#146" id="146">146</a>
-<a href="#147" id="147">147</a>
-<a href="#148" id="148">148</a>
-<a href="#149" id="149">149</a>
-<a href="#150" id="150">150</a>
-<a href="#151" id="151">151</a>
-<a href="#152" id="152">152</a>
-<a href="#153" id="153">153</a>
-<a href="#154" id="154">154</a>
-<a href="#155" id="155">155</a>
-<a href="#156" id="156">156</a>
-<a href="#157" id="157">157</a>
-<a href="#158" id="158">158</a>
-<a href="#159" id="159">159</a>
-<a href="#160" id="160">160</a>
-<a href="#161" id="161">161</a>
-<a href="#162" id="162">162</a>
-<a href="#163" id="163">163</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">super</span>::Flag;
+<a href="#142" id="142">142</a></pre></div><pre class="rust"><code><span class="doccomment">//! Let the main thread communicate with the ticker ISR.
+
+</span><span class="kw">use </span>spin::{Mutex, MutexGuard};
+
+<span class="kw">use </span><span class="kw">super</span>::Flag;
 <span class="kw">use crate</span>::{
 	printer::components::motion::{
 		kinematics::Kinematics,
 		planner::{<span class="self">self</span>, Block},
 		N_MOTORS,
 	},
-	utils::{
-		measurement::distance::Distance,
-		mutex::{Mutex, MutexGuard},
-	},
+	utils::{bresenham::Bresenham, measurement::distance::Distance},
 };
 
 <span class="kw">static </span>CURRENT_AND_NEXT_BLOCKS: Mutex&lt;Communication&gt; = Mutex::new(Communication {
 	current_motion_profile_block: <span class="prelude-val">None</span>,
 	next_motion_profile_block: <span class="prelude-val">None</span>,
 	kinematics_functions: <span class="prelude-val">None</span>,
-	logs: [
-		<span class="prelude-val">None</span>, <span class="prelude-val">None</span>, <span class="prelude-val">None</span>, <span class="prelude-val">None</span>, <span class="prelude-val">None</span>, <span class="prelude-val">None</span>, <span class="prelude-val">None</span>, <span class="prelude-val">None</span>, <span class="prelude-val">None</span>, <span class="prelude-val">None</span>, <span class="prelude-val">None</span>, <span class="prelude-val">None</span>, <span class="prelude-val">None</span>, <span class="prelude-val">None</span>, <span class="prelude-val">None</span>, <span class="prelude-val">None</span>, <span class="prelude-val">None</span>, <span class="prelude-val">None</span>,
-		<span class="prelude-val">None</span>, <span class="prelude-val">None</span>, <span class="prelude-val">None</span>, <span class="prelude-val">None</span>, <span class="prelude-val">None</span>, <span class="prelude-val">None</span>, <span class="prelude-val">None</span>, <span class="prelude-val">None</span>, <span class="prelude-val">None</span>, <span class="prelude-val">None</span>, <span class="prelude-val">None</span>, <span class="prelude-val">None</span>,
-	],
+	z_axis_distance: <span class="prelude-val">None</span>,
+	bresenham: <span class="prelude-val">None</span>,
 });
 
-<span class="doccomment">/// Data shared between the &quot;main thread&quot; and the ticker ISR.
+<span class="doccomment">/// Data shared between the "main thread" and the ticker ISR.
 ///
 /// The main thread uses [`store_blocks_if_necessary`] to pass the data to the ISR.
 /// The ISR reads it using [`get_blocks`].
@@ -193,8 +171,9 @@
 	<span class="kw">pub </span>current_motion_profile_block: <span class="prelude-ty">Option</span>&lt;planner::Block&lt;N_MOTORS&gt;&gt;,
 	next_motion_profile_block: <span class="prelude-ty">Option</span>&lt;planner::Block&lt;N_MOTORS&gt;&gt;,
 	<span class="kw">pub </span>kinematics_functions: <span class="prelude-ty">Option</span>&lt;KinematicsFunctions&gt;,
+	z_axis_distance: <span class="prelude-ty">Option</span>&lt;Distance&gt;,
 
-	<span class="kw">pub </span>logs: [<span class="prelude-ty">Option</span>&lt;(log::Level, String)&gt;; <span class="number">30</span>],
+	<span class="kw">pub </span>bresenham: <span class="prelude-ty">Option</span>&lt;Bresenham&lt;N_MOTORS&gt;&gt;,
 }
 
 <span class="kw">impl </span>Communication
@@ -204,37 +183,16 @@
 		<span class="self">self</span>.current_motion_profile_block = <span class="self">self</span>.next_motion_profile_block.take();
 	}
 
-	<span class="kw">pub fn </span>log(<span class="kw-2">&amp;mut </span><span class="self">self</span>, level: log::Level, message: String)
+	<span class="kw">pub fn </span>set_z_axis_distance(<span class="kw-2">&amp;mut </span><span class="self">self</span>, distance: Distance)
 	{
-		<span class="kw">for </span>log <span class="kw">in </span><span class="self">self</span>.logs.iter_mut()
-		{
-			<span class="kw">if </span>log.is_none()
-			{
-				<span class="kw-2">*</span>log = <span class="prelude-val">Some</span>((level, message));
-				<span class="kw">return</span>;
-			}
-		}
-	}
-
-	<span class="kw">pub fn </span>print_logs(<span class="kw-2">&amp;mut </span><span class="self">self</span>)
-	{
-		<span class="kw">for </span>log <span class="kw">in </span><span class="self">self</span>.logs.iter_mut()
-		{
-			<span class="kw">if let </span><span class="prelude-val">Some</span>((log_level, log_message)) = log
-			{
-				<span class="macro">log::log!</span>(log_level.clone(), <span class="string">&quot;{}&quot;</span>, log_message);
-			}
-			<span class="kw-2">*</span>log = <span class="prelude-val">None</span>;
-		}
+		<span class="self">self</span>.z_axis_distance = <span class="prelude-val">Some</span>(distance);
 	}
 }
 
-<span class="kw">pub fn </span>print_logs_from_isr()
+<span class="kw">pub fn </span>get_z_axis_distance() -&gt; <span class="prelude-ty">Option</span>&lt;Distance&gt;
 {
-	<span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">mut </span>communication) = CURRENT_AND_NEXT_BLOCKS.try_lock()
-	{
-		communication.print_logs();
-	}
+	<span class="kw">let </span><span class="kw-2">mut </span>communication = CURRENT_AND_NEXT_BLOCKS.lock();
+	communication.z_axis_distance.take()
 }
 
 <span class="doccomment">/// Checks if the ticker ISR requires 1 or 2 blocks and eventually uses them.
@@ -269,7 +227,7 @@
 /// otherwise returns `None`.
 ///
 /// Check [`Communication`] for more info.
-</span><span class="kw">pub fn </span>get_blocks() -&gt; <span class="prelude-ty">Option</span>&lt;MutexGuard&lt;<span class="lifetime">&#39;static</span>, Communication&gt;&gt;
+</span><span class="kw">pub fn </span>get_blocks() -&gt; <span class="prelude-ty">Option</span>&lt;MutexGuard&lt;<span class="lifetime">'static</span>, Communication&gt;&gt;
 {
 	CURRENT_AND_NEXT_BLOCKS.try_lock()
 }

@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates\core\src\printer\components\hal\interrupt.rs`."><title>interrupt.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../..\..\../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../..\..\../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../..\..\../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../..\..\../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../..\..\../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../..\..\../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../..\..\../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../..\..\../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../..\..\../" data-static-root-path="../../..\..\../static.files/" data-current-crate="firmware_core" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0-nightly (a2f5f9691 2023-11-02)" data-channel="nightly" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../..\..\../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../..\..\../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../..\..\../src-files.js"></script><script defer src="../../..\..\../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../..\..\../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../..\..\../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../..\..\../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../..\..\../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../..\..\../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../..\..\../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../..\..\../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/core/src/printer/components/hal/interrupt.rs`."><title>interrupt.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../../static.files/rustdoc-198729e5.css"><meta name="rustdoc-vars" data-root-path="../../../../../" data-static-root-path="../../../../../static.files/" data-current-crate="firmware_core" data-themes="" data-resource-suffix="" data-rustdoc-version="1.84.0-nightly (df4ca44d3 2024-10-27)" data-channel="nightly" data-search-js="search-c5a66128.js" data-settings-js="settings-0f613d39.js" ><script src="../../../../../static.files/storage-59e33391.js"></script><script defer src="../../../../../static.files/src-script-56102188.js"></script><script defer src="../../../../../src-files.js"></script><script defer src="../../../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">firmware_core/printer/components/hal/</div>interrupt.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -20,26 +21,65 @@
 <a href="#20" id="20">20</a>
 <a href="#21" id="21">21</a>
 <a href="#22" id="22">22</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>std::fmt::Debug;
+<a href="#23" id="23">23</a>
+<a href="#24" id="24">24</a>
+<a href="#25" id="25">25</a>
+<a href="#26" id="26">26</a>
+<a href="#27" id="27">27</a>
+<a href="#28" id="28">28</a>
+<a href="#29" id="29">29</a>
+<a href="#30" id="30">30</a>
+<a href="#31" id="31">31</a>
+<a href="#32" id="32">32</a>
+<a href="#33" id="33">33</a>
+<a href="#34" id="34">34</a>
+<a href="#35" id="35">35</a>
+<a href="#36" id="36">36</a>
+<a href="#37" id="37">37</a>
+<a href="#38" id="38">38</a>
+<a href="#39" id="39">39</a>
+<a href="#40" id="40">40</a>
+<a href="#41" id="41">41</a>
+<a href="#42" id="42">42</a></pre></div><pre class="rust"><code><span class="doccomment">//! Interrupt module.
+//!
+//! This module defines a trait for interrupt pins and an enumeration to specify
+//! the triggering conditions for interrupts. It allows subscribing to interrupts
+//! on specific pins and handling them through callback functions.
 
-<span class="kw">pub trait </span>InterruptPin
+</span><span class="kw">use </span>std::fmt::Debug;
+
+<span class="doccomment">/// Trait representing an interrupt-capable pin.
+</span><span class="kw">pub trait </span>InterruptPin
 {
-	<span class="kw">type </span>Error: Debug;
+	<span class="doccomment">/// The type of error that can occur when subscribing to an interrupt.
+	</span><span class="kw">type </span>Error: Debug;
 
-	<span class="doccomment">/// # Safety
-	/// The `callback` will be called in an ISR context.
+	<span class="doccomment">/// Subscribes to an interrupt on this pin with a specified trigger condition.
+	///
+	/// # Safety
+	/// The `callback` will be called in an Interrupt Service Routine (ISR) context.
+	///
+	/// This means that the callback should be lightweight and should not perform
+	/// operations that could block or take a long time. Care must also be taken
+	/// to ensure that shared resources are accessed in a thread-safe manner.
 	</span><span class="kw">unsafe fn </span>subscribe_to_interrupt(
-		<span class="kw-2">&amp;mut </span><span class="self">self</span>, when_to_trigger: Trigger, callback: <span class="kw">impl </span>FnMut() + Send + <span class="lifetime">&#39;static</span>,
+		<span class="kw-2">&amp;mut </span><span class="self">self</span>, when_to_trigger: Trigger, callback: <span class="kw">impl </span>FnMut() + Send + <span class="lifetime">'static</span>,
 	) -&gt; <span class="prelude-ty">Result</span>&lt;(), <span class="self">Self</span>::Error&gt;;
 }
 
-<span class="attr">#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+<span class="doccomment">/// Enumeration representing the conditions under which an interrupt can be triggered.
+</span><span class="attr">#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 </span><span class="kw">pub enum </span>Trigger
 {
-	PositiveEdge,
-	NegativeEdge,
-	AnyEdge,
-	LowLevel,
-	HighLevel,
+	<span class="doccomment">/// Trigger on the positive edge (rising edge) of the signal.
+	</span>PositiveEdge,
+	<span class="doccomment">/// Trigger on the negative edge (falling edge) of the signal.
+	</span>NegativeEdge,
+	<span class="doccomment">/// Trigger on any edge (both rising and falling) of the signal.
+	</span>AnyEdge,
+	<span class="doccomment">/// Trigger when the signal is low.
+	</span>LowLevel,
+	<span class="doccomment">/// Trigger when the signal is high.
+	</span>HighLevel,
 }
 </code></pre></div></section></main></body></html>

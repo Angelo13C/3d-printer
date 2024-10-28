@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["get_blocks","is_block_available","is_homing_block_available","print_logs_from_isr","set_kinematics_functions","store_blocks_if_necessary"],"struct":["Communication","KinematicsFunctions"]};
+window.SIDEBAR_ITEMS = {"fn":["get_blocks","get_z_axis_distance","is_block_available","is_homing_block_available","set_kinematics_functions","store_blocks_if_necessary"],"struct":["Communication","KinematicsFunctions"]};

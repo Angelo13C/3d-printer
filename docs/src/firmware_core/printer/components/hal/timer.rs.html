@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates\core\src\printer\components\hal\timer.rs`."><title>timer.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../..\..\../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../..\..\../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../..\..\../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../..\..\../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../..\..\../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../..\..\../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../..\..\../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../..\..\../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../..\..\../" data-static-root-path="../../..\..\../static.files/" data-current-crate="firmware_core" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0-nightly (a2f5f9691 2023-11-02)" data-channel="nightly" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../..\..\../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../..\..\../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../..\..\../src-files.js"></script><script defer src="../../..\..\../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../..\..\../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../..\..\../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../..\..\../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../..\..\../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../..\..\../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../..\..\../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../..\..\../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/core/src/printer/components/hal/timer.rs`."><title>timer.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../../static.files/rustdoc-198729e5.css"><meta name="rustdoc-vars" data-root-path="../../../../../" data-static-root-path="../../../../../static.files/" data-current-crate="firmware_core" data-themes="" data-resource-suffix="" data-rustdoc-version="1.84.0-nightly (df4ca44d3 2024-10-27)" data-channel="nightly" data-search-js="search-c5a66128.js" data-settings-js="settings-0f613d39.js" ><script src="../../../../../static.files/storage-59e33391.js"></script><script defer src="../../../../../static.files/src-script-56102188.js"></script><script defer src="../../../../../src-files.js"></script><script defer src="../../../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">firmware_core/printer/components/hal/</div>timer.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -67,60 +68,104 @@
 <a href="#67" id="67">67</a>
 <a href="#68" id="68">68</a>
 <a href="#69" id="69">69</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>std::{fmt::Debug, time::Duration};
+<a href="#70" id="70">70</a>
+<a href="#71" id="71">71</a>
+<a href="#72" id="72">72</a>
+<a href="#73" id="73">73</a>
+<a href="#74" id="74">74</a>
+<a href="#75" id="75">75</a>
+<a href="#76" id="76">76</a>
+<a href="#77" id="77">77</a>
+<a href="#78" id="78">78</a>
+<a href="#79" id="79">79</a>
+<a href="#80" id="80">80</a>
+<a href="#81" id="81">81</a>
+<a href="#82" id="82">82</a>
+<a href="#83" id="83">83</a>
+<a href="#84" id="84">84</a>
+<a href="#85" id="85">85</a>
+<a href="#86" id="86">86</a>
+<a href="#87" id="87">87</a>
+<a href="#88" id="88">88</a>
+<a href="#89" id="89">89</a>
+<a href="#90" id="90">90</a>
+<a href="#91" id="91">91</a>
+<a href="#92" id="92">92</a></pre></div><pre class="rust"><code><span class="doccomment">//! Timer module.
+//!
+//! This module provides a trait for timers that can keep track of elapsed time
+//! and trigger callbacks when specified alarms are reached. It defines the main
+//! `Timer` trait and an additional trait for extended functionality.
+
+</span><span class="kw">use </span>std::{fmt::Debug, time::Duration};
 
 <span class="kw">use </span><span class="kw">crate</span>::utils::measurement::frequency::Frequency;
 
-<span class="doccomment">/// A timer that can be used to get the current time it is keeping and also to [`call some callback you provide when a certain
-/// time is reached`].
-///
-/// [`call some callback you provide when a certain time is reached`]: `Self::on_alarm`
+<span class="doccomment">/// A timer that can keep track of elapsed time and call a provided callback when a certain
+/// time is reached.
 </span><span class="kw">pub trait </span>Timer
 {
-	<span class="kw">type </span>Error: Debug;
-	<span class="kw">type </span>AdditionalFunctionality: TimerAdditionalFunctionality + Send;
+	<span class="doccomment">/// The type of error that can occur when using the timer.
+	</span><span class="kw">type </span>Error: Debug;
 
-	<span class="doccomment">/// Returns a [`Self::AdditionalFunctionality`] instance that can be used to get some additional timer
-	/// functionality (like setting the alarm time or getting the time kept by the timer).
+	<span class="doccomment">/// Type for additional timer functionality.
+	</span><span class="kw">type </span>AdditionalFunctionality: TimerAdditionalFunctionality + Send;
+
+	<span class="doccomment">/// Returns an instance of [`Self::AdditionalFunctionality`] for accessing extended timer
+	/// functionalities, like setting alarm times or retrieving the current time.
 	///
-	/// The reason all of this is separated in 2 traits is because it may be useful in the case
-	/// you want to call some of these methods within the `callback` you provide to `Timer::on_alarm`.
-	/// This would be impossible if they were part of the same trait (calling this method borrows mutably, so
-	/// you can&#39;t borrow it anymore in the `callback`).
+	/// The separation into two traits allows for calling these methods within the callback
+	/// provided to [`Timer::on_alarm`], which would be impossible if they were in the same trait.
 	</span><span class="kw">fn </span>get_additional_functionality(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span>::AdditionalFunctionality;
 
 	<span class="doccomment">/// Returns the frequency at which the clock of the timer is running.
 	</span><span class="kw">fn </span>get_clock_frequency(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Frequency;
 
-	<span class="doccomment">/// Calls the provided `callback` every time the alarm time set using [`TimerAdditionalFunctionality::set_alarm`] is reached.
+	<span class="doccomment">/// Calls the provided `callback` every time the alarm time set using
+	/// [`TimerAdditionalFunctionality::set_alarm`] is reached.
 	///
 	/// # Safety
 	/// The `callback` will be called in an ISR context.
-	</span><span class="kw">unsafe fn </span>on_alarm(<span class="kw-2">&amp;mut </span><span class="self">self</span>, callback: <span class="kw">impl </span>FnMut() + Send + <span class="lifetime">&#39;static</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(), <span class="self">Self</span>::Error&gt;;
+	</span><span class="kw">unsafe fn </span>on_alarm(<span class="kw-2">&amp;mut </span><span class="self">self</span>, callback: <span class="kw">impl </span>FnMut() + Send + <span class="lifetime">'static</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(), <span class="self">Self</span>::Error&gt;;
 
 	<span class="doccomment">/// Enable or disable the timer based on the provided `enable` variable.
 	///
-	/// When the timer is disabled it won&#39;t increase the time it is keeping (which means that it also won&#39;t fire alarms).
+	/// When the timer is disabled, it will not keep track of time, and alarms will not fire.
 	</span><span class="kw">fn </span>enable_alarm(<span class="kw-2">&amp;mut </span><span class="self">self</span>, enable: bool) -&gt; <span class="prelude-ty">Result</span>&lt;(), <span class="self">Self</span>::Error&gt;;
+
+	<span class="doccomment">/// Retrieves the current alarm value in ticks.
+	</span><span class="kw">fn </span>get_alarm_in_ticks(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;u64, <span class="self">Self</span>::Error&gt;;
+
+	<span class="doccomment">/// Retrieves the current alarm as a [`Duration`].
+	</span><span class="kw">fn </span>get_alarm(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Duration, <span class="self">Self</span>::Error&gt;
+	{
+		<span class="kw">let </span>alarm_in_ticks = <span class="self">self</span>.get_alarm_in_ticks()<span class="question-mark">?</span>;
+		<span class="prelude-val">Ok</span>(ticks_to_duration(alarm_in_ticks, <span class="self">self</span>.get_clock_frequency()))
+	}
 }
 
-<span class="doccomment">/// Check [`Timer::get_additional_functionality`].
-</span><span class="kw">pub trait </span>TimerAdditionalFunctionality: <span class="lifetime">&#39;static
+<span class="doccomment">/// Trait for additional timer functionality.
+</span><span class="kw">pub trait </span>TimerAdditionalFunctionality: <span class="lifetime">'static
 </span>{
-	<span class="kw">type </span>Error: Debug;
+	<span class="doccomment">/// The type of error that can occur in the additional functionality.
+	</span><span class="kw">type </span>Error: Debug;
 
-	<span class="doccomment">/// Calls the `callback` you provided to [`Timer::on_alarm`] when the [`current time`] reaches the specified `time`.
+	<span class="doccomment">/// Sets an alarm that calls the provided callback when the current time reaches the specified `time`.
 	///
 	/// [`current time`]: `Self::get_time`
 	</span><span class="kw">fn </span>set_alarm(<span class="kw-2">&amp;mut </span><span class="self">self</span>, time: Duration) -&gt; <span class="prelude-ty">Result</span>&lt;(), <span class="self">Self</span>::Error&gt;;
-	<span class="kw">fn </span>set_alarm_in_ticks(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ticks: u64) -&gt; <span class="prelude-ty">Result</span>&lt;(), <span class="self">Self</span>::Error&gt;;
 
-	<span class="doccomment">/// Get the current time kept by the timer.
+	<span class="doccomment">/// Sets an alarm in ticks.
+	</span><span class="kw">fn </span>set_alarm_in_ticks(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ticks: u64) -&gt; <span class="prelude-ty">Result</span>&lt;(), <span class="self">Self</span>::Error&gt;;
+
+	<span class="doccomment">/// Gets the current time kept by the timer.
 	</span><span class="kw">fn </span>get_time(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Duration, <span class="self">Self</span>::Error&gt;;
-	<span class="kw">fn </span>get_time_in_ticks(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;u64, <span class="self">Self</span>::Error&gt;;
+
+	<span class="doccomment">/// Gets the current time in ticks.
+	</span><span class="kw">fn </span>get_time_in_ticks(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;u64, <span class="self">Self</span>::Error&gt;;
 }
 
-<span class="kw">pub const fn </span>ticks_to_duration(ticks: u64, clock_frequency: Frequency) -&gt; Duration
+<span class="doccomment">/// Converts ticks to a [`Duration`] based on the clock frequency.
+</span><span class="kw">pub const fn </span>ticks_to_duration(ticks: u64, clock_frequency: Frequency) -&gt; Duration
 {
 	<span class="kw">let </span>clock_frequency = clock_frequency.as_hertz() <span class="kw">as </span>u64;
 	<span class="kw">let </span>whole_seconds = ticks / clock_frequency;
@@ -129,7 +174,8 @@
 	Duration::new(whole_seconds, nanoseconds <span class="kw">as </span>u32)
 }
 
-<span class="kw">pub const fn </span>duration_to_counter(duration: Duration, clock_frequency: Frequency) -&gt; u64
+<span class="doccomment">/// Converts a [`Duration`] to a tick counter based on the clock frequency.
+</span><span class="kw">pub const fn </span>duration_to_counter(duration: Duration, clock_frequency: Frequency) -&gt; u64
 {
 	<span class="kw">let </span>clock_frequency = clock_frequency.as_hertz() <span class="kw">as </span>u64;
 	<span class="kw">let </span><span class="kw-2">mut </span>counter = duration.as_secs() * clock_frequency;

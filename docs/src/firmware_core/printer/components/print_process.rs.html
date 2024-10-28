@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates\core\src\printer\components\print_process.rs`."><title>print_process.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../..\../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../..\../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../..\../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../..\../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../..\../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../..\../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../..\../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../..\../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../..\../" data-static-root-path="../../..\../static.files/" data-current-crate="firmware_core" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0-nightly (a2f5f9691 2023-11-02)" data-channel="nightly" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../..\../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../..\../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../..\../src-files.js"></script><script defer src="../../..\../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../..\../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../..\../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../..\../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../..\../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../..\../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../..\../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../..\../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/core/src/printer/components/print_process.rs`."><title>print_process.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-198729e5.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="firmware_core" data-themes="" data-resource-suffix="" data-rustdoc-version="1.84.0-nightly (df4ca44d3 2024-10-27)" data-channel="nightly" data-search-js="search-c5a66128.js" data-settings-js="settings-0f613d39.js" ><script src="../../../../static.files/storage-59e33391.js"></script><script defer src="../../../../static.files/src-script-56102188.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">firmware_core/printer/components/</div>print_process.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -310,7 +311,37 @@
 <a href="#310" id="310">310</a>
 <a href="#311" id="311">311</a>
 <a href="#312" id="312">312</a>
-</pre></div><pre class="rust"><code><span class="doccomment">//! Check [`PrintProcess`].
+<a href="#313" id="313">313</a>
+<a href="#314" id="314">314</a>
+<a href="#315" id="315">315</a>
+<a href="#316" id="316">316</a>
+<a href="#317" id="317">317</a>
+<a href="#318" id="318">318</a>
+<a href="#319" id="319">319</a>
+<a href="#320" id="320">320</a>
+<a href="#321" id="321">321</a>
+<a href="#322" id="322">322</a>
+<a href="#323" id="323">323</a>
+<a href="#324" id="324">324</a>
+<a href="#325" id="325">325</a>
+<a href="#326" id="326">326</a>
+<a href="#327" id="327">327</a>
+<a href="#328" id="328">328</a>
+<a href="#329" id="329">329</a>
+<a href="#330" id="330">330</a>
+<a href="#331" id="331">331</a>
+<a href="#332" id="332">332</a>
+<a href="#333" id="333">333</a>
+<a href="#334" id="334">334</a>
+<a href="#335" id="335">335</a>
+<a href="#336" id="336">336</a>
+<a href="#337" id="337">337</a>
+<a href="#338" id="338">338</a></pre></div><pre class="rust"><code><span class="doccomment">//! This module manages the process of printing files by parsing G-code commands.
+//!
+//! It provides the [`PrintProcess`] struct, which is responsible for controlling
+//! the printing workflow, including reading files from the file system, parsing
+//! G-code commands, and executing them. It also handles the buffer management
+//! for G-code commands and ensures that the print process progresses correctly.
 
 </span><span class="kw">use </span>std::{
 	fmt::Debug,
@@ -338,15 +369,26 @@
 };
 
 <span class="kw">static </span>COMMANDS_IN_BUFFER: AtomicU16 = AtomicU16::new(<span class="number">0</span>);
-<span class="kw">pub fn </span>add_commands_in_buffer_count(added_commands_count: u16)
+<span class="doccomment">/// Sets the number of commands currently in the buffer.
+///
+/// This function allows you to update the count of commands that are in the buffer.
+/// It stores the value atomically, ensuring thread-safe access to the count.
+///
+/// # Parameters
+/// - `commands_count`: The number of commands currently in the buffer.
+</span><span class="kw">pub fn </span>set_commands_in_buffer_count(commands_count: u16)
 {
-	COMMANDS_IN_BUFFER.fetch_add(added_commands_count, Ordering::Relaxed);
+	COMMANDS_IN_BUFFER.store(commands_count, Ordering::Relaxed);
 }
-<span class="kw">pub fn </span>remove_commands_in_buffer_count(removed_commands_count: u16)
-{
-	COMMANDS_IN_BUFFER.fetch_sub(removed_commands_count, Ordering::Relaxed);
-}
-<span class="kw">pub fn </span>get_commands_in_buffer_count() -&gt; u16
+
+<span class="doccomment">/// Gets the current count of commands in the buffer.
+///
+/// This function retrieves the number of commands that are currently stored in the buffer.
+/// The value is fetched atomically to ensure thread safety.
+///
+/// # Returns
+/// The number of commands currently in the buffer.
+</span><span class="kw">pub fn </span>get_commands_in_buffer_count() -&gt; u16
 {
 	COMMANDS_IN_BUFFER.load(Ordering::Relaxed)
 }
@@ -372,7 +414,7 @@
 
 <span class="kw">impl</span>&lt;P: Peripherals&gt; PrintProcess&lt;P&gt;
 {
-	<span class="kw">const </span>ESTIMATED_TIME_PREFIX: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str = <span class="string">&quot;TIME:&quot;</span>;
+	<span class="kw">const </span>ESTIMATED_TIME_PREFIX: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str = <span class="string">"TIME:"</span>;
 
 	<span class="doccomment">/// Returns an empty [`PrintProcess`].
 	///
@@ -380,7 +422,7 @@
 	</span><span class="kw">pub fn </span>new(max_commands_in_buffer_before_reading_new: u16) -&gt; <span class="self">Self
 	</span>{
 		<span class="macro">log::info!</span>(
-			<span class="string">&quot;Create the print process with this configuration: {}&quot;</span>,
+			<span class="string">"Create the print process with this configuration: {}"</span>,
 			max_commands_in_buffer_before_reading_new
 		);
 		<span class="self">Self </span>{
@@ -433,16 +475,20 @@
 				read_lines.extend_from_slice(<span class="self">self</span>.g_code_to_execute.as_bytes());
 				read_lines.extend(core::iter::repeat(<span class="number">0</span>).take(P::FlashChip::PAGE_SIZE <span class="kw">as </span>usize));
 
-				<span class="self">self</span>.file_to_print_reader
+				<span class="kw">let </span>read_bytes_count = <span class="self">self
+					</span>.file_to_print_reader
 					.as_mut()
 					.unwrap()
 					.read_data(file_system, <span class="kw-2">&amp;mut </span>read_lines[start..])
 					.map_err(PrintProcessError::SPIError)<span class="question-mark">?</span>;
 
+				read_lines.truncate(start + read_bytes_count <span class="kw">as </span>usize);
+
 				<span class="kw">let </span>read_lines =
 					String::from_utf8(read_lines).map_err(|err| PrintProcessError::FileContainsInvalidUtf8(err))<span class="question-mark">?</span>;
 
-				<span class="kw">let </span>is_last_line_finished = read_lines.ends_with(<span class="string">&quot;\n&quot;</span>);
+				<span class="kw">let </span>is_last_line_finished =
+					read_lines.ends_with(<span class="string">"\n"</span>) || <span class="self">self</span>.file_to_print_reader.as_mut().unwrap().has_reached_end_of_file();
 				<span class="kw">let </span><span class="kw-2">mut </span>read_commands = Vec::with_capacity(read_lines.len() / <span class="number">25</span>);
 				<span class="kw">let </span><span class="kw-2">mut </span>read_lines_iterator = read_lines.lines().enumerate().peekable();
 				<span class="kw">let </span><span class="kw-2">mut </span>read_lines_iterator_cloned = read_lines_iterator.clone();
@@ -473,10 +519,10 @@
 								<span class="kw">if </span>line_number != line_number_cloned
 								{
 									<span class="self">self</span>.g_code_to_execute.push_str(line);
-									<span class="self">self</span>.g_code_to_execute.push(<span class="string">&#39;\n&#39;</span>);
+									<span class="self">self</span>.g_code_to_execute.push(<span class="string">'\n'</span>);
 								}
 							});
-							<span class="comment">// Remove the last new line if there wasn&#39;t one before
+							<span class="comment">// Remove the last new line if there wasn't one before
 							</span><span class="kw">if </span>!is_last_line_finished
 							{
 								<span class="kw">let _ </span>= <span class="self">self</span>.g_code_to_execute.pop();
@@ -523,7 +569,7 @@
 	}
 
 	<span class="doccomment">/// Returns `Some(duration_in_secs)` if a file is currently being printed (which means you called [`Self::print_file`]
-	/// and the file has not been completely read yet) and in the file there&#39;s a line containing `;TIME: {value}` where
+	/// and the file has not been completely read yet) and in the file there's a line containing `;TIME: {value}` where
 	/// `{value}` is a number.
 	/// Otherwise returns `None`.
 	</span><span class="kw">pub fn </span>get_print_estimated_duration_in_seconds(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;u32&gt;
@@ -541,7 +587,7 @@
 
 	<span class="doccomment">/// Returns the command and the comment present in the provided `line` (if they are present),
 	/// or `Err(())` if the line is a [`GCodeLine::Error`].
-	</span><span class="kw">pub fn </span>parse_line_to_execute&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, line: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str) -&gt; <span class="prelude-ty">Result</span>&lt;LineToExecuteParsed&lt;<span class="lifetime">&#39;a</span>, P&gt;, ()&gt;
+	</span><span class="kw">pub fn </span>parse_line_to_execute&lt;<span class="lifetime">'a</span>&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, line: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str) -&gt; <span class="prelude-ty">Result</span>&lt;LineToExecuteParsed&lt;<span class="lifetime">'a</span>, P&gt;, ()&gt;
 	{
 		<span class="kw">match </span><span class="self">self</span>.g_code_parser.parse_line(<span class="kw-2">&amp;</span>line)
 		{
@@ -584,7 +630,7 @@
 	<span class="kw">pub </span>read_commands: Vec&lt;Box&lt;<span class="kw">dyn </span>GCodeCommand&lt;P&gt;&gt;&gt;,
 }
 
-<span class="doccomment">/// The call to [`PrintProcess::tick`] hasn&#39;t been successful. This enum contains the problems that
+<span class="doccomment">/// The call to [`PrintProcess::tick`] hasn't been successful. This enum contains the problems that
 /// could have arised.
 </span><span class="kw">pub enum </span>PrintProcessError&lt;Spi: SpiDevice&lt;u8&gt;&gt;
 {
@@ -603,22 +649,28 @@
 	</span>CouldntParseLine(String),
 }
 
-<span class="kw">pub struct </span>LineToExecuteParsed&lt;<span class="lifetime">&#39;a</span>, P: Peripherals&gt;
+<span class="doccomment">/// Contains the parsed result of a line intended for execution.
+///
+/// This struct holds information about a G-code line that has been parsed. It includes
+/// both the command and any associated comments found in the line.
+</span><span class="kw">pub struct </span>LineToExecuteParsed&lt;<span class="lifetime">'a</span>, P: Peripherals&gt;
 {
-	<span class="kw">pub </span>comment: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str&gt;,
-	<span class="kw">pub </span>command: <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="kw">dyn </span>GCodeCommand&lt;P&gt;&gt;&gt;,
+	<span class="doccomment">/// An optional comment associated with the G-code line.
+	</span><span class="kw">pub </span>comment: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>str&gt;,
+	<span class="doccomment">/// An optional G-code command parsed from the line.
+	</span><span class="kw">pub </span>command: <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="kw">dyn </span>GCodeCommand&lt;P&gt;&gt;&gt;,
 }
 
 <span class="kw">impl</span>&lt;Spi: SpiDevice&lt;u8&gt;&gt; Debug <span class="kw">for </span>PrintProcessError&lt;Spi&gt;
 {
-	<span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; std::fmt::Result
+	<span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; std::fmt::Result
 	{
 		<span class="kw">match </span><span class="self">self
 		</span>{
-			<span class="self">Self</span>::CouldntOpenFileForRead =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;CouldntOpenFileForRead&quot;</span>),
-			<span class="self">Self</span>::FileContainsInvalidUtf8(arg0) =&gt; f.debug_tuple(<span class="string">&quot;FileContainsInvalidUtf8&quot;</span>).field(arg0).finish(),
-			<span class="self">Self</span>::SPIError(arg0) =&gt; f.debug_tuple(<span class="string">&quot;SPIError&quot;</span>).field(arg0).finish(),
-			<span class="self">Self</span>::CouldntParseLine(line) =&gt; f.debug_struct(<span class="string">&quot;CoudlntParseLine&quot;</span>).field(<span class="string">&quot;line&quot;</span>, line).finish(),
+			<span class="self">Self</span>::CouldntOpenFileForRead =&gt; <span class="macro">write!</span>(f, <span class="string">"CouldntOpenFileForRead"</span>),
+			<span class="self">Self</span>::FileContainsInvalidUtf8(arg0) =&gt; f.debug_tuple(<span class="string">"FileContainsInvalidUtf8"</span>).field(arg0).finish(),
+			<span class="self">Self</span>::SPIError(arg0) =&gt; f.debug_tuple(<span class="string">"SPIError"</span>).field(arg0).finish(),
+			<span class="self">Self</span>::CouldntParseLine(line) =&gt; f.debug_struct(<span class="string">"CoudlntParseLine"</span>).field(<span class="string">"line"</span>, line).finish(),
 		}
 	}
 }

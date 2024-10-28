@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates\core\src\printer\communication\http\request\callbacks.rs`."><title>callbacks.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../..\..\..\../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../..\..\..\../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../..\..\..\../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../..\..\..\../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../..\..\..\../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../..\..\..\../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../..\..\..\../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../..\..\..\../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../..\..\..\../" data-static-root-path="../../..\..\..\../static.files/" data-current-crate="firmware_core" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0-nightly (a2f5f9691 2023-11-02)" data-channel="nightly" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../..\..\..\../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../..\..\..\../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../..\..\..\../src-files.js"></script><script defer src="../../..\..\..\../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../..\..\..\../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../..\..\..\../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../..\..\..\../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../..\..\..\../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../..\..\..\../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../..\..\..\../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../..\..\..\../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/core/src/printer/communication/http/request/callbacks.rs`."><title>callbacks.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../../../static.files/rustdoc-198729e5.css"><meta name="rustdoc-vars" data-root-path="../../../../../../" data-static-root-path="../../../../../../static.files/" data-current-crate="firmware_core" data-themes="" data-resource-suffix="" data-rustdoc-version="1.84.0-nightly (df4ca44d3 2024-10-27)" data-channel="nightly" data-search-js="search-c5a66128.js" data-settings-js="settings-0f613d39.js" ><script src="../../../../../../static.files/storage-59e33391.js"></script><script defer src="../../../../../../static.files/src-script-56102188.js"></script><script defer src="../../../../../../src-files.js"></script><script defer src="../../../../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">firmware_core/printer/communication/http/request/</div>callbacks.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -497,53 +498,139 @@
 <a href="#497" id="497">497</a>
 <a href="#498" id="498">498</a>
 <a href="#499" id="499">499</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>embedded_svc::{
-	http::server::{Connection, HandlerError, Request},
-	io::Write,
-	ota::OtaUpdate,
-};
+<a href="#500" id="500">500</a>
+<a href="#501" id="501">501</a>
+<a href="#502" id="502">502</a>
+<a href="#503" id="503">503</a>
+<a href="#504" id="504">504</a>
+<a href="#505" id="505">505</a>
+<a href="#506" id="506">506</a>
+<a href="#507" id="507">507</a>
+<a href="#508" id="508">508</a>
+<a href="#509" id="509">509</a>
+<a href="#510" id="510">510</a>
+<a href="#511" id="511">511</a>
+<a href="#512" id="512">512</a>
+<a href="#513" id="513">513</a>
+<a href="#514" id="514">514</a>
+<a href="#515" id="515">515</a>
+<a href="#516" id="516">516</a>
+<a href="#517" id="517">517</a>
+<a href="#518" id="518">518</a>
+<a href="#519" id="519">519</a>
+<a href="#520" id="520">520</a>
+<a href="#521" id="521">521</a>
+<a href="#522" id="522">522</a>
+<a href="#523" id="523">523</a>
+<a href="#524" id="524">524</a>
+<a href="#525" id="525">525</a>
+<a href="#526" id="526">526</a>
+<a href="#527" id="527">527</a>
+<a href="#528" id="528">528</a>
+<a href="#529" id="529">529</a>
+<a href="#530" id="530">530</a>
+<a href="#531" id="531">531</a>
+<a href="#532" id="532">532</a>
+<a href="#533" id="533">533</a>
+<a href="#534" id="534">534</a>
+<a href="#535" id="535">535</a>
+<a href="#536" id="536">536</a>
+<a href="#537" id="537">537</a>
+<a href="#538" id="538">538</a>
+<a href="#539" id="539">539</a>
+<a href="#540" id="540">540</a>
+<a href="#541" id="541">541</a>
+<a href="#542" id="542">542</a>
+<a href="#543" id="543">543</a>
+<a href="#544" id="544">544</a>
+<a href="#545" id="545">545</a>
+<a href="#546" id="546">546</a>
+<a href="#547" id="547">547</a>
+<a href="#548" id="548">548</a>
+<a href="#549" id="549">549</a>
+<a href="#550" id="550">550</a>
+<a href="#551" id="551">551</a>
+<a href="#552" id="552">552</a>
+<a href="#553" id="553">553</a>
+<a href="#554" id="554">554</a>
+<a href="#555" id="555">555</a>
+<a href="#556" id="556">556</a>
+<a href="#557" id="557">557</a>
+<a href="#558" id="558">558</a>
+<a href="#559" id="559">559</a>
+<a href="#560" id="560">560</a>
+<a href="#561" id="561">561</a>
+<a href="#562" id="562">562</a>
+<a href="#563" id="563">563</a>
+<a href="#564" id="564">564</a>
+<a href="#565" id="565">565</a>
+<a href="#566" id="566">566</a>
+<a href="#567" id="567">567</a>
+<a href="#568" id="568">568</a>
+<a href="#569" id="569">569</a>
+<a href="#570" id="570">570</a>
+<a href="#571" id="571">571</a>
+<a href="#572" id="572">572</a>
+<a href="#573" id="573">573</a>
+<a href="#574" id="574">574</a>
+<a href="#575" id="575">575</a>
+<a href="#576" id="576">576</a>
+<a href="#577" id="577">577</a>
+<a href="#578" id="578">578</a></pre></div><pre class="rust"><code><span class="kw">use </span>embedded_svc::http::server::{Connection, HandlerError, Request, Response};
 <span class="kw">use </span>serde::{Deserialize, Serialize};
+<span class="kw">use </span>spin::MutexGuard;
 
-<span class="kw">use crate</span>::{
-	printer::{
-		communication::http::{
-			command::Command,
-			other::printer_state,
-			resources::{Resources, ResourcesImpl},
-		},
-		components::{file_system::regions::metadata::FileId, pauser, time::SystemTime, Peripherals},
+<span class="kw">use </span><span class="kw">crate</span>::printer::{
+	communication::http::{
+		command::Command,
+		other::printer_state,
+		resources::{Resources, ResourcesImpl},
 	},
-	utils::mutex::MutexGuard,
+	components::{file_system::regions::metadata::FileId, pauser, time::SystemTime, Peripherals},
 };
 
 <span class="kw">const </span>SER_BUFFER_SIZE: usize = <span class="kw">super</span>::STACK_SIZE / <span class="number">3</span>;
 
-<span class="macro">macro_rules! </span>deserialize_request {
+<span class="macro">macro_rules!</span> deserialize_request {
 	(BUFFER_SIZE = <span class="macro-nonterminal">$buffer_size</span>: expr, CALLBACK = <span class="macro-nonterminal">$callback_name</span>: expr, <span class="macro-nonterminal">$</span><span class="kw">type</span>: <span class="macro-nonterminal">ty</span>, <span class="macro-nonterminal">$request</span>: expr) =&gt; {{
 		<span class="kw">let </span><span class="kw-2">mut </span>buffer = [<span class="number">0</span>; <span class="macro-nonterminal">$buffer_size</span>];
 		<span class="kw">let </span>read_bytes_count = <span class="macro-nonterminal">$request
 			</span>.read(<span class="kw-2">&amp;mut </span>buffer)
-			.map_err(|<span class="kw">_</span>| HandlerError::new(<span class="macro">concat!</span>(<span class="string">&quot;`&quot;</span>, <span class="macro-nonterminal">$callback_name</span>, <span class="string">&quot;` couldn&#39;t read the request&quot;</span>)))<span class="question-mark">?</span>;
+			.map_err(|<span class="kw">_</span>| HandlerError::new(<span class="macro">concat!</span>(<span class="string">"`"</span>, <span class="macro-nonterminal">$callback_name</span>, <span class="string">"` couldn't read the request"</span>)))<span class="question-mark">?</span>;
 
 		<span class="kw">let </span>(value, <span class="kw">_</span>) = serde_json_core::from_slice::&lt;<span class="macro-nonterminal">$</span><span class="kw">type</span>&gt;(<span class="kw-2">&amp;</span><span class="macro-nonterminal">buffer</span>[..read_bytes_count])
-			.map_err(|<span class="kw">_</span>| HandlerError::new(<span class="macro">concat!</span>(<span class="string">&quot;`&quot;</span>, <span class="macro-nonterminal">$callback_name</span>, <span class="string">&quot;` couldn&#39;t parse the request&quot;</span>)))<span class="question-mark">?</span>;
+			.map_err(|<span class="kw">_</span>| HandlerError::new(<span class="macro">concat!</span>(<span class="string">"`"</span>, <span class="macro-nonterminal">$callback_name</span>, <span class="string">"` couldn't parse the request"</span>)))<span class="question-mark">?</span>;
 		value
 	}};
 }
 
-<span class="macro">macro_rules! </span>send_response {
+<span class="macro">macro_rules!</span> send_response {
 	(BUFFER_SIZE = <span class="macro-nonterminal">$buffer_size</span>: expr, CALLBACK = <span class="macro-nonterminal">$callback_name</span>: expr, <span class="macro-nonterminal">$response</span>: expr, <span class="macro-nonterminal">$request</span>: expr) =&gt; {{
 		<span class="macro-nonterminal">$request
 			</span>.write(<span class="kw-2">&amp;</span>serde_json_core::ser::to_vec::&lt;<span class="kw">_</span>, <span class="macro-nonterminal">$buffer_size</span>&gt;(<span class="kw-2">&amp;</span><span class="macro-nonterminal">$response</span>)<span class="question-mark">?</span>)
-			.map_err(|<span class="kw">_</span>| HandlerError::new(<span class="macro">concat!</span>(<span class="string">&quot;`&quot;</span>, <span class="macro-nonterminal">$callback_name</span>, <span class="string">&quot;` couldn&#39;t write the response&quot;</span>)))<span class="question-mark">?</span>;
+			.map_err(|<span class="kw">_</span>| HandlerError::new(<span class="macro">concat!</span>(<span class="string">"`"</span>, <span class="macro-nonterminal">$callback_name</span>, <span class="string">"` couldn't write the response"</span>)))<span class="question-mark">?</span>;
 	}};
+}
+
+<span class="kw">pub fn </span>hello&lt;C: Connection, P: Peripherals&gt;(
+	request: Request&lt;<span class="kw-2">&amp;mut </span>C&gt;, resources: Resources&lt;P&gt;,
+) -&gt; <span class="prelude-ty">Result</span>&lt;(), HandlerError&gt;
+{
+	<span class="macro">log::info!</span>(<span class="string">"Start handling `hello` HTTP request"</span>);
+
+	<span class="kw">let </span><span class="kw-2">mut </span>response = ok_response(request)<span class="question-mark">?</span>;
+	response.flush()<span class="question-mark">?</span>;
+
+	<span class="macro">log::info!</span>(<span class="string">"Successfully handled `hello` HTTP request"</span>);
+
+	<span class="prelude-val">Ok</span>(())
 }
 
 <span class="kw">pub fn </span>list_files&lt;C: Connection, P: Peripherals&gt;(
 	<span class="kw-2">mut </span>request: Request&lt;<span class="kw-2">&amp;mut </span>C&gt;, resources: Resources&lt;P&gt;,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;(), HandlerError&gt;
 {
-	<span class="macro">log::info!</span>(<span class="string">&quot;Start handling `list-files` HTTP request&quot;</span>);
+	<span class="macro">log::info!</span>(<span class="string">"Start handling `list-files` HTTP request"</span>);
 
 	<span class="kw">let </span><span class="kw-2">mut </span>resources = get_resources(<span class="kw-2">&amp;</span>resources)<span class="question-mark">?</span>;
 	<span class="kw">let _ </span>= check_security(<span class="kw-2">&amp;mut </span>request, <span class="kw-2">&amp;mut </span>resources)<span class="question-mark">?</span>;
@@ -552,19 +639,19 @@
 	<span class="kw">let </span>file_metadatas = Vec::from(file_system.get_existing_files_metadatas());
 
 	<span class="attr">#[derive(Serialize)]
-	#[serde(rename_all = <span class="string">&quot;camelCase&quot;</span>)]
+	#[serde(rename_all = <span class="string">"camelCase"</span>)]
 	</span><span class="kw">struct </span>HttpResponse
 	{
 		files: Vec&lt;File&gt;,
 	}
 
 	<span class="attr">#[derive(Serialize)]
-	#[serde(rename_all = <span class="string">&quot;camelCase&quot;</span>)]
+	#[serde(rename_all = <span class="string">"camelCase"</span>)]
 	</span><span class="kw">struct </span>File
 	{
 		name: String,
 		size_in_bytes: u32,
-		id: u32,
+		file_id: u32,
 	}
 	<span class="kw">let </span><span class="kw-2">mut </span>response_message = Vec::&lt;File&gt;::with_capacity(file_metadatas.len());
 
@@ -577,30 +664,41 @@
 				response_message.push(File {
 					name: file_name,
 					size_in_bytes: file_metadata.file_data_length + file_metadata.file_name_length,
-					id: u32::from_le_bytes(file_metadata.id.to_bytes()),
+					file_id: u32::from_le_bytes(file_metadata.id.to_bytes()),
 				});
 			}
 		}
 	}
 
-	<span class="kw">let </span><span class="kw-2">mut </span>response = request.into_ok_response()<span class="question-mark">?</span>;
+	<span class="kw">let </span>response_message = HttpResponse {
+		files: response_message,
+	};
+
+	<span class="kw">let </span><span class="kw-2">mut </span>response = ok_response(request)<span class="question-mark">?</span>;
 	<span class="macro">send_response!</span>(
 		BUFFER_SIZE = SER_BUFFER_SIZE,
-		CALLBACK = <span class="string">&quot;list_files&quot;</span>,
+		CALLBACK = <span class="string">"list_files"</span>,
 		response_message,
 		response
 	);
 
-	<span class="macro">log::info!</span>(<span class="string">&quot;Successfully handled `list-files` HTTP request&quot;</span>);
+	<span class="macro">log::info!</span>(<span class="string">"Successfully handled `list-files` HTTP request"</span>);
 
 	<span class="prelude-val">Ok</span>(())
+}
+
+<span class="kw">pub fn </span>options_list_files&lt;C: Connection, P: Peripherals&gt;(
+	request: Request&lt;<span class="kw-2">&amp;mut </span>C&gt;, <span class="kw">_</span>: Resources&lt;P&gt;,
+) -&gt; <span class="prelude-ty">Result</span>&lt;(), HandlerError&gt;
+{
+	options_callback(request, <span class="string">"list-files"</span>, <span class="string">""</span>)
 }
 
 <span class="kw">pub fn </span>delete_file&lt;C: Connection, P: Peripherals&gt;(
 	<span class="kw-2">mut </span>request: Request&lt;<span class="kw-2">&amp;mut </span>C&gt;, resources: Resources&lt;P&gt;,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;(), HandlerError&gt;
 {
-	<span class="macro">log::info!</span>(<span class="string">&quot;Start handling `delete-file` HTTP request&quot;</span>);
+	<span class="macro">log::info!</span>(<span class="string">"Start handling `delete-file` HTTP request"</span>);
 
 	<span class="kw">let </span><span class="kw-2">mut </span>resources = get_resources(<span class="kw-2">&amp;</span>resources)<span class="question-mark">?</span>;
 	<span class="kw">let _ </span>= check_security(<span class="kw-2">&amp;mut </span>request, <span class="kw-2">&amp;mut </span>resources)<span class="question-mark">?</span>;
@@ -608,19 +706,19 @@
 	<span class="kw">let </span>file_system = <span class="kw-2">&amp;mut </span>resources.file_system;
 
 	<span class="attr">#[derive(Deserialize)]
-	#[serde(rename_all = <span class="string">&quot;camelCase&quot;</span>)]
+	#[serde(rename_all = <span class="string">"camelCase"</span>)]
 	</span><span class="kw">struct </span>HttpRequest
 	{
 		file_id: u32,
 	}
-	<span class="kw">let </span>request = <span class="macro">deserialize_request!</span>(BUFFER_SIZE = <span class="number">100</span>, CALLBACK = <span class="string">&quot;delete_file&quot;</span>, HttpRequest, request);
+	<span class="kw">let </span>request = <span class="macro">deserialize_request!</span>(BUFFER_SIZE = <span class="number">100</span>, CALLBACK = <span class="string">"delete_file"</span>, HttpRequest, request);
 	<span class="kw">let </span>file_id = FileId::from_bytes(request.file_id.to_le_bytes());
 
 	file_system
 		.delete_file(file_id)
-		.map_err(|<span class="kw">_</span>| HandlerError::new(<span class="string">&quot;Unable to delete a file from the file system&quot;</span>))<span class="question-mark">?</span>;
+		.map_err(|<span class="kw">_</span>| HandlerError::new(<span class="string">"Unable to delete a file from the file system"</span>))<span class="question-mark">?</span>;
 
-	<span class="macro">log::info!</span>(<span class="string">&quot;Successfully handled `delete-file` HTTP request&quot;</span>);
+	<span class="macro">log::info!</span>(<span class="string">"Successfully handled `delete-file` HTTP request"</span>);
 
 	<span class="prelude-val">Ok</span>(())
 }
@@ -629,24 +727,24 @@
 	<span class="kw-2">mut </span>request: Request&lt;<span class="kw-2">&amp;mut </span>C&gt;, resources: Resources&lt;P&gt;,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;(), HandlerError&gt;
 {
-	<span class="macro">log::info!</span>(<span class="string">&quot;Start handling `print-file` HTTP request&quot;</span>);
+	<span class="macro">log::info!</span>(<span class="string">"Start handling `print-file` HTTP request"</span>);
 
 	<span class="kw">let </span><span class="kw-2">mut </span>resources = get_resources(<span class="kw-2">&amp;</span>resources)<span class="question-mark">?</span>;
 	<span class="kw">let _ </span>= check_security(<span class="kw-2">&amp;mut </span>request, <span class="kw-2">&amp;mut </span>resources)<span class="question-mark">?</span>;
 
 	<span class="attr">#[derive(Deserialize)]
-	#[serde(rename_all = <span class="string">&quot;camelCase&quot;</span>)]
+	#[serde(rename_all = <span class="string">"camelCase"</span>)]
 	</span><span class="kw">struct </span>HttpRequest
 	{
 		file_id: u32,
 	}
-	<span class="kw">let </span>request = <span class="macro">deserialize_request!</span>(BUFFER_SIZE = <span class="number">100</span>, CALLBACK = <span class="string">&quot;print_file&quot;</span>, HttpRequest, request);
+	<span class="kw">let </span>request = <span class="macro">deserialize_request!</span>(BUFFER_SIZE = <span class="number">100</span>, CALLBACK = <span class="string">"print_file"</span>, HttpRequest, request);
 	<span class="kw">let </span>file_id = FileId::from_bytes(request.file_id.to_le_bytes());
 
 	<span class="kw">let </span>current_time = resources.system_time.as_ref().map(|time| time.now());
 	resources.print_process.print_file(file_id, current_time);
 
-	<span class="macro">log::info!</span>(<span class="string">&quot;Successfully handled `print-file` HTTP request&quot;</span>);
+	<span class="macro">log::info!</span>(<span class="string">"Successfully handled `print-file` HTTP request"</span>);
 
 	<span class="prelude-val">Ok</span>(())
 }
@@ -655,27 +753,27 @@
 	<span class="kw-2">mut </span>request: Request&lt;<span class="kw-2">&amp;mut </span>C&gt;, resources: Resources&lt;P&gt;,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;(), HandlerError&gt;
 {
-	<span class="macro">log::info!</span>(<span class="string">&quot;Start handling `send-file` HTTP request&quot;</span>);
+	<span class="macro">log::info!</span>(<span class="string">"Start handling `send-file` HTTP request"</span>);
 
 	<span class="kw">let </span><span class="kw-2">mut </span>resources = get_resources(<span class="kw-2">&amp;</span>resources)<span class="question-mark">?</span>;
 	<span class="kw">let _ </span>= check_security(<span class="kw-2">&amp;mut </span>request, <span class="kw-2">&amp;mut </span>resources)<span class="question-mark">?</span>;
 
 	<span class="kw">let </span>file_name = request
-		.header(<span class="string">&quot;File-Name&quot;</span>)
-		.ok_or(HandlerError::new(<span class="string">&quot;The request doesn&#39;t have a `File-Name` header&quot;</span>))<span class="question-mark">?</span>;
+		.header(<span class="string">"File-Name"</span>)
+		.ok_or(HandlerError::new(<span class="string">"The request doesn't have a `File-Name` header"</span>))<span class="question-mark">?</span>;
 	<span class="kw">let </span>file_length = request
-		.header(<span class="string">&quot;File-Length&quot;</span>)
-		.ok_or(HandlerError::new(<span class="string">&quot;The request doesn&#39;t have a `File-Length` header&quot;</span>))<span class="question-mark">?</span>;
+		.header(<span class="string">"File-Length"</span>)
+		.ok_or(HandlerError::new(<span class="string">"The request doesn't have a `File-Length` header"</span>))<span class="question-mark">?</span>;
 	<span class="kw">let </span>file_length = file_length
 		.parse::&lt;u32&gt;()
-		.map_err(|<span class="kw">_</span>| HandlerError::new(<span class="string">&quot;The `File-Length` header is not a valid number&quot;</span>))<span class="question-mark">?</span>;
+		.map_err(|<span class="kw">_</span>| HandlerError::new(<span class="string">"The `File-Length` header is not a valid number"</span>))<span class="question-mark">?</span>;
 
-	<span class="macro">log::info!</span>(<span class="string">&quot;Receive file `{}` of {} bytes&quot;</span>, file_name, file_length);
+	<span class="macro">log::info!</span>(<span class="string">"Receive file `{}` of {} bytes"</span>, file_name, file_length);
 
 	<span class="kw">let </span><span class="kw-2">mut </span>file_writer = resources
 		.file_system
 		.create_file(file_name, file_length)
-		.map_err(|error| HandlerError::new(<span class="string">&quot;Not enough space available in the flash memory&quot;</span>))<span class="question-mark">?</span>;
+		.map_err(|<span class="kw">_</span>| HandlerError::new(<span class="string">"Not enough space available in the flash memory"</span>))<span class="question-mark">?</span>;
 
 	<span class="kw">let </span><span class="kw-2">mut </span>buffer = [<span class="number">0</span>; <span class="kw">super</span>::STACK_SIZE];
 	<span class="kw">while let </span><span class="prelude-val">Ok</span>(read_bytes) = request.read(<span class="kw-2">&amp;mut </span>buffer)
@@ -687,14 +785,14 @@
 
 		file_writer
 			.write_data(<span class="kw-2">&amp;mut </span>resources.file_system, <span class="kw-2">&amp;</span>buffer[<span class="number">0</span>..read_bytes])
-			.map_err(|error| HandlerError::new(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;{:#?}&quot;</span>, error)))<span class="question-mark">?</span>;
+			.map_err(|error| HandlerError::new(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"{:#?}"</span>, error)))<span class="question-mark">?</span>;
 	}
 
 	file_writer
 		.finish_writing(<span class="kw-2">&amp;mut </span>resources.file_system)
-		.map_err(|error| HandlerError::new(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;{:#?}&quot;</span>, error)))<span class="question-mark">?</span>;
+		.map_err(|error| HandlerError::new(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"{:#?}"</span>, error)))<span class="question-mark">?</span>;
 
-	<span class="macro">log::info!</span>(<span class="string">&quot;Successfully handled `send-file` HTTP request&quot;</span>);
+	<span class="macro">log::info!</span>(<span class="string">"Successfully handled `send-file` HTTP request"</span>);
 
 	<span class="prelude-val">Ok</span>(())
 }
@@ -703,13 +801,13 @@
 	<span class="kw-2">mut </span>request: Request&lt;<span class="kw-2">&amp;mut </span>C&gt;, resources: Resources&lt;P&gt;,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;(), HandlerError&gt;
 {
-	<span class="macro">log::info!</span>(<span class="string">&quot;Start handling `get-print-status` HTTP request&quot;</span>);
+	<span class="macro">log::info!</span>(<span class="string">"Start handling `get-print-status` HTTP request"</span>);
 
 	<span class="kw">let </span><span class="kw-2">mut </span>resources = get_resources(<span class="kw-2">&amp;</span>resources)<span class="question-mark">?</span>;
 	<span class="kw">let _ </span>= check_security(<span class="kw-2">&amp;mut </span>request, <span class="kw-2">&amp;mut </span>resources)<span class="question-mark">?</span>;
 
 	<span class="attr">#[derive(Serialize)]
-	#[serde(rename_all = <span class="string">&quot;camelCase&quot;</span>)]
+	#[serde(rename_all = <span class="string">"camelCase"</span>)]
 	</span><span class="kw">struct </span>HttpResponse
 	{
 		is_printing: bool,
@@ -726,10 +824,10 @@
 			<span class="kw">let </span><span class="kw-2">mut </span>file_being_printed = resources
 				.file_system
 				.read_file(file_id_being_printed)
-				.map_err(|<span class="kw">_</span>| HandlerError::new(<span class="string">&quot;Couldn&#39;t open the file for read&quot;</span>))<span class="question-mark">?</span>;
+				.map_err(|<span class="kw">_</span>| HandlerError::new(<span class="string">"Couldn't open the file for read"</span>))<span class="question-mark">?</span>;
 			<span class="kw">let </span>file_name_being_printed = file_being_printed
 				.read_name(<span class="kw-2">&amp;mut </span>resources.file_system)
-				.map_err(|<span class="kw">_</span>| HandlerError::new(<span class="string">&quot;Couldn&#39;t read the name of the file being printed&quot;</span>))<span class="question-mark">?</span>;
+				.map_err(|<span class="kw">_</span>| HandlerError::new(<span class="string">"Couldn't read the name of the file being printed"</span>))<span class="question-mark">?</span>;
 
 			<span class="kw">let </span>time_printed_in_seconds = resources.print_process.get_print_start_time().and_then(|start_time| {
 				resources
@@ -759,33 +857,40 @@
 		},
 	};
 
-	<span class="kw">let </span><span class="kw-2">mut </span>response = request.into_ok_response()<span class="question-mark">?</span>;
+	<span class="kw">let </span><span class="kw-2">mut </span>response = ok_response(request)<span class="question-mark">?</span>;
 	<span class="macro">send_response!</span>(
 		BUFFER_SIZE = SER_BUFFER_SIZE,
-		CALLBACK = <span class="string">&quot;get_print_status&quot;</span>,
+		CALLBACK = <span class="string">"get_print_status"</span>,
 		response_message,
 		response
 	);
 
-	<span class="macro">log::info!</span>(<span class="string">&quot;Successfully handled `get-print-status` HTTP request&quot;</span>);
+	<span class="macro">log::info!</span>(<span class="string">"Successfully handled `get-print-status` HTTP request"</span>);
 
 	<span class="prelude-val">Ok</span>(())
+}
+
+<span class="kw">pub fn </span>options_get_print_status&lt;C: Connection, P: Peripherals&gt;(
+	request: Request&lt;<span class="kw-2">&amp;mut </span>C&gt;, <span class="kw">_</span>: Resources&lt;P&gt;,
+) -&gt; <span class="prelude-ty">Result</span>&lt;(), HandlerError&gt;
+{
+	options_callback(request, <span class="string">"print-status"</span>, <span class="string">""</span>)
 }
 
 <span class="kw">pub fn </span>pause_or_resume&lt;C: Connection, P: Peripherals&gt;(
 	<span class="kw-2">mut </span>request: Request&lt;<span class="kw-2">&amp;mut </span>C&gt;, resources: Resources&lt;P&gt;,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;(), HandlerError&gt;
 {
-	<span class="macro">log::info!</span>(<span class="string">&quot;Start handling `pause-or-resume` HTTP request&quot;</span>);
+	<span class="macro">log::info!</span>(<span class="string">"Start handling `pause-or-resume` HTTP request"</span>);
 
 	<span class="kw">let _ </span>= check_security(<span class="kw-2">&amp;mut </span>request, <span class="kw-2">&amp;mut </span>get_resources(<span class="kw-2">&amp;</span>resources)<span class="question-mark">?</span>)<span class="question-mark">?</span>;
 
 	pauser::toggle_pause();
 
-	<span class="kw">let </span><span class="kw-2">mut </span>response = request.into_ok_response()<span class="question-mark">?</span>;
+	<span class="kw">let </span><span class="kw-2">mut </span>response = ok_response(request)<span class="question-mark">?</span>;
 	response.flush()<span class="question-mark">?</span>;
 
-	<span class="macro">log::info!</span>(<span class="string">&quot;Successfully handled `pause-or-resume` HTTP request&quot;</span>);
+	<span class="macro">log::info!</span>(<span class="string">"Successfully handled `pause-or-resume` HTTP request"</span>);
 
 	<span class="prelude-val">Ok</span>(())
 }
@@ -794,28 +899,35 @@
 	<span class="kw-2">mut </span>request: Request&lt;<span class="kw-2">&amp;mut </span>C&gt;, resources: Resources&lt;P&gt;,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;(), HandlerError&gt;
 {
-	<span class="macro">log::info!</span>(<span class="string">&quot;Start handling `printer-state` HTTP request&quot;</span>);
+	<span class="macro">log::info!</span>(<span class="string">"Start handling `printer-state` HTTP request"</span>);
 
 	<span class="kw">let _ </span>= check_security(<span class="kw-2">&amp;mut </span>request, <span class="kw-2">&amp;mut </span>resources.lock())<span class="question-mark">?</span>;
 
-	<span class="kw">let </span><span class="kw-2">mut </span>response = request.into_ok_response()<span class="question-mark">?</span>;
+	<span class="kw">let </span><span class="kw-2">mut </span>response = ok_response(request)<span class="question-mark">?</span>;
 	<span class="macro">send_response!</span>(
 		BUFFER_SIZE = <span class="number">400</span>,
-		CALLBACK = <span class="string">&quot;printer_state&quot;</span>,
+		CALLBACK = <span class="string">"printer_state"</span>,
 		printer_state::get_current_state(),
 		response
 	);
 
-	<span class="macro">log::info!</span>(<span class="string">&quot;Successfully handled `printer-state` HTTP request&quot;</span>);
+	<span class="macro">log::info!</span>(<span class="string">"Successfully handled `printer-state` HTTP request"</span>);
 
 	<span class="prelude-val">Ok</span>(())
+}
+
+<span class="kw">pub fn </span>options_printer_state&lt;C: Connection, P: Peripherals&gt;(
+	request: Request&lt;<span class="kw-2">&amp;mut </span>C&gt;, <span class="kw">_</span>: Resources&lt;P&gt;,
+) -&gt; <span class="prelude-ty">Result</span>&lt;(), HandlerError&gt;
+{
+	options_callback(request, <span class="string">"printer-state"</span>, <span class="string">""</span>)
 }
 
 <span class="kw">pub fn </span>move_&lt;C: Connection, P: Peripherals&gt;(
 	request: Request&lt;<span class="kw-2">&amp;mut </span>C&gt;, resources: Resources&lt;P&gt;,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;(), HandlerError&gt;
 {
-	<span class="macro">log::info!</span>(<span class="string">&quot;Start handling `move` HTTP request&quot;</span>);
+	<span class="macro">log::info!</span>(<span class="string">"Start handling `move` HTTP request"</span>);
 
 	<span class="macro">todo!</span>()
 }
@@ -824,24 +936,24 @@
 	<span class="kw-2">mut </span>request: Request&lt;<span class="kw-2">&amp;mut </span>C&gt;, resources: Resources&lt;P&gt;,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;(), HandlerError&gt;
 {
-	<span class="macro">log::info!</span>(<span class="string">&quot;Start handling `ota-update` HTTP request&quot;</span>);
+	<span class="macro">log::info!</span>(<span class="string">"Start handling `ota-update` HTTP request"</span>);
 
 	<span class="kw">let </span><span class="kw-2">mut </span>resources = get_resources(<span class="kw-2">&amp;</span>resources)<span class="question-mark">?</span>;
 	<span class="kw">let _ </span>= check_security(<span class="kw-2">&amp;mut </span>request, <span class="kw-2">&amp;mut </span>resources)<span class="question-mark">?</span>;
 
 	<span class="kw">let </span>ota_length = request
-		.header(<span class="string">&quot;Content-Length&quot;</span>)
-		.ok_or(HandlerError::new(<span class="string">&quot;The request doesn&#39;t have a `Content-Length` header&quot;</span>))<span class="question-mark">?</span>;
+		.header(<span class="string">"Content-Length"</span>)
+		.ok_or(HandlerError::new(<span class="string">"The request doesn't have a `Content-Length` header"</span>))<span class="question-mark">?</span>;
 	<span class="kw">let </span>ota_length = ota_length
 		.parse::&lt;usize&gt;()
-		.map_err(|<span class="kw">_</span>| HandlerError::new(<span class="string">&quot;The `Content-Length` header is not a valid number&quot;</span>))<span class="question-mark">?</span>;
+		.map_err(|<span class="kw">_</span>| HandlerError::new(<span class="string">"The `Content-Length` header is not a valid number"</span>))<span class="question-mark">?</span>;
 
-	<span class="macro">log::info!</span>(<span class="string">&quot;Receiving OTA update of {ota_length} bytes&quot;</span>);
+	<span class="macro">log::info!</span>(<span class="string">"Receiving OTA update of {ota_length} bytes"</span>);
 
 	<span class="kw">let </span><span class="kw-2">mut </span>update = resources
 		.ota_updater
 		.initiate_update(ota_length)
-		.map_err(|error| HandlerError::new(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;Initiate: {:#?}&quot;</span>, error)))<span class="question-mark">?</span>;
+		.map_err(|error| HandlerError::new(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"Initiate: {:#?}"</span>, error)))<span class="question-mark">?</span>;
 
 	<span class="kw">let </span><span class="kw-2">mut </span>buffer = [<span class="number">0</span>; <span class="kw">super</span>::STACK_SIZE];
 	<span class="kw">while let </span><span class="prelude-val">Ok</span>(read_bytes) = request.read(<span class="kw-2">&amp;mut </span>buffer)
@@ -853,20 +965,26 @@
 
 		<span class="kw">match </span>update.write(<span class="kw-2">&amp;</span>buffer[<span class="number">0</span>..read_bytes])
 		{
-			<span class="prelude-val">Ok</span>(written_percentage) =&gt; <span class="macro">log::info!</span>(<span class="string">&quot;OTA update {written_percentage}&quot;</span>),
+			<span class="prelude-val">Ok</span>(written_percentage) =&gt; <span class="macro">log::info!</span>(<span class="string">"OTA update {written_percentage}"</span>),
 			<span class="prelude-val">Err</span>(error) =&gt;
 			{
-				update.abort();
-				<span class="kw">return </span><span class="prelude-val">Err</span>(HandlerError::new(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;Write: {:#?}&quot;</span>, error)));
+				<span class="kw">if let </span><span class="prelude-val">Err</span>(error) = update.abort()
+				{
+					<span class="kw">return </span><span class="prelude-val">Err</span>(HandlerError::new(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"Abort update: {:#?}"</span>, error)));
+				}
+				<span class="kw">return </span><span class="prelude-val">Err</span>(HandlerError::new(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"Write: {:#?}"</span>, error)));
 			},
 		}
 	}
 
 	update
 		.complete()
-		.map_err(|error| HandlerError::new(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;Complete: {:#?}&quot;</span>, error)))<span class="question-mark">?</span>;
+		.map_err(|error| HandlerError::new(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"Complete: {:#?}"</span>, error)))<span class="question-mark">?</span>;
 
-	<span class="macro">log::info!</span>(<span class="string">&quot;Successfully handled `ota-update` HTTP request&quot;</span>);
+	<span class="kw">let </span><span class="kw-2">mut </span>response = ok_response(request)<span class="question-mark">?</span>;
+	response.flush()<span class="question-mark">?</span>;
+
+	<span class="macro">log::info!</span>(<span class="string">"Successfully handled `ota-update` HTTP request"</span>);
 
 	<span class="prelude-val">Ok</span>(())
 }
@@ -875,35 +993,29 @@
 	<span class="kw-2">mut </span>request: Request&lt;<span class="kw-2">&amp;mut </span>C&gt;, resources: Resources&lt;P&gt;,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;(), HandlerError&gt;
 {
-	<span class="macro">log::info!</span>(<span class="string">&quot;Start handling `list-gcode-commands-in-memory` HTTP request&quot;</span>);
+	<span class="macro">log::info!</span>(<span class="string">"Start handling `list-gcode-commands-in-memory` HTTP request"</span>);
 
 	<span class="kw">let </span><span class="kw-2">mut </span>resources = get_resources(<span class="kw-2">&amp;</span>resources)<span class="question-mark">?</span>;
 	<span class="kw">let _ </span>= check_security(<span class="kw-2">&amp;mut </span>request, <span class="kw-2">&amp;mut </span>resources)<span class="question-mark">?</span>;
 
-	<span class="attr">#[derive(Deserialize)]
-	#[serde(rename_all = <span class="string">&quot;camelCase&quot;</span>)]
-	</span><span class="kw">struct </span>HttpRequest
-	{
-		requested_line: u32,
-	}
+	<span class="kw">let </span>starting_line = request
+		.header(<span class="string">"Starting-Line"</span>)
+		.ok_or(HandlerError::new(<span class="string">"The request doesn't have a `Starting-Line` header"</span>))<span class="question-mark">?</span>;
+	<span class="kw">let </span>starting_line = starting_line
+		.parse::&lt;u32&gt;()
+		.map_err(|<span class="kw">_</span>| HandlerError::new(<span class="string">"The `Starting-Line` header is not a valid number"</span>))<span class="question-mark">?</span>;
 
-	<span class="kw">let </span>http_request = <span class="macro">deserialize_request!</span>(
-		BUFFER_SIZE = <span class="number">100</span>,
-		CALLBACK = <span class="string">&quot;list_g_code_commands_in_memory&quot;</span>,
-		HttpRequest,
-		request
-	);
 	<span class="kw">let </span>(lines, line_of_first_command) = resources
 		.g_code_history
-		.get_lines_from_history(http_request.requested_line)
-		.unwrap_or((<span class="string">&quot;&quot;</span>, <span class="number">0</span>));
+		.get_lines_from_history(starting_line)
+		.unwrap_or((<span class="string">""</span>, <span class="number">0</span>));
 
 	<span class="attr">#[derive(Serialize)]
-	#[serde(rename_all = <span class="string">&quot;camelCase&quot;</span>)]
-	</span><span class="kw">struct </span>HttpResponse&lt;<span class="lifetime">&#39;a</span>&gt;
+	#[serde(rename_all = <span class="string">"camelCase"</span>)]
+	</span><span class="kw">struct </span>HttpResponse&lt;<span class="lifetime">'a</span>&gt;
 	{
 		line_of_first_command: u32,
-		commands: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
+		commands: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str,
 	}
 
 	<span class="kw">let </span>response_message = HttpResponse {
@@ -911,37 +1023,44 @@
 		commands: lines,
 	};
 
-	<span class="kw">let </span><span class="kw-2">mut </span>response = request.into_ok_response()<span class="question-mark">?</span>;
+	<span class="kw">let </span><span class="kw-2">mut </span>response = ok_response(request)<span class="question-mark">?</span>;
 	<span class="macro">send_response!</span>(
 		BUFFER_SIZE = SER_BUFFER_SIZE,
-		CALLBACK = <span class="string">&quot;list_g_code_commands_in_memory&quot;</span>,
+		CALLBACK = <span class="string">"list_g_code_commands_in_memory"</span>,
 		response_message,
 		response
 	);
 
-	<span class="macro">log::info!</span>(<span class="string">&quot;Successfully handled `list-gcode-commands-in-memory` HTTP request&quot;</span>);
+	<span class="macro">log::info!</span>(<span class="string">"Successfully handled `list-gcode-commands-in-memory` HTTP request"</span>);
 
 	<span class="prelude-val">Ok</span>(())
+}
+
+<span class="kw">pub fn </span>options_list_g_code_commands_in_memory&lt;C: Connection, P: Peripherals&gt;(
+	request: Request&lt;<span class="kw-2">&amp;mut </span>C&gt;, <span class="kw">_</span>: Resources&lt;P&gt;,
+) -&gt; <span class="prelude-ty">Result</span>&lt;(), HandlerError&gt;
+{
+	options_callback(request, <span class="string">"gcode-commands"</span>, <span class="string">", Starting-Line"</span>)
 }
 
 <span class="kw">pub fn </span>send_g_code_commands&lt;C: Connection, P: Peripherals&gt;(
 	<span class="kw-2">mut </span>request: Request&lt;<span class="kw-2">&amp;mut </span>C&gt;, resources: Resources&lt;P&gt;,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;(), HandlerError&gt;
 {
-	<span class="macro">log::info!</span>(<span class="string">&quot;Start handling `send-gcode-commands` HTTP request&quot;</span>);
+	<span class="macro">log::info!</span>(<span class="string">"Start handling `send-gcode-commands` HTTP request"</span>);
 
 	<span class="kw">let </span><span class="kw-2">mut </span>resources = get_resources(<span class="kw-2">&amp;</span>resources)<span class="question-mark">?</span>;
 	<span class="kw">let _ </span>= check_security(<span class="kw-2">&amp;mut </span>request, <span class="kw-2">&amp;mut </span>resources)<span class="question-mark">?</span>;
 
 	<span class="attr">#[derive(Deserialize)]
-	#[serde(rename_all = <span class="string">&quot;camelCase&quot;</span>)]
+	#[serde(rename_all = <span class="string">"camelCase"</span>)]
 	</span><span class="kw">struct </span>HttpRequest
 	{
 		commands: String,
 	}
 	<span class="kw">let </span>request = <span class="macro">deserialize_request!</span>(
 		BUFFER_SIZE = <span class="number">2048</span>,
-		CALLBACK = <span class="string">&quot;send_g_code_commands&quot;</span>,
+		CALLBACK = <span class="string">"send_g_code_commands"</span>,
 		HttpRequest,
 		request
 	);
@@ -952,7 +1071,7 @@
 		<span class="kw">let </span>parsed_line = resources
 			.print_process
 			.parse_line_to_execute(line)
-			.map_err(|<span class="kw">_</span>| HandlerError::new(<span class="string">&quot;Invalid G-code&quot;</span>))<span class="question-mark">?</span>;
+			.map_err(|<span class="kw">_</span>| HandlerError::new(<span class="string">"Invalid G-code"</span>))<span class="question-mark">?</span>;
 		<span class="kw">if let </span><span class="prelude-val">Some</span>(command) = parsed_line.command
 		{
 			commands.push(command);
@@ -962,22 +1081,47 @@
 	resources
 		.command_sender
 		.send_command(Command::AddGCodeCommandsToBuffer(commands))
-		.map_err(|<span class="kw">_</span>| HandlerError::new(<span class="string">&quot;Coudln&#39;t send a Command::AddGCodeCommandsToBuffer&quot;</span>))<span class="question-mark">?</span>;
+		.map_err(|<span class="kw">_</span>| HandlerError::new(<span class="string">"Coudln't send a Command::AddGCodeCommandsToBuffer"</span>))<span class="question-mark">?</span>;
 
-	<span class="macro">log::info!</span>(<span class="string">&quot;Successfully handled `send-gcode-commands` HTTP request&quot;</span>);
+	<span class="macro">log::info!</span>(<span class="string">"Successfully handled `send-gcode-commands` HTTP request"</span>);
 
 	<span class="prelude-val">Ok</span>(())
 }
 
-<span class="kw">fn </span>get_resources&lt;P: Peripherals&gt;(resources: <span class="kw-2">&amp;</span>Resources&lt;P&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;MutexGuard&lt;<span class="lifetime">&#39;_</span>, ResourcesImpl&lt;P&gt;&gt;, HandlerError&gt;
+<span class="kw">fn </span>options_callback&lt;C: Connection&gt;(
+	request: Request&lt;<span class="kw-2">&amp;mut </span>C&gt;, callback_name: <span class="kw-2">&amp;</span>str, allowed_headers: <span class="kw-2">&amp;</span>str,
+) -&gt; <span class="prelude-ty">Result</span>&lt;(), HandlerError&gt;
+{
+	<span class="macro">log::info!</span>(<span class="string">"Start handling `{callback_name}` HTTP request (OPTIONS)"</span>);
+
+	<span class="kw">let </span><span class="kw-2">mut </span>response = request.into_response(
+		<span class="number">204</span>,
+		<span class="prelude-val">Some</span>(<span class="string">"No-Content"</span>),
+		<span class="kw-2">&amp;</span>[
+			(<span class="string">"Access-Control-Allow-Origin"</span>, <span class="string">"*"</span>),
+			(<span class="string">"Access-Control-Allow-Methods"</span>, <span class="string">"GET, POST, OPTIONS"</span>),
+			(
+				<span class="string">"Access-Control-Allow-Headers"</span>,
+				<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"Content-Type, Password{}"</span>, allowed_headers),
+			),
+		],
+	)<span class="question-mark">?</span>;
+	response.flush()<span class="question-mark">?</span>;
+
+	<span class="macro">log::info!</span>(<span class="string">"Successfully handled `{callback_name}` HTTP request (OPTIONS)"</span>);
+
+	<span class="prelude-val">Ok</span>(())
+}
+
+<span class="kw">fn </span>get_resources&lt;P: Peripherals&gt;(resources: <span class="kw-2">&amp;</span>Resources&lt;P&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;MutexGuard&lt;<span class="lifetime">'_</span>, ResourcesImpl&lt;P&gt;&gt;, HandlerError&gt;
 {
 	resources
 		.try_lock()
-		.ok_or(HandlerError::new(<span class="string">&quot;Resources mutex was locked&quot;</span>))
+		.ok_or(HandlerError::new(<span class="string">"Resources mutex was locked"</span>))
 }
 
 <span class="kw">fn </span>check_security&lt;C: Connection, P: Peripherals&gt;(
-	request: <span class="kw-2">&amp;mut </span>Request&lt;<span class="kw-2">&amp;mut </span>C&gt;, resources: <span class="kw-2">&amp;mut </span>MutexGuard&lt;<span class="lifetime">&#39;_</span>, ResourcesImpl&lt;P&gt;&gt;,
+	request: <span class="kw-2">&amp;mut </span>Request&lt;<span class="kw-2">&amp;mut </span>C&gt;, resources: <span class="kw-2">&amp;mut </span>MutexGuard&lt;<span class="lifetime">'_</span>, ResourcesImpl&lt;P&gt;&gt;,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;(), HandlerError&gt;
 {
 	<span class="kw">let </span><span class="kw-2">mut </span>result = <span class="prelude-val">Ok</span>(());
@@ -985,15 +1129,29 @@
 	{
 		<span class="kw">if </span>!security.can_pass(request, resources)
 		{
-			result = <span class="prelude-val">Err</span>(HandlerError::new(<span class="string">&quot;Security&quot;</span>));
+			result = <span class="prelude-val">Err</span>(HandlerError::new(<span class="string">"Security"</span>));
 		}
 		resources.security = <span class="prelude-val">Some</span>(security);
 	}
 	<span class="kw">else
 	</span>{
-		result = <span class="prelude-val">Err</span>(HandlerError::new(<span class="string">&quot;Sec&quot;</span>));
+		result = <span class="prelude-val">Err</span>(HandlerError::new(<span class="string">"Sec"</span>));
 	}
 
 	result
+}
+
+<span class="kw">fn </span>ok_response&lt;C: Connection&gt;(request: Request&lt;<span class="kw-2">&amp;mut </span>C&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;Response&lt;<span class="kw-2">&amp;mut </span>C&gt;, C::Error&gt;
+{
+	request.into_response(
+		<span class="number">200</span>,
+		<span class="prelude-val">Some</span>(<span class="string">"OK"</span>),
+		<span class="kw-2">&amp;</span>[
+			(<span class="string">"Access-Control-Allow-Origin"</span>, <span class="string">"*"</span>),
+			(<span class="string">"Access-Control-Allow-Methods"</span>, <span class="string">"GET, POST, OPTIONS"</span>),
+			(<span class="string">"Access-Control-Allow-Headers"</span>, <span class="string">"Content-Type"</span>),
+			(<span class="string">"Content-Type"</span>, <span class="string">"application/json"</span>),
+		],
+	)
 }
 </code></pre></div></section></main></body></html>

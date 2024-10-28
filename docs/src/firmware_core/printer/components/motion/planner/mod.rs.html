@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates\core\src\printer\components\motion\planner\mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../..\..\..\../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../..\..\..\../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../..\..\..\../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../..\..\..\../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../..\..\..\../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../..\..\..\../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../..\..\..\../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../..\..\..\../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../..\..\..\../" data-static-root-path="../../..\..\..\../static.files/" data-current-crate="firmware_core" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0-nightly (a2f5f9691 2023-11-02)" data-channel="nightly" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../..\..\..\../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../..\..\..\../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../..\..\..\../src-files.js"></script><script defer src="../../..\..\..\../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../..\..\..\../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../..\..\..\../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../..\..\..\../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../..\..\..\../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../..\..\..\../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../..\..\..\../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../..\..\..\../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/core/src/printer/components/motion/planner/mod.rs`."><title>mod.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../../../static.files/rustdoc-198729e5.css"><meta name="rustdoc-vars" data-root-path="../../../../../../" data-static-root-path="../../../../../../static.files/" data-current-crate="firmware_core" data-themes="" data-resource-suffix="" data-rustdoc-version="1.84.0-nightly (df4ca44d3 2024-10-27)" data-channel="nightly" data-search-js="search-c5a66128.js" data-settings-js="settings-0f613d39.js" ><script src="../../../../../../static.files/storage-59e33391.js"></script><script defer src="../../../../../../static.files/src-script-56102188.js"></script><script defer src="../../../../../../src-files.js"></script><script defer src="../../../../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">firmware_core/printer/components/motion/planner/</div>mod.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -674,10 +675,53 @@
 <a href="#674" id="674">674</a>
 <a href="#675" id="675">675</a>
 <a href="#676" id="676">676</a>
-</pre></div><pre class="rust"><code><span class="doccomment">//! Translates movements (for example a `10mm` move in the `X` axis) to motion profiles &quot;understood&quot; by [`stepper motors`].
+<a href="#677" id="677">677</a>
+<a href="#678" id="678">678</a>
+<a href="#679" id="679">679</a>
+<a href="#680" id="680">680</a>
+<a href="#681" id="681">681</a>
+<a href="#682" id="682">682</a>
+<a href="#683" id="683">683</a>
+<a href="#684" id="684">684</a>
+<a href="#685" id="685">685</a>
+<a href="#686" id="686">686</a>
+<a href="#687" id="687">687</a>
+<a href="#688" id="688">688</a>
+<a href="#689" id="689">689</a>
+<a href="#690" id="690">690</a>
+<a href="#691" id="691">691</a>
+<a href="#692" id="692">692</a>
+<a href="#693" id="693">693</a>
+<a href="#694" id="694">694</a>
+<a href="#695" id="695">695</a>
+<a href="#696" id="696">696</a>
+<a href="#697" id="697">697</a>
+<a href="#698" id="698">698</a>
+<a href="#699" id="699">699</a>
+<a href="#700" id="700">700</a>
+<a href="#701" id="701">701</a>
+<a href="#702" id="702">702</a>
+<a href="#703" id="703">703</a>
+<a href="#704" id="704">704</a>
+<a href="#705" id="705">705</a>
+<a href="#706" id="706">706</a>
+<a href="#707" id="707">707</a>
+<a href="#708" id="708">708</a>
+<a href="#709" id="709">709</a></pre></div><pre class="rust"><code><span class="doccomment">//! Translates movements (for example a `10mm` move in the `X` axis) to motion profiles "understood" by [`stepper motors`].
 //!
 //! The generated motion profiles are optimized to make the move as fast as possible without provoking problems
 //! (for example making a stepper lose steps).
+//!
+//! # Credits
+//! This module incorporates code from the Marlin firmware project, which is licensed under the
+//! GNU General Public License (GPL). Portions of this module are derived from Marlin, for more information about Marlin and its
+//! licensing terms, please visit &lt;https://github.com/MarlinFirmware/Marlin&gt;.
+//!
+//! # Disclaimer
+//! This firmware project is not affiliated with or endorsed by the Marlin firmware project.
+//! While portions of this module are derived from Marlin and are subject to the GNU General Public License (GPL),
+//! this project is independently developed and maintained by Angelo Cipriani. For official information and support
+//! regarding the Marlin firmware, please refer to the Marlin project's documentation and community resources.
 //!
 //! [`stepper motors`]: `super::super::drivers::stepper_motor::StepperMotor`
 
@@ -704,10 +748,12 @@
 
 <span class="comment">// Minimum planner junction speed. Sets the default minimum speed the planner plans for at the end
 // of the buffer and all stops. This should not be much greater than zero and should only be changed
-// if unwanted behavior is observed on a user&#39;s machine when running at very slow speeds.
+// if unwanted behavior is observed on a user's machine when running at very slow speeds.
 </span><span class="kw">const </span>MINIMUM_PLANNER_SPEED: f32 = <span class="number">0.05</span>; <span class="comment">// (mm/s)
 
 </span><span class="kw">const </span>JUNCTION_DEVIATION_MM: f32 = <span class="number">0.02</span>;
+
+<span class="kw">const </span>DELAY_IN_NUMBER_OF_TICKS_BEFORE_DELIVERING: u8 = <span class="number">120</span>;
 
 <span class="doccomment">/// The planning involves calculating the most optimal speed and acceleration profiles
 </span><span class="kw">pub struct </span>Planner&lt;<span class="kw">const </span>N: usize&gt;
@@ -722,6 +768,7 @@
 
 	blocks: AllocRingBuffer&lt;Block&lt;N&gt;&gt;,
 	ready_to_go_blocks_count: usize,
+	delay_in_number_of_ticks_before_delivering: u8,
 	settings: Settings&lt;N&gt;,
 
 	most_optimized_block_index: usize,
@@ -731,18 +778,24 @@
 
 <span class="attr">#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 </span><span class="kw">pub struct </span>MoveId(u32);
+
 <span class="kw">impl </span>MoveId
 {
-	<span class="kw">const </span>NULL: <span class="self">Self </span>= <span class="self">Self</span>(u32::MAX);
+	<span class="kw">const </span>NULL: <span class="self">Self </span>= <span class="self">Self</span>(<span class="number">0</span>);
+	<span class="kw">const </span>EMPTY: <span class="self">Self </span>= <span class="self">Self</span>(u32::MAX);
 
 	<span class="kw">pub fn </span>is_null(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool
 	{
 		<span class="kw-2">*</span><span class="self">self </span>== <span class="self">Self</span>::NULL
 	}
+	<span class="kw">pub fn </span>is_empty(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool
+	{
+		<span class="kw-2">*</span><span class="self">self </span>== <span class="self">Self</span>::EMPTY
+	}
 
 	<span class="kw">const fn </span>next(other: <span class="self">Self</span>) -&gt; <span class="self">Self
 	</span>{
-		<span class="self">Self</span>(other.<span class="number">0</span>.wrapping_add(<span class="number">1</span>))
+		<span class="self">Self</span>(other.<span class="number">0 </span>+ <span class="number">1</span>)
 	}
 }
 <span class="kw">impl </span>Default <span class="kw">for </span>MoveId
@@ -755,15 +808,19 @@
 
 <span class="kw">impl </span>std::fmt::Debug <span class="kw">for </span>MoveId
 {
-	<span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; std::fmt::Result
+	<span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; std::fmt::Result
 	{
 		<span class="kw">if </span><span class="self">self</span>.is_null()
 		{
-			<span class="macro">write!</span>(f, <span class="string">&quot;MoveId::NULL&quot;</span>)
+			<span class="macro">write!</span>(f, <span class="string">"MoveId::NULL"</span>)
+		}
+		<span class="kw">else if </span><span class="self">self</span>.is_empty()
+		{
+			<span class="macro">write!</span>(f, <span class="string">"MoveId::EMPTY"</span>)
 		}
 		<span class="kw">else
 		</span>{
-			f.debug_tuple(<span class="string">&quot;MoveId&quot;</span>).field(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>).finish()
+			f.debug_tuple(<span class="string">"MoveId"</span>).field(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>).finish()
 		}
 	}
 }
@@ -772,39 +829,54 @@
 {
 	<span class="kw">pub fn </span>tick(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;[i32; N_MOTORS]&gt;
 	{
-		<span class="kw">if </span><span class="self">self</span>.has_any_move_planned() &amp;&amp; <span class="self">self</span>.ready_to_go_blocks_count &gt; <span class="number">0
+		<span class="kw">if </span><span class="self">self</span>.delay_in_number_of_ticks_before_delivering &gt; <span class="number">0
 		</span>{
-			<span class="kw">let </span><span class="kw-2">mut </span>next_position = <span class="prelude-val">None</span>;
-
-			communicate_to_ticker::store_blocks_if_necessary(|<span class="kw-2">mut </span>two_blocks_required| {
-				<span class="kw">if </span><span class="self">self</span>.ready_to_go_blocks_count &lt; <span class="number">2
-				</span>{
-					two_blocks_required = <span class="bool-val">false</span>;
-				}
-
-				<span class="self">self</span>.current_move_id = MoveId::next(<span class="self">self</span>.current_move_id);
-
-				<span class="kw">let </span>used_blocks_count = <span class="number">1 </span>+ two_blocks_required <span class="kw">as </span>usize;
-				<span class="self">self</span>.most_optimized_block_index -= used_blocks_count;
-				<span class="self">self</span>.ready_to_go_blocks_count -= used_blocks_count;
-
-				<span class="comment">// Safety: above we check the ring buffer isn&#39;t empty and this function is called at most once, so there must be at least 1 block in the buffer
-				</span><span class="kw">let </span>first = <span class="kw">unsafe </span>{ <span class="self">self</span>.blocks.dequeue().unwrap_unchecked() };
-				<span class="kw">let </span>second = two_blocks_required.then(|| <span class="self">self</span>.blocks.dequeue()).flatten();
-
-				<span class="macro">log::error!</span>(<span class="string">&quot;Planned first block: {first:#?}\nSecond block: {second:#?}&quot;</span>);
-
-				next_position = <span class="self">self</span>.blocks.front().map(|block| block.steps.clone());
-
-				(first, second)
-			});
-
-			next_position
-		}
-		<span class="kw">else
-		</span>{
+			<span class="self">self</span>.delay_in_number_of_ticks_before_delivering =
+				<span class="self">self</span>.delay_in_number_of_ticks_before_delivering.saturating_sub(<span class="number">1</span>);
 			<span class="prelude-val">None
 		</span>}
+		<span class="kw">else
+		</span>{
+			<span class="comment">// Only blocks that don't have the recalculate flag can be used
+			</span><span class="kw">let </span>ready_to_go_blocks = <span class="self">self
+				</span>.blocks
+				.iter()
+				.take(core::cmp::min(<span class="number">2</span>, <span class="self">self</span>.ready_to_go_blocks_count))
+				.take_while(|block| !block.flags.contains(Flag::Recalculate))
+				.count();
+
+			<span class="kw">if </span><span class="self">self</span>.has_any_move_planned() &amp;&amp; ready_to_go_blocks &gt; <span class="number">0
+			</span>{
+				<span class="kw">let </span><span class="kw-2">mut </span>next_position = <span class="prelude-val">None</span>;
+
+				communicate_to_ticker::store_blocks_if_necessary(|<span class="kw-2">mut </span>two_blocks_required| {
+					<span class="kw">if </span>ready_to_go_blocks &lt; <span class="number">2
+					</span>{
+						two_blocks_required = <span class="bool-val">false</span>;
+					}
+
+					<span class="self">self</span>.current_move_id = MoveId::next(<span class="self">self</span>.current_move_id);
+
+					<span class="kw">let </span>used_blocks_count = <span class="number">1 </span>+ two_blocks_required <span class="kw">as </span>usize;
+					<span class="self">self</span>.most_optimized_block_index -= used_blocks_count;
+					<span class="self">self</span>.ready_to_go_blocks_count -= used_blocks_count;
+
+					<span class="comment">// Safety: above we check the ring buffer isn't empty and this function is called at most once, so there must be at least 1 block in the buffer
+					</span><span class="kw">let </span>first = <span class="kw">unsafe </span>{ <span class="self">self</span>.blocks.dequeue().unwrap_unchecked() };
+					<span class="kw">let </span>second = two_blocks_required.then(|| <span class="self">self</span>.blocks.dequeue()).flatten();
+
+					next_position = <span class="self">self</span>.blocks.front().map(|block| block.steps.clone());
+
+					(first, second)
+				});
+
+				next_position
+			}
+			<span class="kw">else
+			</span>{
+				<span class="prelude-val">None
+			</span>}
+		}
 	}
 }
 
@@ -828,6 +900,7 @@
 			previous_nominal_speed: <span class="number">0.</span>,
 			most_optimized_block_index: <span class="number">0</span>,
 			ready_to_go_blocks_count: <span class="number">0</span>,
+			delay_in_number_of_ticks_before_delivering: <span class="number">0</span>,
 			stepper_ticker_frequency: stepper_motors_ticker.get_tick_frequency(),
 		}
 	}
@@ -860,7 +933,7 @@
 
 	<span class="kw">pub fn </span>has_move_been_executed(<span class="kw-2">&amp;</span><span class="self">self</span>, move_to_check: MoveId) -&gt; bool
 	{
-		move_to_check &lt; <span class="self">self</span>.current_move_id || move_to_check.is_null()
+		move_to_check &lt;= <span class="self">self</span>.current_move_id || move_to_check.is_null() || move_to_check.is_empty()
 	}
 
 	<span class="doccomment">/// Plans a move that will make the tool move to the `target_position` starting from the `target_position` of the last
@@ -868,7 +941,7 @@
 	///
 	/// `steps_per_mm` contains the number of steps required to move the tool by `1mm` on each axis.
 	///
-	/// The planned move won&#39;t be sent to the [`StepperMotorsTicker`] until you call [`Self::mark_last_added_move_as_ready_to_go`].
+	/// The planned move won't be sent to the [`StepperMotorsTicker`] until you call [`Self::mark_last_added_move_as_ready_to_go`].
 	///
 	/// Check [`Self`] for more info.
 	</span><span class="kw">pub fn </span>plan_move&lt;K: Kinematics&gt;(
@@ -887,7 +960,7 @@
 		<span class="kw">let </span><span class="kw-2">mut </span>displacement = target_position.clone() - <span class="kw-2">&amp;</span><span class="self">self</span>.current_position;
 		<span class="kw">if </span>displacement == VectorN::ZERO
 		{
-			<span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="self">self</span>.last_move_id);
+			<span class="kw">return </span><span class="prelude-val">Ok</span>(MoveId::EMPTY);
 		}
 
 		<span class="kw">let </span><span class="kw-2">mut </span>block = Block::&lt;N&gt;::default();
@@ -902,8 +975,8 @@
 		}
 
 		block.step_event_count = block.steps.iter().max_by(|<span class="kw-2">&amp;</span>a, <span class="kw-2">&amp;</span>b| a.abs().cmp(<span class="kw-2">&amp;</span>b.abs())).unwrap().abs() <span class="kw">as </span>u32;
-		<span class="comment">//log::info!(&quot;Steps event: {}, stepss:: {:#?}&quot;, block.step_event_count, block.steps);
-		// Here it enable the motors of the axes that do at least 1 step.. but I don&#39;t know if I should do it
+
+		<span class="comment">// Here it enable the motors of the axes that do at least 1 step.. but I don't know if I should do it
 
 		// Limit the minimum movement speed
 		</span>move_speed_mm_s = move_speed_mm_s.max(
@@ -923,6 +996,7 @@
 		<span class="kw">let </span>inverse_move_duration_s = inverse_move_length * move_speed_mm_s;
 
 		block.millimeters = move_length;
+		block.travelled_z_distance = displacement[Axis::Z <span class="kw">as </span>usize];
 
 		block.nominal_speed_in_mm_sec = move_speed_mm_s;
 		block.nominal_speed = (block.step_event_count <span class="kw">as </span>f32 * inverse_move_duration_s).ceil() <span class="kw">as </span>StepsPerSecond;
@@ -964,7 +1038,6 @@
 			})
 		.ceil();
 
-		<span class="macro">log::info!</span>(<span class="string">&quot;Acceleration: {}&quot;</span>, acceleration_steps_per_sec2);
 		<span class="comment">// Limit the acceleration during non-retraction moves
 		</span><span class="kw">if </span>!is_retracting
 		{
@@ -1067,6 +1140,11 @@
 
 		<span class="self">self</span>.current_position = target_position.clone();
 
+		<span class="kw">if </span><span class="self">self</span>.blocks.is_empty()
+		{
+			<span class="self">self</span>.delay_in_number_of_ticks_before_delivering = DELAY_IN_NUMBER_OF_TICKS_BEFORE_DELIVERING;
+		}
+
 		<span class="self">self</span>.blocks.push(block);
 
 		<span class="self">self</span>.recalculate(<span class="number">0.</span>);
@@ -1116,33 +1194,33 @@
 			<span class="comment">// Steps required for acceleration, deceleration to/from nominal rate
 			</span><span class="kw">let </span>decelerate_steps_float = half_inverse_accel * (nominal_rate_sq - final_rate.sqr() <span class="kw">as </span>f32);
 			<span class="kw">let </span><span class="kw-2">mut </span>accelerate_steps_float = half_inverse_accel * (nominal_rate_sq - initial_rate.sqr() <span class="kw">as </span>f32);
-			accelerate_steps = accelerate_steps_float.ceil() <span class="kw">as </span>u32;
-			decelerate_steps = decelerate_steps_float.floor() <span class="kw">as </span>u32;
+			accelerate_steps = accelerate_steps_float.ceil() <span class="kw">as </span>i32;
+			decelerate_steps = decelerate_steps_float.floor() <span class="kw">as </span>i32;
 
 			<span class="comment">// Steps between acceleration and deceleration, if any
-			</span>plateau_steps -= (accelerate_steps + decelerate_steps) <span class="kw">as </span>i32;
+			</span>plateau_steps -= accelerate_steps + decelerate_steps;
 
 			<span class="comment">// Does accelerate_steps + decelerate_steps exceed step_event_count?
-			// Then we can&#39;t possibly reach the nominal rate, there will be no cruising.
+			// Then we can't possibly reach the nominal rate, there will be no cruising.
 			// Calculate accel / braking time in order to reach the final_rate exactly
 			// at the end of this block.
 			</span><span class="kw">if </span>plateau_steps &lt; <span class="number">0
 			</span>{
 				accelerate_steps_float =
-					((block.step_event_count <span class="kw">as </span>f32 + accelerate_steps_float - decelerate_steps_float) * <span class="number">0.5</span>).ceil();
-				accelerate_steps = (accelerate_steps_float.max(<span class="number">0.</span>) <span class="kw">as </span>u32).min(block.step_event_count);
-				decelerate_steps = block.step_event_count - accelerate_steps;
+					((block.step_event_count <span class="kw">as </span>f32 + accelerate_steps_float - decelerate_steps_float) / <span class="number">2.</span>).ceil();
+				accelerate_steps = (accelerate_steps_float.max(<span class="number">0.</span>) <span class="kw">as </span>u32).min(block.step_event_count) <span class="kw">as </span>i32;
+				decelerate_steps = block.step_event_count <span class="kw">as </span>i32 - accelerate_steps;
 			}
 		}
 
-		block.accelerate_until = accelerate_steps;
-		block.decelerate_after = block.step_event_count - decelerate_steps;
+		block.accelerate_until = accelerate_steps <span class="kw">as </span>u32;
+		block.decelerate_after = block.step_event_count - decelerate_steps <span class="kw">as </span>u32;
 		block.initial_speed = initial_rate;
 		block.final_speed = final_rate;
 	}
 
 	<span class="doccomment">/// Calculate the maximum reachable speed squared at this point, in order  to reach
-	/// &#39;target_velocity_sqr&#39; using &#39;acceleration&#39; within a given &#39;distance&#39;.
+	/// 'target_velocity_sqr' using 'acceleration' within a given 'distance'.
 	</span><span class="kw">fn </span>max_reachable_speed_sqr(accel: f32, target_velocity_sqr: f32, distance: f32) -&gt; f32
 	{
 		<span class="kw">return </span>target_velocity_sqr - <span class="number">2. </span>* accel * distance;
@@ -1248,7 +1326,7 @@
 			<span class="comment">// Any block set at its maximum entry speed also creates an optimal plan up to this
 			// point in the buffer. When the plan is bracketed by either the beginning of the
 			// buffer and a maximum entry speed or two maximum entry speeds, every block in between
-			// cannot logically be further improved. Hence, we don&#39;t have to recompute them anymore.
+			// cannot logically be further improved. Hence, we don't have to recompute them anymore.
 			</span><span class="kw">if </span>current.entry_speed_sqr == current.max_entry_speed_sqr
 			{
 				<span class="kw-2">*</span>most_optimized_block_index = current_block_index;
@@ -1263,10 +1341,10 @@
 		</span><span class="kw">let </span><span class="kw-2">mut </span>previous = <span class="prelude-val">None</span>;
 		<span class="kw">for </span>(i, current) <span class="kw">in </span><span class="self">self</span>.blocks.iter_mut().enumerate().skip(<span class="self">self</span>.most_optimized_block_index)
 		{
-			<span class="comment">// If there&#39;s no previous block or the previous block is not
+			<span class="comment">// If there's no previous block or the previous block is not
 			// BUSY (thus, modifiable) run the forward_pass_kernel. Otherwise,
-			// the previous block became BUSY, so assume the current block&#39;s
-			// entry speed can&#39;t be altered (since that would also require
+			// the previous block became BUSY, so assume the current block's
+			// entry speed can't be altered (since that would also require
 			// updating the exit speed of the previous block).
 			</span><span class="self">Self</span>::forward_pass_kernel(previous, current, i, <span class="kw-2">&amp;mut </span><span class="self">self</span>.most_optimized_block_index);
 			previous = <span class="prelude-val">Some</span>(current);
@@ -1284,11 +1362,8 @@
 		<span class="self">self</span>.recalculate_trapezoids(safe_exit_speed_sqr);
 	}
 
-	<span class="doccomment">/**
-	 * Recalculate the trapezoid speed profiles for all blocks in the plan
-	 * according to the entry_factor for each junction. Must be called by
-	 * recalculate() after updating the blocks.
-	 */
+	<span class="doccomment">/// Recalculate the trapezoid speed profiles for all blocks in the plan according to the entry_factor for each junction.
+	/// Must be called by recalculate() after updating the blocks.
 	</span><span class="kw">fn </span>recalculate_trapezoids(<span class="kw-2">&amp;mut </span><span class="self">self</span>, safe_exit_speed_sqr: f32)
 	{
 		<span class="comment">// Go from the tail (currently executed block) to the first block, without including it)
@@ -1334,17 +1409,8 @@
 			<span class="comment">// Exit speed is set with MINIMUM_PLANNER_SPEED unless some code higher up knows better.
 			</span>current_entry_speed = MINIMUM_PLANNER_SPEED.max(safe_exit_speed_sqr.sqrt());
 
-			<span class="comment">// Mark the next(last) block as RECALCULATE, to prevent the Stepper ISR running it.
-			// As the last block is always recalculated here, there is a chance the block isn&#39;t
-			// marked as RECALCULATE yet. That&#39;s the reason for the following line.
-			</span>previous.flags.insert(Flag::Recalculate);
-
 			<span class="kw">let </span>nomr = <span class="number">1. </span>/ previous.nominal_speed_in_mm_sec;
 			<span class="self">Self</span>::calculate_trapezoid_for_block(previous, previous_entry_speed * nomr, current_entry_speed * nomr);
-
-			<span class="comment">// Reset block to ensure its trapezoid is computed - The stepper is free to use
-			// the block from now on.
-			</span>previous.flags.remove(Flag::Recalculate);
 		}
 	}
 }

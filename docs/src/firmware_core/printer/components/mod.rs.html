@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates\core\src\printer\components\mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../..\../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../..\../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../..\../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../..\../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../..\../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../..\../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../..\../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../..\../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../..\../" data-static-root-path="../../..\../static.files/" data-current-crate="firmware_core" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0-nightly (a2f5f9691 2023-11-02)" data-channel="nightly" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../..\../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../..\../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../..\../src-files.js"></script><script defer src="../../..\../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../..\../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../..\../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../..\../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../..\../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../..\../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../..\../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../..\../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/core/src/printer/components/mod.rs`."><title>mod.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-198729e5.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="firmware_core" data-themes="" data-resource-suffix="" data-rustdoc-version="1.84.0-nightly (df4ca44d3 2024-10-27)" data-channel="nightly" data-search-js="search-c5a66128.js" data-settings-js="settings-0f613d39.js" ><script src="../../../../static.files/storage-59e33391.js"></script><script defer src="../../../../static.files/src-script-56102188.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">firmware_core/printer/components/</div>mod.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -279,7 +280,50 @@
 <a href="#279" id="279">279</a>
 <a href="#280" id="280">280</a>
 <a href="#281" id="281">281</a>
-</pre></div><pre class="rust"><code><span class="kw">pub mod </span>config;
+<a href="#282" id="282">282</a>
+<a href="#283" id="283">283</a>
+<a href="#284" id="284">284</a>
+<a href="#285" id="285">285</a>
+<a href="#286" id="286">286</a>
+<a href="#287" id="287">287</a>
+<a href="#288" id="288">288</a>
+<a href="#289" id="289">289</a>
+<a href="#290" id="290">290</a>
+<a href="#291" id="291">291</a>
+<a href="#292" id="292">292</a>
+<a href="#293" id="293">293</a>
+<a href="#294" id="294">294</a>
+<a href="#295" id="295">295</a>
+<a href="#296" id="296">296</a>
+<a href="#297" id="297">297</a>
+<a href="#298" id="298">298</a>
+<a href="#299" id="299">299</a>
+<a href="#300" id="300">300</a>
+<a href="#301" id="301">301</a>
+<a href="#302" id="302">302</a>
+<a href="#303" id="303">303</a>
+<a href="#304" id="304">304</a>
+<a href="#305" id="305">305</a>
+<a href="#306" id="306">306</a>
+<a href="#307" id="307">307</a>
+<a href="#308" id="308">308</a>
+<a href="#309" id="309">309</a>
+<a href="#310" id="310">310</a>
+<a href="#311" id="311">311</a>
+<a href="#312" id="312">312</a>
+<a href="#313" id="313">313</a>
+<a href="#314" id="314">314</a>
+<a href="#315" id="315">315</a>
+<a href="#316" id="316">316</a>
+<a href="#317" id="317">317</a></pre></div><pre class="rust"><code><span class="doccomment">//! This module contains all the components necessary for the 3D printer to actually operate.
+//!
+//! It includes various configurations, drivers, motion control, temperature management,
+//! and the overall control structures that enable the printer's functionality.
+//!
+//! # Key struct
+//! - [`Printer3DComponents`]: A struct representing the components of the 3D printer.
+
+</span><span class="kw">pub mod </span>config;
 <span class="kw">pub mod </span>drivers;
 <span class="kw">pub mod </span>file_system;
 <span class="kw">pub mod </span>g_code;
@@ -294,6 +338,7 @@
 
 <span class="kw">use </span>std::fmt::Debug;
 
+<span class="kw">use </span>motion::planner::communicate_to_ticker;
 <span class="kw">pub use </span>peripherals::<span class="kw-2">*</span>;
 
 <span class="kw">use </span><span class="self">self</span>::{
@@ -310,7 +355,11 @@
 };
 <span class="kw">use </span><span class="kw">super</span>::communication::http::other::printer_state;
 
-<span class="kw">pub struct </span>Printer3DComponents&lt;P: Peripherals&gt;
+<span class="doccomment">/// This struct encapsulates all the elements required to make a 3D print possible, including fans,
+/// motion control, temperature controllers, and the G-code executer.
+///
+/// It manages the initialization and operation of these components.
+</span><span class="kw">pub struct </span>Printer3DComponents&lt;P: Peripherals&gt;
 {
 	<span class="kw">pub </span>layer_fan: Fan&lt;P::FanPin&gt;,
 	<span class="kw">pub </span>hotend_fan: Fan&lt;P::FanPin&gt;,
@@ -330,37 +379,52 @@
 
 <span class="kw">impl</span>&lt;P: Peripherals&gt; Printer3DComponents&lt;P&gt;
 {
-	<span class="kw">pub fn </span>new(
+	<span class="doccomment">/// Creates a new instance of `Printer3DComponents`.
+	///
+	/// This method initializes the printer components using the provided
+	/// peripherals and configuration settings. It ensures all necessary
+	/// components are properly set up.
+	///
+	/// # Arguments
+	///
+	/// * `peripherals` - The hardware peripherals required for the printer.
+	/// * `config` - Configuration settings for the printer's components.
+	///
+	/// # Returns
+	///
+	/// A `Result` containing the initialized [`Printer3DComponents`] instance
+	/// or a [`CreationError`] if an error occurs.
+	</span><span class="kw">pub fn </span>new(
 		peripherals: <span class="kw-2">&amp;mut </span>P, config: ComponentsConfig,
 	) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, CreationError&lt;P::StepperTickerTimer, P::ZAxisEndstop, P::UartDriver&gt;&gt;
 	{
 		<span class="kw">let </span><span class="kw-2">mut </span>uart_driver = peripherals
 			.take_uart_driver()
-			.ok_or(CreationError::PeripheralMissing { name: <span class="string">&quot;Uart driver&quot; </span>})<span class="question-mark">?</span>;
+			.ok_or(CreationError::PeripheralMissing { name: <span class="string">"Uart driver" </span>})<span class="question-mark">?</span>;
 		<span class="prelude-val">Ok</span>(<span class="self">Self </span>{
 			layer_fan: Fan::new(
 				peripherals
 					.take_layer_fan_pin()
-					.ok_or(CreationError::PeripheralMissing { name: <span class="string">&quot;Layer fan&quot; </span>})<span class="question-mark">?</span>,
+					.ok_or(CreationError::PeripheralMissing { name: <span class="string">"Layer fan" </span>})<span class="question-mark">?</span>,
 				config.layer_fan_min_duty_cycle_to_move,
 			),
 			hotend_fan: Fan::new(
 				peripherals
 					.take_hotend_fan_pin()
-					.ok_or(CreationError::PeripheralMissing { name: <span class="string">&quot;Hotend fan&quot; </span>})<span class="question-mark">?</span>,
+					.ok_or(CreationError::PeripheralMissing { name: <span class="string">"Hotend fan" </span>})<span class="question-mark">?</span>,
 				config.hotend_fan_min_duty_cycle_to_move,
 			),
 			clock: Clock::new(
 				peripherals
 					.take_system_time()
-					.ok_or(CreationError::PeripheralMissing { name: <span class="string">&quot;System time&quot; </span>})<span class="question-mark">?</span>,
+					.ok_or(CreationError::PeripheralMissing { name: <span class="string">"System time" </span>})<span class="question-mark">?</span>,
 			),
 			hotend_pid_controller: TemperaturePidController::new(
 				Thermistor::new(
 					peripherals
 						.take_hotend_thermistor_pin()
 						.ok_or(CreationError::PeripheralMissing {
-							name: <span class="string">&quot;Hotend thermistor&quot;</span>,
+							name: <span class="string">"Hotend thermistor"</span>,
 						})<span class="question-mark">?</span>,
 					config.hotend_pid.thermistor.beta,
 					config.hotend_pid.thermistor.resistance_at_t0,
@@ -368,7 +432,7 @@
 				),
 				CartridgeHeater::new(peripherals.take_hotend_cartridge_heater_pin().ok_or(
 					CreationError::PeripheralMissing {
-						name: <span class="string">&quot;Hotend cartridge heater&quot;</span>,
+						name: <span class="string">"Hotend cartridge heater"</span>,
 					},
 				)<span class="question-mark">?</span>),
 				config.hotend_pid.pid_gains,
@@ -383,14 +447,14 @@
 				Thermistor::new(
 					peripherals
 						.take_bed_thermistor_pin()
-						.ok_or(CreationError::PeripheralMissing { name: <span class="string">&quot;Bed thermistor&quot; </span>})<span class="question-mark">?</span>,
+						.ok_or(CreationError::PeripheralMissing { name: <span class="string">"Bed thermistor" </span>})<span class="question-mark">?</span>,
 					config.heated_bed_pid.thermistor.beta,
 					config.heated_bed_pid.thermistor.resistance_at_t0,
 					config.heated_bed_pid.thermistor.other_resistance,
 				),
 				CartridgeHeater::new(peripherals.take_bed_cartridge_heater_pin().ok_or(
 					CreationError::PeripheralMissing {
-						name: <span class="string">&quot;Bed cartridge heater&quot;</span>,
+						name: <span class="string">"Bed cartridge heater"</span>,
 					},
 				)<span class="question-mark">?</span>),
 				config.heated_bed_pid.pid_gains,
@@ -403,74 +467,74 @@
 			),
 			adc: peripherals
 				.take_adc()
-				.ok_or(CreationError::PeripheralMissing { name: <span class="string">&quot;ADC&quot; </span>})<span class="question-mark">?</span>,
+				.ok_or(CreationError::PeripheralMissing { name: <span class="string">"ADC" </span>})<span class="question-mark">?</span>,
 			motion_controller: MotionController::new(
 				motion::CreationParameters {
 					left_motor: StepperMotor::new(
 						peripherals
 							.take_left_motor_dir_pin()
 							.ok_or(CreationError::PeripheralMissing {
-								name: <span class="string">&quot;Left motor dir pin&quot;</span>,
+								name: <span class="string">"Left motor dir pin"</span>,
 							})<span class="question-mark">?</span>,
 						peripherals
 							.take_left_motor_step_pin()
 							.ok_or(CreationError::PeripheralMissing {
-								name: <span class="string">&quot;Left motor step pin&quot;</span>,
+								name: <span class="string">"Left motor step pin"</span>,
 							})<span class="question-mark">?</span>,
 					),
 					right_motor: StepperMotor::new(
 						peripherals
 							.take_right_motor_dir_pin()
 							.ok_or(CreationError::PeripheralMissing {
-								name: <span class="string">&quot;Right motor dir pin&quot;</span>,
+								name: <span class="string">"Right motor dir pin"</span>,
 							})<span class="question-mark">?</span>,
 						peripherals
 							.take_right_motor_step_pin()
 							.ok_or(CreationError::PeripheralMissing {
-								name: <span class="string">&quot;Right motor step pin&quot;</span>,
+								name: <span class="string">"Right motor step pin"</span>,
 							})<span class="question-mark">?</span>,
 					),
 					z_axis_motor: StepperMotor::new(
 						peripherals
 							.take_z_axis_motor_dir_pin()
 							.ok_or(CreationError::PeripheralMissing {
-								name: <span class="string">&quot;Z axis motor dir pin&quot;</span>,
+								name: <span class="string">"Z axis motor dir pin"</span>,
 							})<span class="question-mark">?</span>,
 						peripherals
 							.take_z_axis_motor_step_pin()
 							.ok_or(CreationError::PeripheralMissing {
-								name: <span class="string">&quot;Z axis motor step pin&quot;</span>,
+								name: <span class="string">"Z axis motor step pin"</span>,
 							})<span class="question-mark">?</span>,
 					),
 					extruder_motor: StepperMotor::new(
 						peripherals
 							.take_extruder_motor_dir_pin()
 							.ok_or(CreationError::PeripheralMissing {
-								name: <span class="string">&quot;Extruder motor dir pin&quot;</span>,
+								name: <span class="string">"Extruder motor dir pin"</span>,
 							})<span class="question-mark">?</span>,
 						peripherals
 							.take_extruder_motor_step_pin()
 							.ok_or(CreationError::PeripheralMissing {
-								name: <span class="string">&quot;Extruder motor step pin&quot;</span>,
+								name: <span class="string">"Extruder motor step pin"</span>,
 							})<span class="question-mark">?</span>,
 					),
 					ticker_timer: peripherals
 						.take_stepper_ticker_timer()
 						.ok_or(CreationError::PeripheralMissing {
-							name: <span class="string">&quot;Stepper ticker timer&quot;</span>,
+							name: <span class="string">"Stepper ticker timer"</span>,
 						})<span class="question-mark">?</span>,
 					kinematics: peripherals
 						.take_kinematics()
-						.ok_or(CreationError::PeripheralMissing { name: <span class="string">&quot;Kinematics&quot; </span>})<span class="question-mark">?</span>,
+						.ok_or(CreationError::PeripheralMissing { name: <span class="string">"Kinematics" </span>})<span class="question-mark">?</span>,
 					x_endstop: peripherals
 						.take_x_axis_endstop()
-						.ok_or(CreationError::PeripheralMissing { name: <span class="string">&quot;X axis endstop&quot; </span>})<span class="question-mark">?</span>,
+						.ok_or(CreationError::PeripheralMissing { name: <span class="string">"X axis endstop" </span>})<span class="question-mark">?</span>,
 					y_endstop: peripherals
 						.take_y_axis_endstop()
-						.ok_or(CreationError::PeripheralMissing { name: <span class="string">&quot;Y axis endstop&quot; </span>})<span class="question-mark">?</span>,
+						.ok_or(CreationError::PeripheralMissing { name: <span class="string">"Y axis endstop" </span>})<span class="question-mark">?</span>,
 					z_endstop: peripherals
 						.take_z_axis_endstop()
-						.ok_or(CreationError::PeripheralMissing { name: <span class="string">&quot;Z axis endstop&quot; </span>})<span class="question-mark">?</span>,
+						.ok_or(CreationError::PeripheralMissing { name: <span class="string">"Z axis endstop" </span>})<span class="question-mark">?</span>,
 				},
 				config.motion_controller,
 				<span class="kw-2">&amp;mut </span>uart_driver,
@@ -481,7 +545,12 @@
 		})
 	}
 
-	<span class="kw">pub fn </span>tick(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(), TickError&lt;P::ZAxisEndstop, P::StepperTickerTimer&gt;&gt;
+	<span class="doccomment">/// Updates the state of the printer components, performing necessary tasks.
+	///
+	/// This method should be called periodically to ensure the printer operates
+	/// correctly. It manages tasks related to temperature control, motion, and
+	/// G-code execution.
+	</span><span class="kw">pub fn </span>tick(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(), TickError&lt;P::ZAxisEndstop, P::UartDriver, P::StepperTickerTimer&gt;&gt;
 	{
 		<span class="comment">// Time elapsed since the last time you called Self::tick.
 		</span><span class="kw">let </span>delta_time = <span class="self">self</span>.clock.get_delta_time().as_secs_f64();
@@ -496,25 +565,28 @@
 			}
 		}
 
-		<span class="self">self</span>.heated_bed_pid_controller.tick(delta_time, <span class="kw-2">&amp;mut </span><span class="self">self</span>.adc);
-		<span class="self">self</span>.hotend_pid_controller.tick(delta_time, <span class="kw-2">&amp;mut </span><span class="self">self</span>.adc);
+		<span class="self">self</span>.heated_bed_pid_controller
+			.tick(delta_time, <span class="kw-2">&amp;mut </span><span class="self">self</span>.adc)
+			.map_err(TickError::HeatedBedPidController)<span class="question-mark">?</span>;
+		<span class="self">self</span>.hotend_pid_controller
+			.tick(delta_time, <span class="kw-2">&amp;mut </span><span class="self">self</span>.adc)
+			.map_err(TickError::HotendPidController)<span class="question-mark">?</span>;
 
 		printer_state::tick::&lt;P&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>.hotend_pid_controller, <span class="kw-2">&amp;</span><span class="self">self</span>.heated_bed_pid_controller);
 
+		<span class="kw">let </span><span class="kw-2">mut </span>is_moving = !pauser::is_paused();
+		<span class="kw">if </span>is_moving
+		{
+			<span class="kw">if let </span><span class="prelude-val">Some</span>(g_code_executer) = <span class="self">self</span>.g_code_executer.as_ref()
+			{
+				is_moving = g_code_executer.has_command_to_execute() || communicate_to_ticker::is_block_available();
+			}
+		}
+
 		<span class="self">self</span>.motion_controller
-			.set_paused(pauser::is_paused())
+			.set_paused(!is_moving, <span class="kw-2">&amp;mut </span><span class="self">self</span>.uart_driver)
 			.map_err(TickError::PausingMotionController)<span class="question-mark">?</span>;
 		<span class="self">self</span>.motion_controller.tick().map_err(TickError::MotionController)<span class="question-mark">?</span>;
-
-		<span class="kw">let </span>tmc2209 = <span class="self">self</span>.motion_controller.get_tmc2209_driver(motion::axes::Axis::X);
-		<span class="kw">let </span>x_pin_state = tmc2209.read_pin_state(drivers::stepper_motor::tmc2209::IOIN::MS1, <span class="kw-2">&amp;mut </span><span class="self">self</span>.uart_driver);
-		<span class="kw">let </span>tmc2209 = <span class="self">self</span>.motion_controller.get_tmc2209_driver(motion::axes::Axis::Y);
-		<span class="kw">let </span>y_pin_state = tmc2209.read_pin_state(drivers::stepper_motor::tmc2209::IOIN::MS1, <span class="kw-2">&amp;mut </span><span class="self">self</span>.uart_driver);
-		<span class="kw">let </span>tmc2209 = <span class="self">self</span>.motion_controller.get_tmc2209_driver(motion::axes::Axis::Z);
-		<span class="kw">let </span>z_pin_state = tmc2209.read_pin_state(drivers::stepper_motor::tmc2209::IOIN::MS1, <span class="kw-2">&amp;mut </span><span class="self">self</span>.uart_driver);
-		<span class="kw">let </span>tmc2209 = <span class="self">self</span>.motion_controller.get_tmc2209_driver(motion::axes::Axis::E);
-		<span class="kw">let </span>e_pin_state = tmc2209.read_pin_state(drivers::stepper_motor::tmc2209::IOIN::MS1, <span class="kw-2">&amp;mut </span><span class="self">self</span>.uart_driver);
-		<span class="macro">log::error!</span>(<span class="string">&quot;Pin states = X: {x_pin_state:#?}, Y: {y_pin_state:#?}, Z: {z_pin_state:#?}, E: {e_pin_state:#?}&quot;</span>);
 
 		<span class="prelude-val">Ok</span>(())
 	}
@@ -524,11 +596,11 @@
 </span><span class="doccomment">/// An error that can occur when you instatiate a [`Printer3DComponents`] struct.
 </span><span class="kw">pub enum </span>CreationError&lt;Timer: TimerTrait, ZEndstop: ZAxisProbe, Uart: UartTrait&gt;
 {
-	<span class="doccomment">/// A peripheral from the provided ones is missing (`name` is the name of the peripheral that&#39;s missing).
+	<span class="doccomment">/// A peripheral from the provided ones is missing (`name` is the name of the peripheral that's missing).
 	/// This means that `peripherals.take_...()` returned `None` instead of `Some`.
 	</span>PeripheralMissing
 	{
-		name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+		name: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str,
 	},
 
 	Endstop,
@@ -537,26 +609,26 @@
 }
 
 <span class="doccomment">/// An error that can occur when you tick a [`Printer3DComponents`] struct.
-</span><span class="kw">pub enum </span>TickError&lt;ZEndstop: ZAxisProbe, Timer: TimerTrait&gt;
+</span><span class="kw">pub enum </span>TickError&lt;ZEndstop: ZAxisProbe, Uart: UartTrait, Timer: TimerTrait&gt;
 {
 	GCodeExecuter(g_code::execute::TickError),
 	HeatedBedPidController(temperature::PidUpdateError),
 	HotendPidController(temperature::PidUpdateError),
-	MotionController(motion::homing::TickError&lt;Probe&lt;ZEndstop&gt;&gt;),
-	PausingMotionController(motion::SetPausedError&lt;Timer&gt;),
+	MotionController(motion::TickError&lt;Probe&lt;ZEndstop&gt;&gt;),
+	PausingMotionController(motion::SetPausedError&lt;Uart, Timer&gt;),
 }
 
-<span class="kw">impl</span>&lt;ZEndstop: ZAxisProbe, Timer: TimerTrait&gt; Debug <span class="kw">for </span>TickError&lt;ZEndstop, Timer&gt;
+<span class="kw">impl</span>&lt;ZEndstop: ZAxisProbe, Uart: UartTrait, Timer: TimerTrait&gt; Debug <span class="kw">for </span>TickError&lt;ZEndstop, Uart, Timer&gt;
 {
-	<span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; std::fmt::Result
+	<span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; std::fmt::Result
 	{
 		<span class="kw">match </span><span class="self">self
 		</span>{
-			<span class="self">Self</span>::GCodeExecuter(arg0) =&gt; f.debug_tuple(<span class="string">&quot;GCodeExecuter&quot;</span>).field(arg0).finish(),
-			<span class="self">Self</span>::HeatedBedPidController(arg0) =&gt; f.debug_tuple(<span class="string">&quot;HeatedBedPidController&quot;</span>).field(arg0).finish(),
-			<span class="self">Self</span>::HotendPidController(arg0) =&gt; f.debug_tuple(<span class="string">&quot;HotendPidController&quot;</span>).field(arg0).finish(),
-			<span class="self">Self</span>::MotionController(arg0) =&gt; f.debug_tuple(<span class="string">&quot;MotionController&quot;</span>).field(arg0).finish(),
-			<span class="self">Self</span>::PausingMotionController(arg0) =&gt; f.debug_tuple(<span class="string">&quot;PausingMotionController&quot;</span>).field(arg0).finish(),
+			<span class="self">Self</span>::GCodeExecuter(arg0) =&gt; f.debug_tuple(<span class="string">"GCodeExecuter"</span>).field(arg0).finish(),
+			<span class="self">Self</span>::HeatedBedPidController(arg0) =&gt; f.debug_tuple(<span class="string">"HeatedBedPidController"</span>).field(arg0).finish(),
+			<span class="self">Self</span>::HotendPidController(arg0) =&gt; f.debug_tuple(<span class="string">"HotendPidController"</span>).field(arg0).finish(),
+			<span class="self">Self</span>::MotionController(arg0) =&gt; f.debug_tuple(<span class="string">"MotionController"</span>).field(arg0).finish(),
+			<span class="self">Self</span>::PausingMotionController(arg0) =&gt; f.debug_tuple(<span class="string">"PausingMotionController"</span>).field(arg0).finish(),
 		}
 	}
 }
