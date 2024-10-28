@@ -184,11 +184,11 @@ pub fn send_file<C: Connection, P: Peripherals>(
 		.header("File-Name")
 		.ok_or(HandlerError::new("The request doesn't have a `File-Name` header"))?;
 	let file_length = request
-		.header("File-Length")
-		.ok_or(HandlerError::new("The request doesn't have a `File-Length` header"))?;
+		.header("Content-Length")
+		.ok_or(HandlerError::new("The request doesn't have a `Content-Length` header"))?;
 	let file_length = file_length
 		.parse::<u32>()
-		.map_err(|_| HandlerError::new("The `File-Length` header is not a valid number"))?;
+		.map_err(|_| HandlerError::new("The `Content-Length` header is not a valid number"))?;
 
 	log::info!("Receive file `{}` of {} bytes", file_name, file_length);
 
