@@ -1,0 +1,43 @@
+name: Update Documentation
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: nightly
+
+      - name: Build Documentation
+        run: |
+          cd firmware/crates/core
+          cargo doc --no-deps
+
+      - name: Clean up old docs
+        run: |
+          shopt -s extglob
+          rm -rf docs/!(index.html|badge.svg)
+
+      - name: Copy new docs
+        run: cp -R firmware/crates/core/target/doc/* docs/
+
+      - name: Commit and push changes
+        run: |
+          git config --local user.email "github-actions@github.com"
+          git config --local user.name "GitHub Actions"
+          git add docs/*
+          git commit -m "📝 Update the documentation in the GitHub Pages" || echo "No changes to commit"
+          git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
