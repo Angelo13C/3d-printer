@@ -32,6 +32,8 @@
 //! [TMC2209]: printer::components::drivers::stepper_motor::tmc2209
 //! [OTA updates]: printer::communication::ota
 //! [Pausing and resuming]: printer::components::pauser
+//!
+//! [embedded_hal]: <https://docs.rs/embedded-hal/latest/embedded_hal/index.html>
 
 extern crate alloc;
 
