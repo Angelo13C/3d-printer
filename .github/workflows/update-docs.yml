@@ -35,7 +35,7 @@ jobs:
           rm -rf docs/!(index.html|badge.svg)
 
       - name: Copy new docs
-        run: cp -R firmware/crates/core/target/doc/* docs/
+        run: cp -R firmware/target/doc/* docs/
 
       - name: Commit and push changes
         run: |
