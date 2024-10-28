@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates\core\src\printer\communication\security\mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../..\..\../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../..\..\../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../..\..\../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../..\..\../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../..\..\../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../..\..\../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../..\..\../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../..\..\../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../..\..\../" data-static-root-path="../../..\..\../static.files/" data-current-crate="firmware_core" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0-nightly (a2f5f9691 2023-11-02)" data-channel="nightly" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../..\..\../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../..\..\../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../..\..\../src-files.js"></script><script defer src="../../..\..\../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../..\..\../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../..\..\../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../..\..\../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../..\..\../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../..\..\../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../..\..\../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../..\..\../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/core/src/printer/communication/security/mod.rs`."><title>mod.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../../static.files/rustdoc-198729e5.css"><meta name="rustdoc-vars" data-root-path="../../../../../" data-static-root-path="../../../../../static.files/" data-current-crate="firmware_core" data-themes="" data-resource-suffix="" data-rustdoc-version="1.84.0-nightly (df4ca44d3 2024-10-27)" data-channel="nightly" data-search-js="search-c5a66128.js" data-settings-js="settings-0f613d39.js" ><script src="../../../../../static.files/storage-59e33391.js"></script><script defer src="../../../../../static.files/src-script-56102188.js"></script><script defer src="../../../../../src-files.js"></script><script defer src="../../../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">firmware_core/printer/communication/security/</div>mod.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -131,37 +132,60 @@
 <a href="#131" id="131">131</a>
 <a href="#132" id="132">132</a>
 <a href="#133" id="133">133</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>std::time::Duration;
+<a href="#134" id="134">134</a>
+<a href="#135" id="135">135</a>
+<a href="#136" id="136">136</a>
+<a href="#137" id="137">137</a>
+<a href="#138" id="138">138</a>
+<a href="#139" id="139">139</a>
+<a href="#140" id="140">140</a>
+<a href="#141" id="141">141</a>
+<a href="#142" id="142">142</a>
+<a href="#143" id="143">143</a>
+<a href="#144" id="144">144</a>
+<a href="#145" id="145">145</a>
+<a href="#146" id="146">146</a>
+<a href="#147" id="147">147</a>
+<a href="#148" id="148">148</a></pre></div><pre class="rust"><code><span class="doccomment">//! This module provides security functionality for communications with external systems.
+//! It ensures that HTTP requests are validated through password protection, brute-force
+//! prevention mechanisms...
+
+</span><span class="kw">use </span>std::time::Duration;
 
 <span class="kw">use </span>argon2::Params;
 <span class="kw">use </span>embedded_svc::http::server::{Connection, Request};
 <span class="kw">use </span>password::{BruteForceProtection, PasswordProtection};
+<span class="kw">use </span>spin::MutexGuard;
 
 <span class="kw">use </span><span class="kw">super</span>::http::resources::ResourcesImpl;
-<span class="kw">use crate</span>::{printer::components::Peripherals, utils::mutex::MutexGuard};
+<span class="kw">use </span><span class="kw">crate</span>::printer::components::Peripherals;
 
 <span class="kw">mod </span>ip_address;
 <span class="kw">mod </span>password;
 
 <span class="kw">pub use </span>ip_address::{GetIpAddress, IpAddress};
 
-<span class="doccomment">/// A type that implements this trait is a layer of security used for the communication with the external world.
+<span class="doccomment">/// A trait that defines a layer of security for communication with external systems.
 </span><span class="kw">pub trait </span>Protection
 {
-	<span class="kw">type </span>Input&lt;<span class="lifetime">&#39;a</span>&gt;: ProtectionInput&lt;<span class="lifetime">&#39;a</span>&gt;;
+	<span class="kw">type </span>Input&lt;<span class="lifetime">'a</span>&gt;: ProtectionInput&lt;<span class="lifetime">'a</span>&gt;;
 
-	<span class="kw">fn </span>can_pass&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="self">Self</span>::Input&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; bool;
+	<span class="doccomment">/// Checks if the input passes the protection criteria.
+	</span><span class="kw">fn </span>can_pass&lt;<span class="lifetime">'a</span>&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="self">Self</span>::Input&lt;<span class="lifetime">'a</span>&gt;) -&gt; bool;
 }
-<span class="doccomment">/// Input data required by [`Protection`] to check if the request is valid.
-</span><span class="kw">pub trait </span>ProtectionInput&lt;<span class="lifetime">&#39;a</span>&gt;
+
+<span class="doccomment">/// Input data required by [`Protection`] to verify the validity of a request.
+</span><span class="kw">pub trait </span>ProtectionInput&lt;<span class="lifetime">'a</span>&gt;
 {
-	<span class="kw">fn </span>generate&lt;C: Connection, P: Peripherals&gt;(
-		request: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>Request&lt;C&gt;, resources: <span class="kw-2">&amp;mut </span>MutexGuard&lt;<span class="lifetime">&#39;_</span>, ResourcesImpl&lt;P&gt;&gt;,
+	<span class="doccomment">/// Generates input data from an HTTP request and resources.
+	</span><span class="kw">fn </span>generate&lt;C: Connection, P: Peripherals&gt;(
+		request: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>Request&lt;C&gt;, resources: <span class="kw-2">&amp;mut </span>MutexGuard&lt;<span class="lifetime">'_</span>, ResourcesImpl&lt;P&gt;&gt;,
 	) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ()&gt;
 	<span class="kw">where </span><span class="self">Self</span>: Sized;
 }
 
-<span class="macro">macro_rules! </span>test_protection {
+<span class="doccomment">/// Macro for testing protection mechanisms against a request.
+</span><span class="macro">macro_rules!</span> test_protection {
 	(<span class="macro-nonterminal">$protection_type</span>: ty =&gt; <span class="macro-nonterminal">$protection</span>: expr, <span class="macro-nonterminal">$request</span>: expr, <span class="macro-nonterminal">$resources</span>: expr) =&gt; {
 		<span class="kw">if let </span><span class="prelude-val">Some</span>(protection) = <span class="macro-nonterminal">$protection</span>.as_mut()
 		{
@@ -180,7 +204,8 @@
 	};
 }
 
-<span class="kw">pub struct </span>Security
+<span class="doccomment">/// A struct that encapsulates security mechanisms, including password and brute-force protection.
+</span><span class="kw">pub struct </span>Security
 {
 	password_protection: <span class="prelude-ty">Option</span>&lt;PasswordProtection&gt;,
 	brute_force_protection: <span class="prelude-ty">Option</span>&lt;BruteForceProtection&gt;,
@@ -188,10 +213,11 @@
 
 <span class="kw">impl </span>Security
 {
-	<span class="kw">pub fn </span>new(configuration: Configuration) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, CreationError&gt;
+	<span class="doccomment">/// Creates a new `Security` instance with the specified configuration.
+	</span><span class="kw">pub fn </span>new(configuration: Configuration) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, CreationError&gt;
 	{
 		<span class="macro">log::info!</span>(
-			<span class="string">&quot;Start the communication security with configuration: {:#?}&quot;</span>,
+			<span class="string">"Start the communication security with configuration: {:#?}"</span>,
 			configuration
 		);
 
@@ -224,8 +250,9 @@
 		})
 	}
 
-	<span class="kw">pub fn </span>can_pass&lt;C: Connection, P: Peripherals&gt;(
-		<span class="kw-2">&amp;mut </span><span class="self">self</span>, request: <span class="kw-2">&amp;mut </span>Request&lt;C&gt;, resources: <span class="kw-2">&amp;mut </span>MutexGuard&lt;<span class="lifetime">&#39;_</span>, ResourcesImpl&lt;P&gt;&gt;,
+	<span class="doccomment">/// Validates the request against the security criteria.
+	</span><span class="kw">pub fn </span>can_pass&lt;C: Connection, P: Peripherals&gt;(
+		<span class="kw-2">&amp;mut </span><span class="self">self</span>, request: <span class="kw-2">&amp;mut </span>Request&lt;C&gt;, resources: <span class="kw-2">&amp;mut </span>MutexGuard&lt;<span class="lifetime">'_</span>, ResourcesImpl&lt;P&gt;&gt;,
 	) -&gt; bool
 	{
 		<span class="macro">test_protection!</span>(PasswordProtection =&gt; <span class="self">self</span>.password_protection, request, resources);
@@ -235,31 +262,34 @@
 	</span>}
 }
 
-<span class="attr">#[derive(Debug)]
+<span class="doccomment">/// Possible errors that can occur during the creation of security mechanisms.
+</span><span class="attr">#[derive(Debug)]
 </span><span class="kw">pub enum </span>CreationError
 {
 	PasswordProtection(argon2::password_hash::errors::Error),
 	BruteForceProtection(argon2::password_hash::errors::Error),
 }
 
-<span class="attr">#[derive(Debug)]
+<span class="doccomment">/// Configuration settings for the `Security` struct.
+</span><span class="attr">#[derive(Debug)]
 </span><span class="kw">pub struct </span>Configuration
 {
 	<span class="kw">pub </span>password: PasswordConfiguration,
 }
 
-<span class="attr">#[derive(Debug)]
+<span class="doccomment">/// Different configurations for password protection.
+</span><span class="attr">#[derive(Debug)]
 </span><span class="kw">pub enum </span>PasswordConfiguration
 {
 	<span class="prelude-val">None</span>,
 	Password
 	{
-		password: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+		password: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str,
 		hash_settings: <span class="prelude-ty">Option</span>&lt;Params&gt;,
 	},
 	PasswordAndBruteforce
 	{
-		password: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+		password: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str,
 		hash_settings: <span class="prelude-ty">Option</span>&lt;Params&gt;,
 		delays_and_wrong_attempts_count_for_it: Vec&lt;(u32, Duration)&gt;,
 	},

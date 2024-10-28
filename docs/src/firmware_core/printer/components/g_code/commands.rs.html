@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates\core\src\printer\components\g_code\commands.rs`."><title>commands.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../..\..\../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../..\..\../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../..\..\../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../..\..\../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../..\..\../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../..\..\../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../..\..\../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../..\..\../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../..\..\../" data-static-root-path="../../..\..\../static.files/" data-current-crate="firmware_core" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0-nightly (a2f5f9691 2023-11-02)" data-channel="nightly" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../..\..\../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../..\..\../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../..\..\../src-files.js"></script><script defer src="../../..\..\../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../..\..\../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../..\..\../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../..\..\../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../..\..\../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../..\..\../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../..\..\../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../..\..\../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/core/src/printer/components/g_code/commands.rs`."><title>commands.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../../static.files/rustdoc-198729e5.css"><meta name="rustdoc-vars" data-root-path="../../../../../" data-static-root-path="../../../../../static.files/" data-current-crate="firmware_core" data-themes="" data-resource-suffix="" data-rustdoc-version="1.84.0-nightly (df4ca44d3 2024-10-27)" data-channel="nightly" data-search-js="search-c5a66128.js" data-settings-js="settings-0f613d39.js" ><script src="../../../../../static.files/storage-59e33391.js"></script><script defer src="../../../../../static.files/src-script-56102188.js"></script><script defer src="../../../../../src-files.js"></script><script defer src="../../../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">firmware_core/printer/components/g_code/</div>commands.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -539,7 +540,59 @@
 <a href="#539" id="539">539</a>
 <a href="#540" id="540">540</a>
 <a href="#541" id="541">541</a>
-</pre></div><pre class="rust"><code><span class="doccomment">//! A list of all the G-code commands supported by this firmware.
+<a href="#542" id="542">542</a>
+<a href="#543" id="543">543</a>
+<a href="#544" id="544">544</a>
+<a href="#545" id="545">545</a>
+<a href="#546" id="546">546</a>
+<a href="#547" id="547">547</a>
+<a href="#548" id="548">548</a>
+<a href="#549" id="549">549</a>
+<a href="#550" id="550">550</a>
+<a href="#551" id="551">551</a>
+<a href="#552" id="552">552</a>
+<a href="#553" id="553">553</a>
+<a href="#554" id="554">554</a>
+<a href="#555" id="555">555</a>
+<a href="#556" id="556">556</a>
+<a href="#557" id="557">557</a>
+<a href="#558" id="558">558</a>
+<a href="#559" id="559">559</a>
+<a href="#560" id="560">560</a>
+<a href="#561" id="561">561</a>
+<a href="#562" id="562">562</a>
+<a href="#563" id="563">563</a>
+<a href="#564" id="564">564</a>
+<a href="#565" id="565">565</a>
+<a href="#566" id="566">566</a>
+<a href="#567" id="567">567</a>
+<a href="#568" id="568">568</a>
+<a href="#569" id="569">569</a>
+<a href="#570" id="570">570</a>
+<a href="#571" id="571">571</a>
+<a href="#572" id="572">572</a>
+<a href="#573" id="573">573</a>
+<a href="#574" id="574">574</a>
+<a href="#575" id="575">575</a>
+<a href="#576" id="576">576</a>
+<a href="#577" id="577">577</a>
+<a href="#578" id="578">578</a>
+<a href="#579" id="579">579</a>
+<a href="#580" id="580">580</a>
+<a href="#581" id="581">581</a>
+<a href="#582" id="582">582</a>
+<a href="#583" id="583">583</a>
+<a href="#584" id="584">584</a>
+<a href="#585" id="585">585</a>
+<a href="#586" id="586">586</a>
+<a href="#587" id="587">587</a>
+<a href="#588" id="588">588</a>
+<a href="#589" id="589">589</a>
+<a href="#590" id="590">590</a>
+<a href="#591" id="591">591</a>
+<a href="#592" id="592">592</a>
+<a href="#593" id="593">593</a>
+<a href="#594" id="594">594</a></pre></div><pre class="rust"><code><span class="doccomment">//! A list of all the G-code commands supported by this firmware.
 //!
 //! Check the [`RepRap documentation`] for informations on what each command does.
 //!
@@ -570,6 +623,14 @@
 	},
 };
 
+<span class="doccomment">/// Converts the provided `feed_rate` from mm/min to mm/s (which is what the [`Planner`] wants).
+///
+/// [`Planner`]: super::super::motion::planner::Planner
+</span><span class="kw">fn </span>convert_feed_rate(feed_rate: Param&lt;identifier::F, f32&gt;) -&gt; <span class="prelude-ty">Option</span>&lt;f32&gt;
+{
+	feed_rate.value.map(|feed_rate| feed_rate / <span class="number">60.</span>)
+}
+
 <span class="attr">#[derive(Clone, Copy, Debug, PartialEq, Default)]
 </span><span class="kw">pub struct </span>G0
 {
@@ -588,7 +649,10 @@
 	{
 		<span class="kw">if </span>!<span class="self">self</span>.is_move_ready_to_go
 		{
-			printer_components.motion_controller.mark_last_move_as_ready_to_go();
+			<span class="kw">if </span>!<span class="self">self</span>.move_id.is_empty()
+			{
+				printer_components.motion_controller.mark_last_move_as_ready_to_go();
+			}
 			<span class="self">self</span>.is_move_ready_to_go = <span class="bool-val">true</span>;
 		}
 
@@ -617,7 +681,7 @@
 			<span class="self">self</span>.y.value,
 			<span class="self">self</span>.z.value,
 			<span class="self">self</span>.e.value,
-			<span class="self">self</span>.feed_rate.value,
+			convert_feed_rate(<span class="self">self</span>.feed_rate),
 		)
 		{
 			<span class="prelude-val">Ok</span>(move_id) =&gt;
@@ -661,7 +725,7 @@
 		}
 		.execute(printer_components, g_code_executer);
 
-		<span class="self">self</span>.is_move_ready_to_go = <span class="bool-val">false</span>;
+		<span class="self">self</span>.is_move_ready_to_go = <span class="bool-val">true</span>;
 
 		status
 	}
@@ -719,22 +783,36 @@
 	<span class="kw">pub </span>x: Param&lt;identifier::X, NoValue&gt;,
 	<span class="kw">pub </span>y: Param&lt;identifier::Y, NoValue&gt;,
 	<span class="kw">pub </span>z: Param&lt;identifier::Z, NoValue&gt;,
+
+	<span class="kw">pub </span>has_started_homing: bool,
 }
 <span class="kw">impl</span>&lt;P: Peripherals&gt; GCodeCommand&lt;P&gt; <span class="kw">for </span>G28
 {
 	<span class="kw">fn </span>prepare(<span class="kw-2">&amp;mut </span><span class="self">self</span>, printer_components: <span class="kw-2">&amp;mut </span>Printer3DComponents&lt;P&gt;, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>GCodeExecuter&lt;P&gt;) -&gt; Status
 	{
-		<span class="kw">match </span>printer_components.motion_controller.start_homing()
+		<span class="kw">if </span>!<span class="self">self</span>.has_started_homing
 		{
-			<span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; Status::Finished,
-			<span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; Status::Working,
+			<span class="kw">if </span>printer_components.motion_controller.start_homing().is_err()
+			{
+				<span class="kw">return </span>Status::Working;
+			}
+			<span class="self">self</span>.has_started_homing = <span class="bool-val">true</span>;
+		}
+
+		<span class="kw">if </span>printer_components.motion_controller.is_homing()
+		{
+			Status::Working
+		}
+		<span class="kw">else
+		</span>{
+			Status::Finished
 		}
 	}
 }
 
 <span class="kw">const </span>DEFAULT_MEMORY_SLOT: usize = <span class="number">0</span>;
 <span class="attr">#[derive(Clone, Copy, Debug, PartialEq, Default)]
-</span><span class="doccomment">/// TODO: Find a way to get the current position (because now I can&#39;t save it since I don&#39;t know how to retrieve it).
+</span><span class="doccomment">/// TODO: Find a way to get the current position (because now I can't save it since I don't know how to retrieve it).
 </span><span class="kw">pub struct </span>G60
 {
 	<span class="kw">pub </span>slot: Param&lt;identifier::S, usize&gt;,
@@ -743,11 +821,11 @@
 {
 	<span class="kw">fn </span>execute(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>Printer3DComponents&lt;P&gt;, g_code_executer: <span class="kw-2">&amp;mut </span>GCodeExecuter&lt;P&gt;) -&gt; Status
 	{
-		<span class="kw">let </span>current_position = <span class="macro">todo!</span>(<span class="string">&quot;Find a way to get the current position&quot;</span>);
+		<span class="kw">let </span>current_position = <span class="macro">todo!</span>(<span class="string">"Find a way to get the current position"</span>);
 		<span class="kw">match </span>g_code_executer.save_position(current_position, <span class="self">self</span>.slot.value.unwrap_or(DEFAULT_MEMORY_SLOT))
 		{
 			<span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; Status::Finished,
-			<span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; Status::Error(<span class="string">&quot;Invalid position slot&quot;</span>.to_string()),
+			<span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; Status::Error(<span class="string">"Invalid position slot"</span>.to_string()),
 		}
 	}
 }
@@ -766,7 +844,7 @@
 		<span class="kw-2">&amp;mut </span><span class="self">self</span>, printer_components: <span class="kw-2">&amp;mut </span>Printer3DComponents&lt;P&gt;, g_code_executer: <span class="kw-2">&amp;mut </span>GCodeExecuter&lt;P&gt;,
 	) -&gt; Status
 	{
-		<span class="macro">todo!</span>(<span class="string">&quot;Check if the move has finished (with the MoveId returned by the planner), like G0 does&quot;</span>);
+		<span class="macro">todo!</span>(<span class="string">"Check if the move has finished (with the MoveId returned by the planner), like G0 does"</span>);
 
 		<span class="kw">let </span><span class="kw-2">mut </span>inner = |x: bool, y: bool, z: bool, e: bool| <span class="kw">match </span>g_code_executer
 			.get_saved_position(<span class="self">self</span>.slot.value.unwrap_or(DEFAULT_MEMORY_SLOT))
@@ -780,14 +858,14 @@
 
 				<span class="kw">match </span>printer_components
 					.motion_controller
-					.plan_move(x, y, z, e, <span class="self">self</span>.feed_rate.value)
+					.plan_move(x, y, z, e, convert_feed_rate(<span class="self">self</span>.feed_rate))
 				{
 					<span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; Status::Finished,
 					<span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; Status::Working,
 				}
 			},
 			<span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; Status::Error(<span class="macro">format!</span>(
-				<span class="string">&quot;The position slot {} is invalid (it must be within &gt;= 0 and less than {})&quot;</span>,
+				<span class="string">"The position slot {} is invalid (it must be within &gt;= 0 and less than {})"</span>,
 				<span class="self">self</span>.slot.value.unwrap_or(DEFAULT_MEMORY_SLOT),
 				<span class="kw">super</span>::execute::SAVED_POSITIONS_COUNT
 			)),
@@ -887,7 +965,7 @@
 	<span class="kw">if let </span><span class="prelude-val">Some</span>(target_temperature) = temperature
 	{
 		<span class="kw">let </span>target_temperature = Temperature::from_celsius(<span class="kw-2">*</span>target_temperature <span class="kw">as </span>f32);
-		pid_controller.set_target_temperature(target_temperature);
+		pid_controller.set_target_temperature(<span class="prelude-val">Some</span>(target_temperature));
 	}
 
 	Status::Finished
@@ -904,19 +982,25 @@
 	{
 		<span class="prelude-val">Ok</span>(current_temperature) =&gt;
 		{
-			<span class="kw">let </span>target_temperature = pid_controller.get_target_temperature();
-			<span class="kw">if </span>current_temperature &lt; target_temperature
-				|| (target_temperature_cooling_and_heating.value.is_some()
-					&amp;&amp; current_temperature &gt; target_temperature + ACCEPTABLE_TEMPERATURE_RANGE)
+			<span class="kw">if let </span><span class="prelude-val">Some</span>(target_temperature) = pid_controller.get_target_temperature()
 			{
-				Status::Working
+				<span class="kw">if </span>current_temperature &lt; target_temperature
+					|| (target_temperature_cooling_and_heating.value.is_some()
+						&amp;&amp; current_temperature &gt; target_temperature + ACCEPTABLE_TEMPERATURE_RANGE)
+				{
+					Status::Working
+				}
+				<span class="kw">else
+				</span>{
+					Status::Finished
+				}
 			}
 			<span class="kw">else
 			</span>{
 				Status::Finished
 			}
 		},
-		<span class="prelude-val">Err</span>(error) =&gt; Status::Error(<span class="macro">format!</span>(<span class="string">&quot;Read temperature error: {:#?}&quot;</span>, error)),
+		<span class="prelude-val">Err</span>(error) =&gt; Status::Error(<span class="macro">format!</span>(<span class="string">"Read temperature error: {:#?}"</span>, error)),
 	}
 }
 
@@ -1020,7 +1104,7 @@
 		<span class="number">0 </span>=&gt; <span class="prelude-val">Ok</span>(<span class="kw-2">&amp;mut </span>printer_components.layer_fan),
 		<span class="number">1 </span>=&gt; <span class="prelude-val">Ok</span>(<span class="kw-2">&amp;mut </span>printer_components.hotend_fan),
 		<span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(Status::Error(<span class="macro">format!</span>(
-			<span class="string">&quot;The fan with index {} is not supported by this firmware&quot;</span>,
+			<span class="string">"The fan with index {} is not supported by this firmware"</span>,
 			fan_index.value.unwrap_or(DEFAULT_FAN_INDEX)
 		))),
 	}
@@ -1044,11 +1128,11 @@
 
 		<span class="kw">let </span>fan_speed = <span class="self">self</span>.fan_speed.value.unwrap_or(<span class="number">255</span>);
 
-		<span class="kw">match </span>fan.set_speed(Percentage::from_0_to_1(fan_speed <span class="kw">as </span>f32 / <span class="number">255.</span>).unwrap())
+		<span class="kw">match </span>fan.set_speed(Percentage::from_0_to_1(fan_speed <span class="kw">as </span>f32 / <span class="number">255.</span>).unwrap_or(Percentage::FULL))
 		{
 			<span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; Status::Finished,
 			<span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; Status::Error(<span class="macro">format!</span>(
-				<span class="string">&quot;Couldn&#39;t set the speed of the fan with index {}&quot;</span>,
+				<span class="string">"Couldn't set the speed of the fan with index {}"</span>,
 				<span class="self">self</span>.fan_index.value.unwrap_or(DEFAULT_FAN_INDEX)
 			)),
 		}
@@ -1074,10 +1158,32 @@
 		{
 			<span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; Status::Finished,
 			<span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; Status::Error(<span class="macro">format!</span>(
-				<span class="string">&quot;Couldn&#39;t turn off the fan with index {}&quot;</span>,
+				<span class="string">"Couldn't turn off the fan with index {}"</span>,
 				<span class="self">self</span>.fan_index.value.unwrap_or(DEFAULT_FAN_INDEX)
 			)),
 		}
+	}
+}
+
+<span class="attr">#[derive(Clone, Copy, Debug, PartialEq, Default)]
+</span><span class="kw">pub struct </span>M105;
+<span class="kw">impl</span>&lt;P: Peripherals&gt; GCodeCommand&lt;P&gt; <span class="kw">for </span>M105
+{
+	<span class="kw">fn </span>execute(<span class="kw-2">&amp;mut </span><span class="self">self</span>, printer_components: <span class="kw-2">&amp;mut </span>Printer3DComponents&lt;P&gt;, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>GCodeExecuter&lt;P&gt;) -&gt; Status
+	{
+		<span class="kw">let </span>hotend_temperature = printer_components
+			.hotend_pid_controller
+			.get_last_sample_of_current_temperature();
+		<span class="kw">let </span>bed_temperature = printer_components
+			.heated_bed_pid_controller
+			.get_last_sample_of_current_temperature();
+		<span class="macro">log::info!</span>(
+			<span class="string">"M105: Report temperature, hotend: {:#?}, bed: {:#?}"</span>,
+			hotend_temperature,
+			bed_temperature
+		);
+
+		Status::Finished
 	}
 }
 </code></pre></div></section></main></body></html>

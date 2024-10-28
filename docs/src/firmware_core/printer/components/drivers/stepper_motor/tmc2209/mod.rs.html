@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates\core\src\printer\components\drivers\stepper_motor\tmc2209\mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../..\..\..\..\../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../..\..\..\..\../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../..\..\..\..\../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../..\..\..\..\../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../..\..\..\..\../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../..\..\..\..\../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../..\..\..\..\../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../..\..\..\..\../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../..\..\..\..\../" data-static-root-path="../../..\..\..\..\../static.files/" data-current-crate="firmware_core" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0-nightly (a2f5f9691 2023-11-02)" data-channel="nightly" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../..\..\..\..\../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../..\..\..\..\../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../..\..\..\..\../src-files.js"></script><script defer src="../../..\..\..\..\../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../..\..\..\..\../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../..\..\..\..\../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../..\..\..\..\../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../..\..\..\..\../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../..\..\..\..\../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../..\..\..\..\../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../..\..\..\..\../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/core/src/printer/components/drivers/stepper_motor/tmc2209/mod.rs`."><title>mod.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../../../../static.files/rustdoc-198729e5.css"><meta name="rustdoc-vars" data-root-path="../../../../../../../" data-static-root-path="../../../../../../../static.files/" data-current-crate="firmware_core" data-themes="" data-resource-suffix="" data-rustdoc-version="1.84.0-nightly (df4ca44d3 2024-10-27)" data-channel="nightly" data-search-js="search-c5a66128.js" data-settings-js="settings-0f613d39.js" ><script src="../../../../../../../static.files/storage-59e33391.js"></script><script defer src="../../../../../../../static.files/src-script-56102188.js"></script><script defer src="../../../../../../../src-files.js"></script><script defer src="../../../../../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">firmware_core/printer/components/drivers/stepper_motor/tmc2209/</div>mod.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -419,7 +420,32 @@
 <a href="#419" id="419">419</a>
 <a href="#420" id="420">420</a>
 <a href="#421" id="421">421</a>
-</pre></div><pre class="rust"><code><span class="kw">mod </span>datagram;
+<a href="#422" id="422">422</a>
+<a href="#423" id="423">423</a>
+<a href="#424" id="424">424</a>
+<a href="#425" id="425">425</a>
+<a href="#426" id="426">426</a>
+<a href="#427" id="427">427</a>
+<a href="#428" id="428">428</a>
+<a href="#429" id="429">429</a>
+<a href="#430" id="430">430</a>
+<a href="#431" id="431">431</a>
+<a href="#432" id="432">432</a>
+<a href="#433" id="433">433</a>
+<a href="#434" id="434">434</a>
+<a href="#435" id="435">435</a>
+<a href="#436" id="436">436</a>
+<a href="#437" id="437">437</a>
+<a href="#438" id="438">438</a>
+<a href="#439" id="439">439</a>
+<a href="#440" id="440">440</a>
+<a href="#441" id="441">441</a>
+<a href="#442" id="442">442</a>
+<a href="#443" id="443">443</a>
+<a href="#444" id="444">444</a>
+<a href="#445" id="445">445</a>
+<a href="#446" id="446">446</a>
+<a href="#447" id="447">447</a></pre></div><pre class="rust"><code><span class="kw">mod </span>datagram;
 <span class="kw">mod </span>microstepping;
 <span class="kw">mod </span>registers;
 <span class="kw">mod </span>slave_address;
@@ -443,9 +469,9 @@
 /// block the microcontroller for as few as some hundreds of microseconds to as much as
 /// variuos milliseconds (it depends on the baud rate of the UART driver).
 ///
-/// For further information on what each setting will do check [`TMC2209&#39;s datasheet`].
+/// For further information on what each setting will do check [`TMC2209's datasheet`].
 ///
-/// [`TMC2209&#39;s datasheet`]: &lt;https://www.trinamic.com/fileadmin/assets/Products/ICs_Documents/TMC2209_datasheet_rev1.09.pdf&gt;
+/// [`TMC2209's datasheet`]: &lt;https://www.trinamic.com/fileadmin/assets/Products/ICs_Documents/TMC2209_datasheet_rev1.09.pdf&gt;
 /// [`TMC2209`]: &lt;https://www.trinamic.com/products/integrated-circuits/details/tmc2209-la/&gt;
 </span><span class="kw">pub struct </span>TMC2209
 {
@@ -468,11 +494,9 @@
 	///
 	/// [`disabled`]: `Self::disable`
 	</span><span class="kw">pub fn </span>new_using_uart&lt;Uart: UartTrait&gt;(
-		uart_address: UARTAddress, uart_driver: <span class="kw-2">&amp;mut </span>Uart,
+		uart_address: UARTAddress, uart_driver: <span class="kw-2">&amp;mut </span>Uart, microsteps_per_step: MicrostepsPerStep,
 	) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Uart::Error&gt;
 	{
-		<span class="macro">log::info!</span>(<span class="string">&quot;Start initializing TMC2209 driver with address: {uart_address:#?}&quot;</span>);
-
 		<span class="kw">let </span><span class="kw-2">mut </span>self_ = <span class="self">Self </span>{
 			address: uart_address,
 			registers: Registers::default(),
@@ -480,18 +504,25 @@
 
 		self_.initialize_uart(uart_driver)<span class="question-mark">?</span>;
 
-		self_.set_current_scaling(<span class="prelude-val">Some</span>(Percentage::from_0_to_100(<span class="number">100.</span>).unwrap()), <span class="prelude-val">None</span>, uart_driver)<span class="question-mark">?</span>;
+		self_.set_current_scaling(<span class="prelude-val">Some</span>(Percentage::from_0_to_100(<span class="number">60.</span>).unwrap()), <span class="prelude-val">None</span>, uart_driver)<span class="question-mark">?</span>;
 		self_.enable_automatic_current_scaling(uart_driver)<span class="question-mark">?</span>;
 		self_.enable_automatic_gradient_adaptation(uart_driver)<span class="question-mark">?</span>;
-		self_.set_microsteps_per_step(MicrostepsPerStep::M16, uart_driver)<span class="question-mark">?</span>;
-		self_.disable_stealth_chop(uart_driver)<span class="question-mark">?</span>;
+		self_.set_microsteps_per_step(microsteps_per_step, uart_driver)<span class="question-mark">?</span>;
+		self_.enable_stealth_chop(uart_driver)<span class="question-mark">?</span>;
+		self_.set_reply_delay(ReplyDelay::BitTime5, uart_driver)<span class="question-mark">?</span>;
 
 		self_.enable(uart_driver)<span class="question-mark">?</span>;
-		<span class="comment">//self_.disable(uart_driver)?;
-		
-		</span><span class="macro">log::info!</span>(<span class="string">&quot;Finished initializing TMC2209 driver with address: {uart_address:#?}&quot;</span>);
 
 		<span class="prelude-val">Ok</span>(self_)
+	}
+
+	<span class="kw">pub fn </span>set_enabled&lt;Uart: UartTrait&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, enabled: bool, uart_driver: <span class="kw-2">&amp;mut </span>Uart) -&gt; <span class="prelude-ty">Result</span>&lt;(), Uart::Error&gt;
+	{
+		<span class="kw">match </span>enabled
+		{
+			<span class="bool-val">true </span>=&gt; <span class="self">self</span>.enable(uart_driver),
+			<span class="bool-val">false </span>=&gt; <span class="self">self</span>.disable(uart_driver),
+		}
 	}
 
 	<span class="doccomment">/// Enable the TMC2209 via software (UART).
@@ -499,7 +530,7 @@
 	/// This switches on the power stage on the TMC2209, making the motor able to move.
 	///
 	/// # Blocking
-	/// Since the value is sent to the TMC2209&#39;s chip, calling this function will
+	/// Since the value is sent to the TMC2209's chip, calling this function will
 	/// block the microcontroller for a bit.
 	</span><span class="kw">pub fn </span>enable&lt;Uart: UartTrait&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, uart_driver: <span class="kw-2">&amp;mut </span>Uart) -&gt; <span class="prelude-ty">Result</span>&lt;(), Uart::Error&gt;
 	{
@@ -510,10 +541,10 @@
 
 	<span class="doccomment">/// Disable the TMC2209 via software (UART).
 	///
-	/// This switches off the power stage on the TMC2209, making all motor outputs floating (the motor can&#39;t move).
+	/// This switches off the power stage on the TMC2209, making all motor outputs floating (the motor can't move).
 	///
 	/// # Blocking
-	/// Since the value is sent to the TMC2209&#39;s chip, calling this function will
+	/// Since the value is sent to the TMC2209's chip, calling this function will
 	/// block the microcontroller for a bit.
 	</span><span class="kw">pub fn </span>disable&lt;Uart: UartTrait&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, uart_driver: <span class="kw-2">&amp;mut </span>Uart) -&gt; <span class="prelude-ty">Result</span>&lt;(), Uart::Error&gt;
 	{
@@ -525,7 +556,7 @@
 	<span class="doccomment">/// Enable `StealthChop` on the driver, disabling `SpreadCycle`.
 	///
 	/// # Blocking
-	/// Since the value is sent to the TMC2209&#39;s chip, calling this function will
+	/// Since the value is sent to the TMC2209's chip, calling this function will
 	/// block the microcontroller for a bit.
 	</span><span class="kw">pub fn </span>enable_stealth_chop&lt;Uart: UartTrait&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, uart_driver: <span class="kw-2">&amp;mut </span>Uart) -&gt; <span class="prelude-ty">Result</span>&lt;(), Uart::Error&gt;
 	{
@@ -537,7 +568,7 @@
 	<span class="doccomment">/// Disable `StealthChop` on the driver, enabling `SpreadCycle`.
 	///
 	/// # Blocking
-	/// Since the value is sent to the TMC2209&#39;s chip, calling this function will
+	/// Since the value is sent to the TMC2209's chip, calling this function will
 	/// block the microcontroller for a bit.
 	</span><span class="kw">pub fn </span>disable_stealth_chop&lt;Uart: UartTrait&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, uart_driver: <span class="kw-2">&amp;mut </span>Uart) -&gt; <span class="prelude-ty">Result</span>&lt;(), Uart::Error&gt;
 	{
@@ -549,7 +580,7 @@
 	<span class="doccomment">/// Sets the amount of [`microsteps`] the motor will take for each single step.
 	///
 	/// # Blocking
-	/// Since the value is sent to the TMC2209&#39;s chip, calling this function will
+	/// Since the value is sent to the TMC2209's chip, calling this function will
 	/// block the microcontroller for a bit.
 	///
 	/// [`microsteps`]: &lt;https://www.trinamic.com/technology/motor-control-technology/microstepping/&gt;
@@ -576,7 +607,7 @@
 	<span class="doccomment">/// Read the state of a physical pin of the TMC2209 chip using UART.
 	///
 	/// # Blocking
-	/// Since the value is read from the TMC2209&#39;s registers, calling this function will
+	/// Since the value is read from the TMC2209's registers, calling this function will
 	/// block the microcontroller for a bit.
 	</span><span class="kw">pub fn </span>read_pin_state&lt;Uart: UartTrait&gt;(
 		<span class="kw-2">&amp;</span><span class="self">self</span>, register_field: IOIN, uart_driver: <span class="kw-2">&amp;mut </span>Uart,
@@ -589,7 +620,7 @@
 	<span class="doccomment">/// Enable automatic current control.
 	///
 	/// # Blocking
-	/// Since the value is sent to the TMC2209&#39;s chip, calling this function will
+	/// Since the value is sent to the TMC2209's chip, calling this function will
 	/// block the microcontroller for a bit.
 	</span><span class="kw">pub fn </span>enable_automatic_current_scaling&lt;Uart: UartTrait&gt;(
 		<span class="kw-2">&amp;mut </span><span class="self">self</span>, uart_driver: <span class="kw-2">&amp;mut </span>Uart,
@@ -603,7 +634,7 @@
 	<span class="doccomment">/// Disable automatic current control.
 	///
 	/// # Blocking
-	/// Since the value is sent to the TMC2209&#39;s chip, calling this function will
+	/// Since the value is sent to the TMC2209's chip, calling this function will
 	/// block the microcontroller for a bit.
 	</span><span class="kw">pub fn </span>disable_automatic_current_scaling&lt;Uart: UartTrait&gt;(
 		<span class="kw-2">&amp;mut </span><span class="self">self</span>, uart_driver: <span class="kw-2">&amp;mut </span>Uart,
@@ -617,7 +648,7 @@
 	<span class="doccomment">/// Makes the TMC2209 chip automatically adjust the PWM gradient value.
 	///
 	/// # Blocking
-	/// Since the value is sent to the TMC2209&#39;s chip, calling this function will
+	/// Since the value is sent to the TMC2209's chip, calling this function will
 	/// block the microcontroller for a bit.
 	</span><span class="kw">pub fn </span>enable_automatic_gradient_adaptation&lt;Uart: UartTrait&gt;(
 		<span class="kw-2">&amp;mut </span><span class="self">self</span>, uart_driver: <span class="kw-2">&amp;mut </span>Uart,
@@ -631,7 +662,7 @@
 	<span class="doccomment">/// Stops the automatic adjustment of the PWM gradient value in the TMC2209 chip.
 	///
 	/// # Blocking
-	/// Since the value is sent to the TMC2209&#39;s chip, calling this function will
+	/// Since the value is sent to the TMC2209's chip, calling this function will
 	/// block the microcontroller for a bit.
 	</span><span class="kw">pub fn </span>disable_automatic_gradient_adaptation&lt;Uart: UartTrait&gt;(
 		<span class="kw-2">&amp;mut </span><span class="self">self</span>, uart_driver: <span class="kw-2">&amp;mut </span>Uart,
@@ -665,7 +696,7 @@
 	/// ```
 	///
 	/// # Blocking
-	/// Since the value is sent to the TMC2209&#39;s chip, calling this function will
+	/// Since the value is sent to the TMC2209's chip, calling this function will
 	/// block the microcontroller for a bit.
 	</span><span class="kw">pub fn </span>set_current_scaling&lt;Uart: UartTrait&gt;(
 		<span class="kw-2">&amp;mut </span><span class="self">self</span>, on_run: <span class="prelude-ty">Option</span>&lt;Percentage&gt;, on_hold: <span class="prelude-ty">Option</span>&lt;Percentage&gt;, uart_driver: <span class="kw-2">&amp;mut </span>Uart,
@@ -692,7 +723,7 @@
 	}
 
 	<span class="doccomment">/// # Blocking
-	/// Since the value is sent to the TMC2209&#39;s chip, calling this function will
+	/// Since the value is sent to the TMC2209's chip, calling this function will
 	/// block the microcontroller for a bit.
 	</span><span class="kw">pub fn </span>enable_analog_scale_current&lt;Uart: UartTrait&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, uart_driver: <span class="kw-2">&amp;mut </span>Uart) -&gt; <span class="prelude-ty">Result</span>&lt;(), Uart::Error&gt;
 	{
@@ -702,7 +733,7 @@
 	}
 
 	<span class="doccomment">/// # Blocking
-	/// Since the value is sent to the TMC2209&#39;s chip, calling this function will
+	/// Since the value is sent to the TMC2209's chip, calling this function will
 	/// block the microcontroller for a bit.
 	</span><span class="kw">pub fn </span>disable_analog_scale_current&lt;Uart: UartTrait&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, uart_driver: <span class="kw-2">&amp;mut </span>Uart) -&gt; <span class="prelude-ty">Result</span>&lt;(), Uart::Error&gt;
 	{
@@ -713,11 +744,11 @@
 
 	<span class="doccomment">/// The TMC2209 chip will extrapolate the microsteps per step you [`previously set`] to 256.
 	///
-	/// This won&#39;t make any difference in the way you control the motor, it will just make the motor
+	/// This won't make any difference in the way you control the motor, it will just make the motor
 	/// less noisy at the cost of a small positional error.
 	///
 	/// # Blocking
-	/// Since the value is sent to the TMC2209&#39;s chip, calling this function will
+	/// Since the value is sent to the TMC2209's chip, calling this function will
 	/// block the microcontroller for a bit.
 	///
 	/// [`previously set`]: `Self::set_microsteps_per_step`
@@ -732,7 +763,7 @@
 	<span class="doccomment">/// Disable the microstep interpolation. Check [`TMC2209::enable_microstep_interpolation`] for more info.
 	///
 	/// # Blocking
-	/// Since the value is sent to the TMC2209&#39;s chip, calling this function will
+	/// Since the value is sent to the TMC2209's chip, calling this function will
 	/// block the microcontroller for a bit.
 	</span><span class="kw">pub fn </span>disable_microstep_interpolation&lt;Uart: UartTrait&gt;(
 		<span class="kw-2">&amp;mut </span><span class="self">self</span>, uart_driver: <span class="kw-2">&amp;mut </span>Uart,
@@ -741,6 +772,15 @@
 		write_field_of_register(CHOPCONF::INTPOL, <span class="kw-2">&amp;mut </span><span class="self">self</span>.registers.chopconf, <span class="number">0</span>);
 
 		<span class="self">self</span>.send_register::&lt;CHOPCONF, Uart&gt;(<span class="self">self</span>.registers.chopconf, uart_driver)
+	}
+
+	<span class="kw">pub fn </span>set_reply_delay&lt;Uart: UartTrait&gt;(
+		<span class="kw-2">&amp;mut </span><span class="self">self</span>, delay: ReplyDelay, uart_driver: <span class="kw-2">&amp;mut </span>Uart,
+	) -&gt; <span class="prelude-ty">Result</span>&lt;(), Uart::Error&gt;
+	{
+		write_field_of_register(NODECONF::SENDDELAY, <span class="kw-2">&amp;mut </span><span class="self">self</span>.registers.nodeconf, delay <span class="kw">as </span>u16);
+
+		<span class="self">self</span>.send_register::&lt;NODECONF, Uart&gt;(<span class="self">self</span>.registers.nodeconf <span class="kw">as </span>u32, uart_driver)
 	}
 
 	<span class="doccomment">/// Initialize the UART communication with the TMC2209 chip.
@@ -756,10 +796,10 @@
 
 	<span class="doccomment">/// Actually sends the value of a register to the TMC2209 chip.
 	/// If you write to a register without actually sending its value to the chip using this function,
-	/// it&#39;s like you did nothing.
+	/// it's like you did nothing.
 	///
 	/// # Blocking
-	/// This will block the microcontroller for some time (depending on the UART&#39;s baud rate).
+	/// This will block the microcontroller for some time (depending on the UART's baud rate).
 	</span><span class="kw">fn </span>send_register&lt;R: WriteableRegister, Uart: UartTrait&gt;(
 		<span class="kw-2">&amp;</span><span class="self">self</span>, data: <span class="kw">impl </span>Into&lt;u32&gt;, uart_driver: <span class="kw-2">&amp;mut </span>Uart,
 	) -&gt; <span class="prelude-ty">Result</span>&lt;(), Uart::Error&gt;
@@ -772,7 +812,7 @@
 	}
 
 	<span class="doccomment">/// Actually receives the value of a register from the TMC2209 chip.
-	/// It&#39;s possible to receives some register and cache the value inside the microcontroller,
+	/// It's possible to receives some register and cache the value inside the microcontroller,
 	/// but with this function you will actually get the up-to-date value of the register.
 	///
 	/// # Blocking
@@ -793,7 +833,6 @@
 		<span class="kw">let </span>echo_bytes_count = uart_driver
 			.read(read_request_datagram.as_bytes_mut(), ECHO_DELAY_MAX_TICKS)
 			.map_err(ReadRegisterError::UartError)<span class="question-mark">?</span>;
-<span class="macro">log::error!</span>(<span class="string">&quot;Echo bytes count: {echo_bytes_count}, diagram size: {}&quot;</span>, std::mem::size_of::&lt;ReadAccessRequestDatagram&gt;());
 		<span class="kw">if </span>echo_bytes_count &lt; std::mem::size_of::&lt;ReadAccessRequestDatagram&gt;()
 		{
 			<span class="kw">return </span><span class="prelude-val">Err</span>(ReadRegisterError::FlushEchoInvalidSize);
@@ -829,15 +868,28 @@
 }
 <span class="kw">impl</span>&lt;Uart: UartTrait&gt; std::fmt::Debug <span class="kw">for </span>ReadRegisterError&lt;Uart&gt;
 {
-	<span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; std::fmt::Result
+	<span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; std::fmt::Result
 	{
 		<span class="kw">match </span><span class="self">self
 		</span>{
-			<span class="self">Self</span>::UartError(arg0) =&gt; f.debug_tuple(<span class="string">&quot;UartError&quot;</span>).field(arg0).finish(),
-			<span class="self">Self</span>::FlushEchoInvalidSize =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;FlushEchoInvalidSize&quot;</span>),
-			<span class="self">Self</span>::ReplyDatagramIncomplete =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;ReplyDatagramIncomplete&quot;</span>),
-			<span class="self">Self</span>::ReplyDatagramInvaild =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;ReplyDatagramInvaild&quot;</span>),
+			<span class="self">Self</span>::UartError(arg0) =&gt; f.debug_tuple(<span class="string">"UartError"</span>).field(arg0).finish(),
+			<span class="self">Self</span>::FlushEchoInvalidSize =&gt; <span class="macro">write!</span>(f, <span class="string">"FlushEchoInvalidSize"</span>),
+			<span class="self">Self</span>::ReplyDatagramIncomplete =&gt; <span class="macro">write!</span>(f, <span class="string">"ReplyDatagramIncomplete"</span>),
+			<span class="self">Self</span>::ReplyDatagramInvaild =&gt; <span class="macro">write!</span>(f, <span class="string">"ReplyDatagramInvaild"</span>),
 		}
 	}
+}
+
+<span class="attr">#[repr(u8)]
+</span><span class="kw">pub enum </span>ReplyDelay
+{
+	BitTime1 = <span class="number">1</span>,
+	BitTime3 = <span class="number">3</span>,
+	BitTime5 = <span class="number">5</span>,
+	BitTime7 = <span class="number">7</span>,
+	BitTime9 = <span class="number">9</span>,
+	BitTime11 = <span class="number">11</span>,
+	BitTime13 = <span class="number">13</span>,
+	BitTime15 = <span class="number">15</span>,
 }
 </code></pre></div></section></main></body></html>

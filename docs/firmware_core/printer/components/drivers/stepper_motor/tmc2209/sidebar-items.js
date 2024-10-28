@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["CHOPCONF","GCONF","GSTAT","IHOLD_IRUN","IOIN","MicrostepsPerStep","PWMCONF","ReadRegisterError","SLAVECONF","UARTAddress"],"struct":["TMC2209","VACTUAL"]};
+window.SIDEBAR_ITEMS = {"enum":["CHOPCONF","GCONF","GSTAT","IHOLD_IRUN","IOIN","MicrostepsPerStep","NODECONF","PWMCONF","ReadRegisterError","ReplyDelay","UARTAddress"],"struct":["TMC2209","VACTUAL"]};

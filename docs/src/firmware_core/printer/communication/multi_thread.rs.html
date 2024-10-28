@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates\core\src\printer\communication\multi_thread.rs`."><title>multi_thread.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../..\../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../..\../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../..\../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../..\../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../..\../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../..\../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../..\../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../..\../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../..\../" data-static-root-path="../../..\../static.files/" data-current-crate="firmware_core" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0-nightly (a2f5f9691 2023-11-02)" data-channel="nightly" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../..\../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../..\../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../..\../src-files.js"></script><script defer src="../../..\../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../..\../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../..\../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../..\../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../..\../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../..\../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../..\../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../..\../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/core/src/printer/communication/multi_thread.rs`."><title>multi_thread.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-198729e5.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="firmware_core" data-themes="" data-resource-suffix="" data-rustdoc-version="1.84.0-nightly (df4ca44d3 2024-10-27)" data-channel="nightly" data-search-js="search-c5a66128.js" data-settings-js="settings-0f613d39.js" ><script src="../../../../static.files/storage-59e33391.js"></script><script defer src="../../../../static.files/src-script-56102188.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">firmware_core/printer/communication/</div>multi_thread.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1607,9 +1608,72 @@
 <a href="#1607" id="1607">1607</a>
 <a href="#1608" id="1608">1608</a>
 <a href="#1609" id="1609">1609</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>std::thread::JoinHandle;
+<a href="#1610" id="1610">1610</a>
+<a href="#1611" id="1611">1611</a>
+<a href="#1612" id="1612">1612</a>
+<a href="#1613" id="1613">1613</a>
+<a href="#1614" id="1614">1614</a>
+<a href="#1615" id="1615">1615</a>
+<a href="#1616" id="1616">1616</a>
+<a href="#1617" id="1617">1617</a>
+<a href="#1618" id="1618">1618</a>
+<a href="#1619" id="1619">1619</a>
+<a href="#1620" id="1620">1620</a>
+<a href="#1621" id="1621">1621</a>
+<a href="#1622" id="1622">1622</a>
+<a href="#1623" id="1623">1623</a>
+<a href="#1624" id="1624">1624</a>
+<a href="#1625" id="1625">1625</a>
+<a href="#1626" id="1626">1626</a>
+<a href="#1627" id="1627">1627</a>
+<a href="#1628" id="1628">1628</a>
+<a href="#1629" id="1629">1629</a>
+<a href="#1630" id="1630">1630</a>
+<a href="#1631" id="1631">1631</a>
+<a href="#1632" id="1632">1632</a>
+<a href="#1633" id="1633">1633</a>
+<a href="#1634" id="1634">1634</a>
+<a href="#1635" id="1635">1635</a>
+<a href="#1636" id="1636">1636</a>
+<a href="#1637" id="1637">1637</a>
+<a href="#1638" id="1638">1638</a>
+<a href="#1639" id="1639">1639</a>
+<a href="#1640" id="1640">1640</a>
+<a href="#1641" id="1641">1641</a>
+<a href="#1642" id="1642">1642</a>
+<a href="#1643" id="1643">1643</a>
+<a href="#1644" id="1644">1644</a>
+<a href="#1645" id="1645">1645</a>
+<a href="#1646" id="1646">1646</a>
+<a href="#1647" id="1647">1647</a>
+<a href="#1648" id="1648">1648</a>
+<a href="#1649" id="1649">1649</a>
+<a href="#1650" id="1650">1650</a>
+<a href="#1651" id="1651">1651</a>
+<a href="#1652" id="1652">1652</a>
+<a href="#1653" id="1653">1653</a>
+<a href="#1654" id="1654">1654</a>
+<a href="#1655" id="1655">1655</a>
+<a href="#1656" id="1656">1656</a>
+<a href="#1657" id="1657">1657</a>
+<a href="#1658" id="1658">1658</a>
+<a href="#1659" id="1659">1659</a>
+<a href="#1660" id="1660">1660</a>
+<a href="#1661" id="1661">1661</a>
+<a href="#1662" id="1662">1662</a>
+<a href="#1663" id="1663">1663</a>
+<a href="#1664" id="1664">1664</a>
+<a href="#1665" id="1665">1665</a>
+<a href="#1666" id="1666">1666</a>
+<a href="#1667" id="1667">1667</a>
+<a href="#1668" id="1668">1668</a>
+<a href="#1669" id="1669">1669</a>
+<a href="#1670" id="1670">1670</a>
+<a href="#1671" id="1671">1671</a>
+<a href="#1672" id="1672">1672</a>
+<a href="#1673" id="1673">1673</a></pre></div><pre class="rust"><code><span class="kw">use </span>std::thread::JoinHandle;
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;usb&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"usb"</span>)]
 </span><span class="kw">use </span>usb_device::class_prelude::UsbBus <span class="kw">as </span>UsbBusTrait;
 
 <span class="kw">use super</span>::{
@@ -1622,15 +1686,31 @@
 	Peripherals, Printer3DComponents,
 };
 
-<span class="kw">pub struct </span>MultiThreadCommunication&lt;P: Peripherals + <span class="lifetime">&#39;static</span>&gt;
+<span class="doccomment">/// Manages multi-threaded communication for the 3D printer.
+///
+/// This struct handles the communication in a separate thread, allowing the main
+/// application to interact with the printer without blocking. It receives commands
+/// and executes them in the context of the printer's components.
+</span><span class="kw">pub struct </span>MultiThreadCommunication&lt;P: Peripherals + <span class="lifetime">'static</span>&gt;
 {
-	join_handle: JoinHandle&lt;()&gt;,
-	command_receiver: CommandsReceiver&lt;SendablePeripherals&lt;P&gt;&gt;,
+	<span class="doccomment">/// The handle for the spawned thread running the communication loop.
+	</span>join_handle: JoinHandle&lt;()&gt;,
+	<span class="doccomment">/// The receiver for commands sent from the communication thread.
+	</span>command_receiver: CommandsReceiver&lt;SendablePeripherals&lt;P&gt;&gt;,
 }
 
-<span class="kw">impl</span>&lt;P: Peripherals + <span class="lifetime">&#39;static</span>&gt; MultiThreadCommunication&lt;P&gt;
+<span class="kw">impl</span>&lt;P: Peripherals + <span class="lifetime">'static</span>&gt; MultiThreadCommunication&lt;P&gt;
 {
-	<span class="doccomment">/// Starts a new thread, creating a new instance of [`Communication`] and calling [`Communication::tick`] it in a `loop`.
+	<span class="doccomment">/// Starts a new thread for communication and executes the `tick` method in a loop.
+	///
+	/// # Arguments
+	///
+	/// * `peripherals` - Mutable reference to the peripherals required for communication.
+	/// * `configuration` - Configuration settings for the communication.
+	///
+	/// # Returns
+	///
+	/// A result containing the new `MultiThreadCommunication` instance or an error if creation fails.
 	</span><span class="kw">pub fn </span>new(peripherals: <span class="kw-2">&amp;mut </span>P, configuration: CommunicationConfig) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, std::io::Error&gt;
 	{
 		<span class="kw">let </span>(command_sender, command_receiver) = CommandsSender::new();
@@ -1642,7 +1722,7 @@
 
 		<span class="kw">let </span>join_handle = std::thread::Builder::new()
 			.stack_size(<span class="number">15_000</span>)
-			.name(<span class="string">&quot;Communication&quot;</span>.to_string())
+			.name(<span class="string">"Communication"</span>.to_string())
 			.spawn(<span class="kw">move </span>|| {
 				<span class="kw">let </span><span class="kw-2">mut </span>communication =
 					Communication::new(<span class="kw-2">&amp;mut </span>sendable_peripherals, configuration, command_sender).unwrap();
@@ -1654,16 +1734,17 @@
 
 				<span class="kw">loop
 				</span>{
-					<span class="comment">//log::info!(&quot;Tick the communication thread&quot;);
-
-					</span><span class="kw">if let </span><span class="prelude-val">Some</span>(watchdog) = watchdog.as_mut()
+					<span class="kw">if let </span><span class="prelude-val">Some</span>(watchdog) = watchdog.as_mut()
 					{
-						watchdog.feed();
+						<span class="kw">if let </span><span class="prelude-val">Err</span>(error) = watchdog.feed()
+						{
+							<span class="macro">log::error!</span>(<span class="string">"Watchdog feed error: {error:#?}"</span>);
+						}
 					}
 
 					<span class="kw">if let </span><span class="prelude-val">Err</span>(error) = communication.tick()
 					{
-						<span class="macro">log::error!</span>(<span class="string">&quot;Tick error: {error:#?}&quot;</span>);
+						<span class="macro">log::error!</span>(<span class="string">"Tick error: {error:#?}"</span>);
 					}
 
 					<span class="kw">if let </span><span class="prelude-val">Some</span>(system_time) = system_time.as_ref()
@@ -1679,14 +1760,21 @@
 		})
 	}
 
-	<span class="kw">pub fn </span>get_join_handle(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>JoinHandle&lt;()&gt;
+	<span class="doccomment">/// Retrieves a reference to the join handle of the communication thread.
+	///
+	/// # Returns
+	///
+	/// A reference to the `JoinHandle` of the communication thread.
+	</span><span class="kw">pub fn </span>get_join_handle(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>JoinHandle&lt;()&gt;
 	{
 		<span class="kw-2">&amp;</span><span class="self">self</span>.join_handle
 	}
 
-	<span class="doccomment">/// Executes all the [`commands`] received from the communication thread.
+	<span class="doccomment">/// Executes all commands received from the communication thread.
 	///
-	/// [`commands`]: crate::printer::communication::http::command
+	/// # Arguments
+	///
+	/// * `components` - Mutable reference to the printer's components where commands will be executed.
 	</span><span class="kw">pub fn </span>tick(<span class="kw-2">&amp;</span><span class="self">self</span>, components: <span class="kw-2">&amp;mut </span>Printer3DComponents&lt;SendablePeripherals&lt;P&gt;&gt;)
 	{
 		<span class="kw">for </span>command <span class="kw">in </span><span class="self">self</span>.command_receiver.iterate_received_commands()
@@ -1696,16 +1784,23 @@
 	}
 }
 
-<span class="kw">pub enum </span>SendablePeripherals&lt;P: Peripherals&gt;
+<span class="doccomment">/// Represents peripherals that can be sent between threads.
+///
+/// This enum allows for safe transmission of peripheral data across thread boundaries
+/// in the context of communication and components management.
+</span><span class="kw">pub enum </span>SendablePeripherals&lt;P: Peripherals&gt;
 {
-	ComponentsThread
+	<span class="doccomment">/// Contains peripherals required for the components thread.
+	</span>ComponentsThread
 	{
 		watchdog_creator: <span class="prelude-ty">Option</span>&lt;P::WatchdogCreator&gt;,
 
 		stepper_ticker_timer: <span class="prelude-ty">Option</span>&lt;P::StepperTickerTimer&gt;,
+
 		kinematics: <span class="prelude-ty">Option</span>&lt;P::Kinematics&gt;,
 
-		left_motor_dir_pin: <span class="prelude-ty">Option</span>&lt;P::LeftDirPin&gt;,
+		<span class="doccomment">/// Motor control pins for various axes.
+		</span>left_motor_dir_pin: <span class="prelude-ty">Option</span>&lt;P::LeftDirPin&gt;,
 		left_motor_step_pin: <span class="prelude-ty">Option</span>&lt;P::LeftStepPin&gt;,
 		right_motor_dir_pin: <span class="prelude-ty">Option</span>&lt;P::RightDirPin&gt;,
 		right_motor_step_pin: <span class="prelude-ty">Option</span>&lt;P::RightStepPin&gt;,
@@ -1714,48 +1809,72 @@
 		extruder_motor_dir_pin: <span class="prelude-ty">Option</span>&lt;P::ExtruderDirPin&gt;,
 		extruder_motor_step_pin: <span class="prelude-ty">Option</span>&lt;P::ExtruderStepPin&gt;,
 
-		uart_driver: <span class="prelude-ty">Option</span>&lt;P::UartDriver&gt;,
+		<span class="doccomment">/// UART driver for serial communication.
+		</span>uart_driver: <span class="prelude-ty">Option</span>&lt;P::UartDriver&gt;,
 
-		x_axis_endstop: <span class="prelude-ty">Option</span>&lt;P::XAxisEndstop&gt;,
+		<span class="doccomment">/// Endstop sensors for the axes.
+		</span>x_axis_endstop: <span class="prelude-ty">Option</span>&lt;P::XAxisEndstop&gt;,
 		y_axis_endstop: <span class="prelude-ty">Option</span>&lt;P::YAxisEndstop&gt;,
 		z_axis_endstop: <span class="prelude-ty">Option</span>&lt;P::ZAxisEndstop&gt;,
 
-		layer_fan_pin: <span class="prelude-ty">Option</span>&lt;P::FanPin&gt;,
+		<span class="doccomment">/// Fan control pins.
+		</span>layer_fan_pin: <span class="prelude-ty">Option</span>&lt;P::FanPin&gt;,
 		hotend_fan_pin: <span class="prelude-ty">Option</span>&lt;P::FanPin&gt;,
 
-		bed_cartridge_heater_pin: <span class="prelude-ty">Option</span>&lt;P::HeatedBedHeaterPin&gt;,
+		<span class="doccomment">/// Heater and thermistor pins for the bed and hotend.
+		</span>bed_cartridge_heater_pin: <span class="prelude-ty">Option</span>&lt;P::HeatedBedHeaterPin&gt;,
 		bed_thermistor_pin: <span class="prelude-ty">Option</span>&lt;P::HeatedBedAdcPin&gt;,
 
 		hotend_cartridge_heater_pin: <span class="prelude-ty">Option</span>&lt;P::CartridgeHeaterPin&gt;,
 		hotend_thermistor_pin: <span class="prelude-ty">Option</span>&lt;P::HotendAdcPin&gt;,
 
-		adc: <span class="prelude-ty">Option</span>&lt;P::Adc&gt;,
+		<span class="doccomment">/// ADC for reading sensor values.
+		</span>adc: <span class="prelude-ty">Option</span>&lt;P::Adc&gt;,
 
-		system_time: <span class="prelude-ty">Option</span>&lt;P::SystemTime&gt;,
+		<span class="doccomment">/// System time for managing delays.
+		</span>system_time: <span class="prelude-ty">Option</span>&lt;P::SystemTime&gt;,
 	},
-	CommunicationThread
+	<span class="doccomment">/// Contains peripherals required for the communication thread.
+	</span>CommunicationThread
 	{
 		watchdog_creator: <span class="prelude-ty">Option</span>&lt;P::WatchdogCreator&gt;,
 
 		system_time: <span class="prelude-ty">Option</span>&lt;P::SystemTime&gt;,
-		flash_chip: <span class="prelude-ty">Option</span>&lt;P::FlashChip&gt;,
-		flash_spi: <span class="prelude-ty">Option</span>&lt;P::FlashSpi&gt;,
-		wifi_driver: <span class="prelude-ty">Option</span>&lt;P::WifiDriver&gt;,
-		server: <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="kw">dyn </span>FnOnce() -&gt; <span class="prelude-ty">Result</span>&lt;P::Server, P::ServerError&gt; + Send&gt;&gt;,
-		ota: <span class="prelude-ty">Option</span>&lt;P::Ota&gt;,
+		<span class="doccomment">/// Flash chip for memory operations.
+		</span>flash_chip: <span class="prelude-ty">Option</span>&lt;P::FlashChip&gt;,
+		<span class="doccomment">/// SPI interface for the flash chip.
+		</span>flash_spi: <span class="prelude-ty">Option</span>&lt;P::FlashSpi&gt;,
+		<span class="doccomment">/// WiFi driver for connectivity.
+		</span>wifi_driver: <span class="prelude-ty">Option</span>&lt;P::WifiDriver&gt;,
+		<span class="doccomment">/// HTTP server for handling requests.
+		</span>server: <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="kw">dyn </span>FnOnce() -&gt; <span class="prelude-ty">Result</span>&lt;P::Server, P::ServerError&gt; + Send&gt;&gt;,
+		<span class="doccomment">/// OTA (Over-the-Air) update interface.
+		</span>ota: <span class="prelude-ty">Option</span>&lt;P::Ota&gt;,
 
-		<span class="attr">#[cfg(feature = <span class="string">&quot;usb&quot;</span>)]
+		<span class="attr">#[cfg(feature = <span class="string">"usb"</span>)]
+		</span><span class="doccomment">/// USB bus for USB communication.
 		</span>usb_bus: <span class="prelude-ty">Option</span>&lt;P::UsbBus&gt;,
-		<span class="attr">#[cfg(feature = <span class="string">&quot;usb&quot;</span>)]
+		<span class="attr">#[cfg(feature = <span class="string">"usb"</span>)]
+		</span><span class="doccomment">/// USB sense pin for detecting USB connections.
 		</span>usb_sense_pin: <span class="prelude-ty">Option</span>&lt;P::UsbSensePin&gt;,
 	},
 }
 
-<span class="kw">unsafe impl</span>&lt;P: Peripherals&gt; Send <span class="kw">for </span>SendablePeripherals&lt;P&gt; {}
+<span class="doccomment">/// Safety trait implementation for sending `SendablePeripherals` across threads.
+</span><span class="kw">unsafe impl</span>&lt;P: Peripherals&gt; Send <span class="kw">for </span>SendablePeripherals&lt;P&gt; {}
 
 <span class="kw">impl</span>&lt;P: Peripherals&gt; SendablePeripherals&lt;P&gt;
 {
-	<span class="kw">pub fn </span>of_communication_thread(peripherals: <span class="kw-2">&amp;mut </span>P) -&gt; <span class="self">Self
+	<span class="doccomment">/// Constructs a `SendablePeripherals` instance for the communication thread.
+	///
+	/// # Arguments
+	///
+	/// * `peripherals` - Mutable reference to the peripherals from which data will be taken.
+	///
+	/// # Returns
+	///
+	/// A `SendablePeripherals` instance configured for the communication thread.
+	</span><span class="kw">pub fn </span>of_communication_thread(peripherals: <span class="kw-2">&amp;mut </span>P) -&gt; <span class="self">Self
 	</span>{
 		<span class="self">Self</span>::CommunicationThread {
 			watchdog_creator: peripherals.take_watchdog_creator(),
@@ -1765,14 +1884,23 @@
 			wifi_driver: peripherals.take_wifi_driver(),
 			server: peripherals.take_http_server(),
 			ota: peripherals.take_ota(),
-			<span class="attr">#[cfg(feature = <span class="string">&quot;usb&quot;</span>)]
+			<span class="attr">#[cfg(feature = <span class="string">"usb"</span>)]
 			</span>usb_bus: peripherals.take_usb_bus(),
-			<span class="attr">#[cfg(feature = <span class="string">&quot;usb&quot;</span>)]
+			<span class="attr">#[cfg(feature = <span class="string">"usb"</span>)]
 			</span>usb_sense_pin: peripherals.take_usb_sense_pin(),
 		}
 	}
 
-	<span class="kw">pub fn </span>of_components_thread(peripherals: <span class="kw-2">&amp;mut </span>P) -&gt; <span class="self">Self
+	<span class="doccomment">/// Constructs a `SendablePeripherals` instance for the components thread.
+	///
+	/// # Arguments
+	///
+	/// * `peripherals` - Mutable reference to the peripherals from which data will be taken.
+	///
+	/// # Returns
+	///
+	/// A `SendablePeripherals` instance configured for the components thread.
+	</span><span class="kw">pub fn </span>of_components_thread(peripherals: <span class="kw-2">&amp;mut </span>P) -&gt; <span class="self">Self
 	</span>{
 		<span class="self">Self</span>::ComponentsThread {
 			watchdog_creator: peripherals.take_watchdog_creator(),
@@ -1848,10 +1976,10 @@
 
 	<span class="kw">type </span>Ota = P::Ota;
 
-	<span class="attr">#[cfg(feature = <span class="string">&quot;usb&quot;</span>)]
+	<span class="attr">#[cfg(feature = <span class="string">"usb"</span>)]
 	</span><span class="kw">type </span>UsbSensePin = P::UsbSensePin;
 
-	<span class="attr">#[cfg(feature = <span class="string">&quot;usb&quot;</span>)]
+	<span class="attr">#[cfg(feature = <span class="string">"usb"</span>)]
 	</span><span class="kw">type </span>UsbBus = P::UsbBus;
 
 	<span class="kw">fn </span>take_watchdog_creator(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::WatchdogCreator&gt;
@@ -1891,9 +2019,9 @@
 				wifi_driver,
 				server,
 				ota,
-				<span class="attr">#[cfg(feature = <span class="string">&quot;usb&quot;</span>)]
+				<span class="attr">#[cfg(feature = <span class="string">"usb"</span>)]
 				</span>usb_bus,
-				<span class="attr">#[cfg(feature = <span class="string">&quot;usb&quot;</span>)]
+				<span class="attr">#[cfg(feature = <span class="string">"usb"</span>)]
 				</span>usb_sense_pin,
 			} =&gt; watchdog_creator.take(),
 		}
@@ -1936,9 +2064,9 @@
 				wifi_driver,
 				server,
 				ota,
-				<span class="attr">#[cfg(feature = <span class="string">&quot;usb&quot;</span>)]
+				<span class="attr">#[cfg(feature = <span class="string">"usb"</span>)]
 				</span>usb_bus,
-				<span class="attr">#[cfg(feature = <span class="string">&quot;usb&quot;</span>)]
+				<span class="attr">#[cfg(feature = <span class="string">"usb"</span>)]
 				</span>usb_sense_pin,
 			} =&gt; <span class="prelude-val">None</span>,
 		}
@@ -1981,9 +2109,9 @@
 				wifi_driver,
 				server,
 				ota,
-				<span class="attr">#[cfg(feature = <span class="string">&quot;usb&quot;</span>)]
+				<span class="attr">#[cfg(feature = <span class="string">"usb"</span>)]
 				</span>usb_bus,
-				<span class="attr">#[cfg(feature = <span class="string">&quot;usb&quot;</span>)]
+				<span class="attr">#[cfg(feature = <span class="string">"usb"</span>)]
 				</span>usb_sense_pin,
 			} =&gt; <span class="prelude-val">None</span>,
 		}
@@ -2026,9 +2154,9 @@
 				wifi_driver,
 				server,
 				ota,
-				<span class="attr">#[cfg(feature = <span class="string">&quot;usb&quot;</span>)]
+				<span class="attr">#[cfg(feature = <span class="string">"usb"</span>)]
 				</span>usb_bus,
-				<span class="attr">#[cfg(feature = <span class="string">&quot;usb&quot;</span>)]
+				<span class="attr">#[cfg(feature = <span class="string">"usb"</span>)]
 				</span>usb_sense_pin,
 			} =&gt; <span class="prelude-val">None</span>,
 		}
@@ -2071,9 +2199,9 @@
 				wifi_driver,
 				server,
 				ota,
-				<span class="attr">#[cfg(feature = <span class="string">&quot;usb&quot;</span>)]
+				<span class="attr">#[cfg(feature = <span class="string">"usb"</span>)]
 				</span>usb_bus,
-				<span class="attr">#[cfg(feature = <span class="string">&quot;usb&quot;</span>)]
+				<span class="attr">#[cfg(feature = <span class="string">"usb"</span>)]
 				</span>usb_sense_pin,
 			} =&gt; <span class="prelude-val">None</span>,
 		}
@@ -2116,9 +2244,9 @@
 				wifi_driver,
 				server,
 				ota,
-				<span class="attr">#[cfg(feature = <span class="string">&quot;usb&quot;</span>)]
+				<span class="attr">#[cfg(feature = <span class="string">"usb"</span>)]
 				</span>usb_bus,
-				<span class="attr">#[cfg(feature = <span class="string">&quot;usb&quot;</span>)]
+				<span class="attr">#[cfg(feature = <span class="string">"usb"</span>)]
 				</span>usb_sense_pin,
 			} =&gt; <span class="prelude-val">None</span>,
 		}
@@ -2161,9 +2289,9 @@
 				wifi_driver,
 				server,
 				ota,
-				<span class="attr">#[cfg(feature = <span class="string">&quot;usb&quot;</span>)]
+				<span class="attr">#[cfg(feature = <span class="string">"usb"</span>)]
 				</span>usb_bus,
-				<span class="attr">#[cfg(feature = <span class="string">&quot;usb&quot;</span>)]
+				<span class="attr">#[cfg(feature = <span class="string">"usb"</span>)]
 				</span>usb_sense_pin,
 			} =&gt; <span class="prelude-val">None</span>,
 		}
@@ -2206,9 +2334,9 @@
 				wifi_driver,
 				server,
 				ota,
-				<span class="attr">#[cfg(feature = <span class="string">&quot;usb&quot;</span>)]
+				<span class="attr">#[cfg(feature = <span class="string">"usb"</span>)]
 				</span>usb_bus,
-				<span class="attr">#[cfg(feature = <span class="string">&quot;usb&quot;</span>)]
+				<span class="attr">#[cfg(feature = <span class="string">"usb"</span>)]
 				</span>usb_sense_pin,
 			} =&gt; <span class="prelude-val">None</span>,
 		}
@@ -2251,9 +2379,9 @@
 				wifi_driver,
 				server,
 				ota,
-				<span class="attr">#[cfg(feature = <span class="string">&quot;usb&quot;</span>)]
+				<span class="attr">#[cfg(feature = <span class="string">"usb"</span>)]
 				</span>usb_bus,
-				<span class="attr">#[cfg(feature = <span class="string">&quot;usb&quot;</span>)]
+				<span class="attr">#[cfg(feature = <span class="string">"usb"</span>)]
 				</span>usb_sense_pin,
 			} =&gt; <span class="prelude-val">None</span>,
 		}
@@ -2296,9 +2424,9 @@
 				wifi_driver,
 				server,
 				ota,
-				<span class="attr">#[cfg(feature = <span class="string">&quot;usb&quot;</span>)]
+				<span class="attr">#[cfg(feature = <span class="string">"usb"</span>)]
 				</span>usb_bus,
-				<span class="attr">#[cfg(feature = <span class="string">&quot;usb&quot;</span>)]
+				<span class="attr">#[cfg(feature = <span class="string">"usb"</span>)]
 				</span>usb_sense_pin,
 			} =&gt; <span class="prelude-val">None</span>,
 		}
@@ -2341,9 +2469,9 @@
 				wifi_driver,
 				server,
 				ota,
-				<span class="attr">#[cfg(feature = <span class="string">&quot;usb&quot;</span>)]
+				<span class="attr">#[cfg(feature = <span class="string">"usb"</span>)]
 				</span>usb_bus,
-				<span class="attr">#[cfg(feature = <span class="string">&quot;usb&quot;</span>)]
+				<span class="attr">#[cfg(feature = <span class="string">"usb"</span>)]
 				</span>usb_sense_pin,
 			} =&gt; <span class="prelude-val">None</span>,
 		}
@@ -2386,9 +2514,9 @@
 				wifi_driver,
 				server,
 				ota,
-				<span class="attr">#[cfg(feature = <span class="string">&quot;usb&quot;</span>)]
+				<span class="attr">#[cfg(feature = <span class="string">"usb"</span>)]
 				</span>usb_bus,
-				<span class="attr">#[cfg(feature = <span class="string">&quot;usb&quot;</span>)]
+				<span class="attr">#[cfg(feature = <span class="string">"usb"</span>)]
 				</span>usb_sense_pin,
 			} =&gt; <span class="prelude-val">None</span>,
 		}
@@ -2431,9 +2559,9 @@
 				wifi_driver,
 				server,
 				ota,
-				<span class="attr">#[cfg(feature = <span class="string">&quot;usb&quot;</span>)]
+				<span class="attr">#[cfg(feature = <span class="string">"usb"</span>)]
 				</span>usb_bus,
-				<span class="attr">#[cfg(feature = <span class="string">&quot;usb&quot;</span>)]
+				<span class="attr">#[cfg(feature = <span class="string">"usb"</span>)]
 				</span>usb_sense_pin,
 			} =&gt; <span class="prelude-val">None</span>,
 		}
@@ -2476,9 +2604,9 @@
 				wifi_driver,
 				server,
 				ota,
-				<span class="attr">#[cfg(feature = <span class="string">&quot;usb&quot;</span>)]
+				<span class="attr">#[cfg(feature = <span class="string">"usb"</span>)]
 				</span>usb_bus,
-				<span class="attr">#[cfg(feature = <span class="string">&quot;usb&quot;</span>)]
+				<span class="attr">#[cfg(feature = <span class="string">"usb"</span>)]
 				</span>usb_sense_pin,
 			} =&gt; <span class="prelude-val">None</span>,
 		}
@@ -2521,9 +2649,9 @@
 				wifi_driver,
 				server,
 				ota,
-				<span class="attr">#[cfg(feature = <span class="string">&quot;usb&quot;</span>)]
+				<span class="attr">#[cfg(feature = <span class="string">"usb"</span>)]
 				</span>usb_bus,
-				<span class="attr">#[cfg(feature = <span class="string">&quot;usb&quot;</span>)]
+				<span class="attr">#[cfg(feature = <span class="string">"usb"</span>)]
 				</span>usb_sense_pin,
 			} =&gt; <span class="prelude-val">None</span>,
 		}
@@ -2566,9 +2694,9 @@
 				wifi_driver,
 				server,
 				ota,
-				<span class="attr">#[cfg(feature = <span class="string">&quot;usb&quot;</span>)]
+				<span class="attr">#[cfg(feature = <span class="string">"usb"</span>)]
 				</span>usb_bus,
-				<span class="attr">#[cfg(feature = <span class="string">&quot;usb&quot;</span>)]
+				<span class="attr">#[cfg(feature = <span class="string">"usb"</span>)]
 				</span>usb_sense_pin,
 			} =&gt; flash_chip.take(),
 		}
@@ -2611,9 +2739,9 @@
 				wifi_driver,
 				server,
 				ota,
-				<span class="attr">#[cfg(feature = <span class="string">&quot;usb&quot;</span>)]
+				<span class="attr">#[cfg(feature = <span class="string">"usb"</span>)]
 				</span>usb_bus,
-				<span class="attr">#[cfg(feature = <span class="string">&quot;usb&quot;</span>)]
+				<span class="attr">#[cfg(feature = <span class="string">"usb"</span>)]
 				</span>usb_sense_pin,
 			} =&gt; flash_spi.take(),
 		}
@@ -2656,9 +2784,9 @@
 				wifi_driver,
 				server,
 				ota,
-				<span class="attr">#[cfg(feature = <span class="string">&quot;usb&quot;</span>)]
+				<span class="attr">#[cfg(feature = <span class="string">"usb"</span>)]
 				</span>usb_bus,
-				<span class="attr">#[cfg(feature = <span class="string">&quot;usb&quot;</span>)]
+				<span class="attr">#[cfg(feature = <span class="string">"usb"</span>)]
 				</span>usb_sense_pin,
 			} =&gt; <span class="prelude-val">None</span>,
 		}
@@ -2701,9 +2829,9 @@
 				wifi_driver,
 				server,
 				ota,
-				<span class="attr">#[cfg(feature = <span class="string">&quot;usb&quot;</span>)]
+				<span class="attr">#[cfg(feature = <span class="string">"usb"</span>)]
 				</span>usb_bus,
-				<span class="attr">#[cfg(feature = <span class="string">&quot;usb&quot;</span>)]
+				<span class="attr">#[cfg(feature = <span class="string">"usb"</span>)]
 				</span>usb_sense_pin,
 			} =&gt; <span class="prelude-val">None</span>,
 		}
@@ -2746,9 +2874,9 @@
 				wifi_driver,
 				server,
 				ota,
-				<span class="attr">#[cfg(feature = <span class="string">&quot;usb&quot;</span>)]
+				<span class="attr">#[cfg(feature = <span class="string">"usb"</span>)]
 				</span>usb_bus,
-				<span class="attr">#[cfg(feature = <span class="string">&quot;usb&quot;</span>)]
+				<span class="attr">#[cfg(feature = <span class="string">"usb"</span>)]
 				</span>usb_sense_pin,
 			} =&gt; <span class="prelude-val">None</span>,
 		}
@@ -2791,9 +2919,9 @@
 				wifi_driver,
 				server,
 				ota,
-				<span class="attr">#[cfg(feature = <span class="string">&quot;usb&quot;</span>)]
+				<span class="attr">#[cfg(feature = <span class="string">"usb"</span>)]
 				</span>usb_bus,
-				<span class="attr">#[cfg(feature = <span class="string">&quot;usb&quot;</span>)]
+				<span class="attr">#[cfg(feature = <span class="string">"usb"</span>)]
 				</span>usb_sense_pin,
 			} =&gt; <span class="prelude-val">None</span>,
 		}
@@ -2836,9 +2964,9 @@
 				wifi_driver,
 				server,
 				ota,
-				<span class="attr">#[cfg(feature = <span class="string">&quot;usb&quot;</span>)]
+				<span class="attr">#[cfg(feature = <span class="string">"usb"</span>)]
 				</span>usb_bus,
-				<span class="attr">#[cfg(feature = <span class="string">&quot;usb&quot;</span>)]
+				<span class="attr">#[cfg(feature = <span class="string">"usb"</span>)]
 				</span>usb_sense_pin,
 			} =&gt; <span class="prelude-val">None</span>,
 		}
@@ -2881,9 +3009,9 @@
 				wifi_driver,
 				server,
 				ota,
-				<span class="attr">#[cfg(feature = <span class="string">&quot;usb&quot;</span>)]
+				<span class="attr">#[cfg(feature = <span class="string">"usb"</span>)]
 				</span>usb_bus,
-				<span class="attr">#[cfg(feature = <span class="string">&quot;usb&quot;</span>)]
+				<span class="attr">#[cfg(feature = <span class="string">"usb"</span>)]
 				</span>usb_sense_pin,
 			} =&gt; <span class="prelude-val">None</span>,
 		}
@@ -2926,9 +3054,9 @@
 				wifi_driver,
 				server,
 				ota,
-				<span class="attr">#[cfg(feature = <span class="string">&quot;usb&quot;</span>)]
+				<span class="attr">#[cfg(feature = <span class="string">"usb"</span>)]
 				</span>usb_bus,
-				<span class="attr">#[cfg(feature = <span class="string">&quot;usb&quot;</span>)]
+				<span class="attr">#[cfg(feature = <span class="string">"usb"</span>)]
 				</span>usb_sense_pin,
 			} =&gt; <span class="prelude-val">None</span>,
 		}
@@ -2971,9 +3099,9 @@
 				wifi_driver,
 				server,
 				ota,
-				<span class="attr">#[cfg(feature = <span class="string">&quot;usb&quot;</span>)]
+				<span class="attr">#[cfg(feature = <span class="string">"usb"</span>)]
 				</span>usb_bus,
-				<span class="attr">#[cfg(feature = <span class="string">&quot;usb&quot;</span>)]
+				<span class="attr">#[cfg(feature = <span class="string">"usb"</span>)]
 				</span>usb_sense_pin,
 			} =&gt; system_time.take(),
 		}
@@ -3016,9 +3144,9 @@
 				wifi_driver,
 				server,
 				ota,
-				<span class="attr">#[cfg(feature = <span class="string">&quot;usb&quot;</span>)]
+				<span class="attr">#[cfg(feature = <span class="string">"usb"</span>)]
 				</span>usb_bus,
-				<span class="attr">#[cfg(feature = <span class="string">&quot;usb&quot;</span>)]
+				<span class="attr">#[cfg(feature = <span class="string">"usb"</span>)]
 				</span>usb_sense_pin,
 			} =&gt; wifi_driver.take(),
 		}
@@ -3061,9 +3189,9 @@
 				wifi_driver,
 				server,
 				ota,
-				<span class="attr">#[cfg(feature = <span class="string">&quot;usb&quot;</span>)]
+				<span class="attr">#[cfg(feature = <span class="string">"usb"</span>)]
 				</span>usb_bus,
-				<span class="attr">#[cfg(feature = <span class="string">&quot;usb&quot;</span>)]
+				<span class="attr">#[cfg(feature = <span class="string">"usb"</span>)]
 				</span>usb_sense_pin,
 			} =&gt; server.take(),
 		}
@@ -3106,9 +3234,9 @@
 				wifi_driver,
 				server,
 				ota,
-				<span class="attr">#[cfg(feature = <span class="string">&quot;usb&quot;</span>)]
+				<span class="attr">#[cfg(feature = <span class="string">"usb"</span>)]
 				</span>usb_bus,
-				<span class="attr">#[cfg(feature = <span class="string">&quot;usb&quot;</span>)]
+				<span class="attr">#[cfg(feature = <span class="string">"usb"</span>)]
 				</span>usb_sense_pin,
 			} =&gt; ota.take(),
 		}
@@ -3119,7 +3247,7 @@
 		P::reboot_fn()
 	}
 
-	<span class="attr">#[cfg(feature = <span class="string">&quot;usb&quot;</span>)]
+	<span class="attr">#[cfg(feature = <span class="string">"usb"</span>)]
 	</span><span class="kw">fn </span>take_usb_sense_pin(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::UsbSensePin&gt;
 	{
 		<span class="kw">match </span><span class="self">self
@@ -3157,15 +3285,15 @@
 				wifi_driver,
 				server,
 				ota,
-				<span class="attr">#[cfg(feature = <span class="string">&quot;usb&quot;</span>)]
+				<span class="attr">#[cfg(feature = <span class="string">"usb"</span>)]
 				</span>usb_bus,
-				<span class="attr">#[cfg(feature = <span class="string">&quot;usb&quot;</span>)]
+				<span class="attr">#[cfg(feature = <span class="string">"usb"</span>)]
 				</span>usb_sense_pin,
 			} =&gt; usb_sense_pin.take(),
 		}
 	}
 
-	<span class="attr">#[cfg(feature = <span class="string">&quot;usb&quot;</span>)]
+	<span class="attr">#[cfg(feature = <span class="string">"usb"</span>)]
 	</span><span class="kw">fn </span>take_usb_bus(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::UsbBus&gt;
 	{
 		<span class="kw">match </span><span class="self">self
@@ -3203,9 +3331,9 @@
 				wifi_driver,
 				server,
 				ota,
-				<span class="attr">#[cfg(feature = <span class="string">&quot;usb&quot;</span>)]
+				<span class="attr">#[cfg(feature = <span class="string">"usb"</span>)]
 				</span>usb_bus,
-				<span class="attr">#[cfg(feature = <span class="string">&quot;usb&quot;</span>)]
+				<span class="attr">#[cfg(feature = <span class="string">"usb"</span>)]
 				</span>usb_sense_pin,
 			} =&gt; usb_bus.take(),
 		}

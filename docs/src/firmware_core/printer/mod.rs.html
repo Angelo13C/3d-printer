@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates\core\src\printer\mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="firmware_core" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0-nightly (a2f5f9691 2023-11-02)" data-channel="nightly" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/core/src/printer/mod.rs`."><title>mod.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-198729e5.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="firmware_core" data-themes="" data-resource-suffix="" data-rustdoc-version="1.84.0-nightly (df4ca44d3 2024-10-27)" data-channel="nightly" data-search-js="search-c5a66128.js" data-settings-js="settings-0f613d39.js" ><script src="../../../static.files/storage-59e33391.js"></script><script defer src="../../../static.files/src-script-56102188.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">firmware_core/printer/</div>mod.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -85,7 +86,63 @@
 <a href="#85" id="85">85</a>
 <a href="#86" id="86">86</a>
 <a href="#87" id="87">87</a>
-</pre></div><pre class="rust"><code><span class="kw">pub mod </span>communication;
+<a href="#88" id="88">88</a>
+<a href="#89" id="89">89</a>
+<a href="#90" id="90">90</a>
+<a href="#91" id="91">91</a>
+<a href="#92" id="92">92</a>
+<a href="#93" id="93">93</a>
+<a href="#94" id="94">94</a>
+<a href="#95" id="95">95</a>
+<a href="#96" id="96">96</a>
+<a href="#97" id="97">97</a>
+<a href="#98" id="98">98</a>
+<a href="#99" id="99">99</a>
+<a href="#100" id="100">100</a>
+<a href="#101" id="101">101</a>
+<a href="#102" id="102">102</a>
+<a href="#103" id="103">103</a>
+<a href="#104" id="104">104</a>
+<a href="#105" id="105">105</a>
+<a href="#106" id="106">106</a>
+<a href="#107" id="107">107</a>
+<a href="#108" id="108">108</a>
+<a href="#109" id="109">109</a>
+<a href="#110" id="110">110</a>
+<a href="#111" id="111">111</a>
+<a href="#112" id="112">112</a>
+<a href="#113" id="113">113</a>
+<a href="#114" id="114">114</a>
+<a href="#115" id="115">115</a>
+<a href="#116" id="116">116</a>
+<a href="#117" id="117">117</a>
+<a href="#118" id="118">118</a>
+<a href="#119" id="119">119</a>
+<a href="#120" id="120">120</a>
+<a href="#121" id="121">121</a>
+<a href="#122" id="122">122</a>
+<a href="#123" id="123">123</a>
+<a href="#124" id="124">124</a>
+<a href="#125" id="125">125</a>
+<a href="#126" id="126">126</a>
+<a href="#127" id="127">127</a>
+<a href="#128" id="128">128</a>
+<a href="#129" id="129">129</a>
+<a href="#130" id="130">130</a></pre></div><pre class="rust"><code><span class="doccomment">//! A module for managing a 3D printer's components, communication, and operations.
+//!
+//! This module encapsulates the functionality of a 3D printer, including
+//! its components and communication methods, as well as managing
+//! the watchdog timer for safety. It provides the main interface to
+//! interact with the printer, including initialization and periodic
+//! updates via the `tick` method.
+//!
+//! # Structure
+//!
+//! - [`Printer3D`]: The main structure representing the 3D printer.
+//! - [`CreationError`]: Errors that may occur during the creation of a printer instance.
+//! - [`TickError`]: Errors that may occur during the ticking process.
+
+</span><span class="kw">pub mod </span>communication;
 <span class="kw">pub mod </span>components;
 <span class="kw">pub mod </span>panic_handler;
 
@@ -100,16 +157,36 @@
 	panic_handler::PanicHandler,
 };
 
-<span class="kw">pub struct </span>Printer3D&lt;P: Peripherals + <span class="lifetime">&#39;static</span>&gt;
+<span class="doccomment">/// A structure representing a 3D printer.
+///
+/// This struct manages the printer's components, communication protocols,
+/// and the watchdog timer for monitoring the printer's operation.
+/// It provides methods to initialize the printer and perform periodic updates.
+</span><span class="kw">pub struct </span>Printer3D&lt;P: Peripherals + <span class="lifetime">'static</span>&gt;
 {
 	components: Printer3DComponents&lt;SendablePeripherals&lt;P&gt;&gt;,
 	communication: MultiThreadCommunication&lt;P&gt;,
 	watchdog: <span class="prelude-ty">Option</span>&lt;&lt;P::WatchdogCreator <span class="kw">as </span>WatchdogCreator&gt;::Watchdog&gt;,
 }
 
-<span class="kw">impl</span>&lt;P: Peripherals + <span class="lifetime">&#39;static</span>&gt; Printer3D&lt;P&gt;
+<span class="kw">impl</span>&lt;P: Peripherals + <span class="lifetime">'static</span>&gt; Printer3D&lt;P&gt;
 {
-	<span class="kw">pub fn </span>new(
+	<span class="doccomment">/// Creates a new instance of `Printer3D`.
+	///
+	/// This method initializes the printer's components and
+	/// communication systems, setting up any necessary peripherals.
+	///
+	/// # Arguments
+	///
+	/// * `peripherals` - The hardware peripherals for the printer.
+	/// * `components_config` - Configuration settings for the printer's components.
+	/// * `communication_config` - Configuration settings for the communication system.
+	/// * `panic_handler` - A handler to register for panic events.
+	///
+	/// # Returns
+	///
+	/// A `Result` containing the initialized `Printer3D` instance or a `CreationError`.
+	</span><span class="kw">pub fn </span>new(
 		<span class="kw-2">mut </span>peripherals: P, components_config: ComponentsConfig, communication_config: CommunicationConfig,
 		panic_handler: PanicHandler,
 	) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, CreationError&lt;P&gt;&gt;
@@ -131,7 +208,15 @@
 		})
 	}
 
-	<span class="kw">pub fn </span>tick(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(), TickError&lt;P&gt;&gt;
+	<span class="doccomment">/// Updates the printer state, feeding the watchdog if present.
+	///
+	/// This method should be called periodically to ensure the printer
+	/// operates correctly and to maintain communication with its components.
+	///
+	/// # Returns
+	///
+	/// A `Result` indicating success or a `TickError` if an error occurs.
+	</span><span class="kw">pub fn </span>tick(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(), TickError&lt;P&gt;&gt;
 	{
 		<span class="kw">if let </span><span class="prelude-val">Some</span>(watchdog) = <span class="self">self</span>.watchdog.as_mut()
 		{
@@ -141,34 +226,35 @@
 		<span class="self">self</span>.components.tick().map_err(TickError::Components)<span class="question-mark">?</span>;
 		<span class="self">self</span>.communication.tick(<span class="kw-2">&amp;mut </span><span class="self">self</span>.components);
 
-		<span class="kw">crate</span>::utils::log_in_isr::print_logs_from_isr();
-		<span class="kw">crate</span>::printer::components::motion::planner::communicate_to_ticker::print_logs_from_isr();
+		<span class="comment">//crate::utils::log_in_isr::print_logs_from_isr();
 
-		<span class="prelude-val">Ok</span>(())
+		</span><span class="prelude-val">Ok</span>(())
 	}
 }
 
-<span class="attr">#[derive(Debug)]
+<span class="doccomment">/// Errors that may occur during the creation of a `Printer3D`.
+</span><span class="attr">#[derive(Debug)]
 </span><span class="kw">pub enum </span>CreationError&lt;P: Peripherals&gt;
 {
 	Components(components::CreationError&lt;P::StepperTickerTimer, P::ZAxisEndstop, P::UartDriver&gt;),
 	Communication(std::io::Error),
 }
 
-<span class="kw">pub enum </span>TickError&lt;P: Peripherals&gt;
+<span class="doccomment">/// Errors that may occur during the ticking process of a `Printer3D`.
+</span><span class="kw">pub enum </span>TickError&lt;P: Peripherals&gt;
 {
 	WatchdogReset(&lt;&lt;P::WatchdogCreator <span class="kw">as </span>WatchdogCreator&gt;::Watchdog <span class="kw">as </span>Watchdog&gt;::Error),
-	Components(components::TickError&lt;P::ZAxisEndstop, P::StepperTickerTimer&gt;),
+	Components(components::TickError&lt;P::ZAxisEndstop, P::UartDriver, P::StepperTickerTimer&gt;),
 }
 
 <span class="kw">impl</span>&lt;P: Peripherals&gt; Debug <span class="kw">for </span>TickError&lt;P&gt;
 {
-	<span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; std::fmt::Result
+	<span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; std::fmt::Result
 	{
 		<span class="kw">match </span><span class="self">self
 		</span>{
-			<span class="self">Self</span>::WatchdogReset(arg0) =&gt; f.debug_tuple(<span class="string">&quot;WatchdogReset&quot;</span>).field(arg0).finish(),
-			<span class="self">Self</span>::Components(arg0) =&gt; f.debug_tuple(<span class="string">&quot;Components&quot;</span>).field(arg0).finish(),
+			<span class="self">Self</span>::WatchdogReset(arg0) =&gt; f.debug_tuple(<span class="string">"WatchdogReset"</span>).field(arg0).finish(),
+			<span class="self">Self</span>::Components(arg0) =&gt; f.debug_tuple(<span class="string">"Components"</span>).field(arg0).finish(),
 		}
 	}
 }

@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates\core\src\printer\communication\http\other\printer_state.rs`."><title>printer_state.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../..\..\..\../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../..\..\..\../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../..\..\..\../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../..\..\..\../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../..\..\..\../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../..\..\..\../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../..\..\..\../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../..\..\..\../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../..\..\..\../" data-static-root-path="../../..\..\..\../static.files/" data-current-crate="firmware_core" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0-nightly (a2f5f9691 2023-11-02)" data-channel="nightly" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../..\..\..\../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../..\..\..\../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../..\..\..\../src-files.js"></script><script defer src="../../..\..\..\../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../..\..\..\../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../..\..\..\../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../..\..\..\../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../..\..\..\../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../..\..\..\../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../..\..\..\../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../..\..\..\../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/core/src/printer/communication/http/other/printer_state.rs`."><title>printer_state.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../../../static.files/rustdoc-198729e5.css"><meta name="rustdoc-vars" data-root-path="../../../../../../" data-static-root-path="../../../../../../static.files/" data-current-crate="firmware_core" data-themes="" data-resource-suffix="" data-rustdoc-version="1.84.0-nightly (df4ca44d3 2024-10-27)" data-channel="nightly" data-search-js="search-c5a66128.js" data-settings-js="settings-0f613d39.js" ><script src="../../../../../../static.files/storage-59e33391.js"></script><script defer src="../../../../../../static.files/src-script-56102188.js"></script><script defer src="../../../../../../src-files.js"></script><script defer src="../../../../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">firmware_core/printer/communication/http/other/</div>printer_state.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -88,11 +89,20 @@
 <a href="#88" id="88">88</a>
 <a href="#89" id="89">89</a>
 <a href="#90" id="90">90</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>serde::{ser::SerializeStruct, Serialize};
+<a href="#91" id="91">91</a>
+<a href="#92" id="92">92</a>
+<a href="#93" id="93">93</a>
+<a href="#94" id="94">94</a>
+<a href="#95" id="95">95</a>
+<a href="#96" id="96">96</a>
+<a href="#97" id="97">97</a>
+<a href="#98" id="98">98</a>
+<a href="#99" id="99">99</a></pre></div><pre class="rust"><code><span class="kw">use </span>serde::{ser::SerializeStruct, Serialize};
+<span class="kw">use </span>spin::Mutex;
 
 <span class="kw">use crate</span>::{
 	printer::components::{temperature::TemperaturePidController, Peripherals},
-	utils::{measurement::temperature::Temperature, mutex::Mutex},
+	utils::measurement::temperature::Temperature,
 };
 
 <span class="kw">static </span>PRINTER_STATE: Mutex&lt;PrinterState&gt; = Mutex::new(PrinterState::EMPTY);
@@ -104,7 +114,7 @@
 	PRINTER_STATE.lock().clone()
 }
 
-<span class="doccomment">/// Updates the &quot;screenshot&quot; of the state of some components of the machine based on the current and target temperatures
+<span class="doccomment">/// Updates the "screenshot" of the state of some components of the machine based on the current and target temperatures
 /// of the two PID controllers (saves the result in the static instance of [`PrinterState`] so that you can later retrieve
 /// the state using [`get_current_state`]).
 </span><span class="kw">pub fn </span>tick&lt;P: Peripherals&gt;(
@@ -118,7 +128,7 @@
 }
 
 <span class="attr">#[derive(Clone)]
-</span><span class="doccomment">/// A &quot;screenshot&quot; of the state of some components of the machine.
+</span><span class="doccomment">/// A "screenshot" of the state of some components of the machine.
 </span><span class="kw">pub struct </span>PrinterState
 {
 	hotend_current_temperature: <span class="prelude-ty">Option</span>&lt;Temperature&gt;,
@@ -136,7 +146,7 @@
 		bed_target_temperature: <span class="prelude-val">None</span>,
 	};
 
-	<span class="doccomment">/// Updates the &quot;screenshot&quot; of the state of some components of the machine based on the current and target temperatures
+	<span class="doccomment">/// Updates the "screenshot" of the state of some components of the machine based on the current and target temperatures
 	/// of the two PID controllers.
 	</span><span class="kw">fn </span>tick&lt;P: Peripherals&gt;(
 		<span class="kw-2">&amp;mut </span><span class="self">self</span>, hotend_pid_controller: <span class="kw-2">&amp;</span>TemperaturePidController&lt;P::CartridgeHeaterPin, P::Adc, P::HotendAdcPin&gt;,
@@ -147,13 +157,21 @@
 		{
 			<span class="self">self</span>.hotend_current_temperature = <span class="prelude-val">Some</span>(hotend_current_temperature);
 		}
-		<span class="self">self</span>.hotend_target_temperature = <span class="prelude-val">Some</span>(hotend_pid_controller.get_target_temperature());
+		<span class="self">self</span>.hotend_target_temperature = <span class="prelude-val">Some</span>(
+			hotend_pid_controller
+				.get_target_temperature()
+				.unwrap_or(Temperature::from_kelvin(<span class="number">0.</span>)),
+		);
 
 		<span class="kw">if let </span><span class="prelude-val">Some</span>(bed_current_temperature) = bed_pid_controller.get_last_sample_of_current_temperature()
 		{
 			<span class="self">self</span>.bed_current_temperature = <span class="prelude-val">Some</span>(bed_current_temperature);
 		}
-		<span class="self">self</span>.bed_target_temperature = <span class="prelude-val">Some</span>(bed_pid_controller.get_target_temperature());
+		<span class="self">self</span>.bed_target_temperature = <span class="prelude-val">Some</span>(
+			bed_pid_controller
+				.get_target_temperature()
+				.unwrap_or(Temperature::from_kelvin(<span class="number">0.</span>)),
+		);
 	}
 }
 
@@ -162,7 +180,7 @@
 	<span class="kw">fn </span>serialize&lt;S&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, serializer: S) -&gt; <span class="prelude-ty">Result</span>&lt;S::Ok, S::Error&gt;
 	<span class="kw">where </span>S: serde::Serializer
 	{
-		<span class="kw">let </span><span class="kw-2">mut </span>state = serializer.serialize_struct(<span class="string">&quot;PrinterState&quot;</span>, <span class="number">4</span>)<span class="question-mark">?</span>;
+		<span class="kw">let </span><span class="kw-2">mut </span>state = serializer.serialize_struct(<span class="string">"PrinterState"</span>, <span class="number">4</span>)<span class="question-mark">?</span>;
 		<span class="kw">let </span><span class="kw-2">mut </span>serialize_field = |field_name, field_value: <span class="prelude-ty">Option</span>&lt;Temperature&gt;| {
 			state.serialize_field(
 				field_name,
@@ -170,10 +188,10 @@
 			)
 		};
 
-		(serialize_field)(<span class="string">&quot;hotendCurrentTemperature&quot;</span>, <span class="self">self</span>.hotend_current_temperature)<span class="question-mark">?</span>;
-		(serialize_field)(<span class="string">&quot;hotendTargetTemperature&quot;</span>, <span class="self">self</span>.hotend_target_temperature)<span class="question-mark">?</span>;
-		(serialize_field)(<span class="string">&quot;bedCurrentTemperature&quot;</span>, <span class="self">self</span>.bed_current_temperature)<span class="question-mark">?</span>;
-		(serialize_field)(<span class="string">&quot;bedTargetTemperature&quot;</span>, <span class="self">self</span>.bed_target_temperature)<span class="question-mark">?</span>;
+		(serialize_field)(<span class="string">"hotendCurrentTemperature"</span>, <span class="self">self</span>.hotend_current_temperature)<span class="question-mark">?</span>;
+		(serialize_field)(<span class="string">"hotendTargetTemperature"</span>, <span class="self">self</span>.hotend_target_temperature)<span class="question-mark">?</span>;
+		(serialize_field)(<span class="string">"bedCurrentTemperature"</span>, <span class="self">self</span>.bed_current_temperature)<span class="question-mark">?</span>;
+		(serialize_field)(<span class="string">"bedTargetTemperature"</span>, <span class="self">self</span>.bed_target_temperature)<span class="question-mark">?</span>;
 
 		state.end()
 	}

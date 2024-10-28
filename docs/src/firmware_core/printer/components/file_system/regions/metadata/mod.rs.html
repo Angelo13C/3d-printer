@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates\core\src\printer\components\file_system\regions\metadata\mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../..\..\..\..\../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../..\..\..\..\../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../..\..\..\..\../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../..\..\..\..\../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../..\..\..\..\../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../..\..\..\..\../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../..\..\..\..\../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../..\..\..\..\../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../..\..\..\..\../" data-static-root-path="../../..\..\..\..\../static.files/" data-current-crate="firmware_core" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0-nightly (a2f5f9691 2023-11-02)" data-channel="nightly" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../..\..\..\..\../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../..\..\..\..\../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../..\..\..\..\../src-files.js"></script><script defer src="../../..\..\..\..\../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../..\..\..\..\../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../..\..\..\..\../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../..\..\..\..\../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../..\..\..\..\../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../..\..\..\..\../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../..\..\..\..\../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../..\..\..\..\../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/core/src/printer/components/file_system/regions/metadata/mod.rs`."><title>mod.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../../../../static.files/rustdoc-198729e5.css"><meta name="rustdoc-vars" data-root-path="../../../../../../../" data-static-root-path="../../../../../../../static.files/" data-current-crate="firmware_core" data-themes="" data-resource-suffix="" data-rustdoc-version="1.84.0-nightly (df4ca44d3 2024-10-27)" data-channel="nightly" data-search-js="search-c5a66128.js" data-settings-js="settings-0f613d39.js" ><script src="../../../../../../../static.files/storage-59e33391.js"></script><script defer src="../../../../../../../static.files/src-script-56102188.js"></script><script defer src="../../../../../../../src-files.js"></script><script defer src="../../../../../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">firmware_core/printer/components/file_system/regions/metadata/</div>mod.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -343,21 +344,7 @@
 <a href="#343" id="343">343</a>
 <a href="#344" id="344">344</a>
 <a href="#345" id="345">345</a>
-<a href="#346" id="346">346</a>
-<a href="#347" id="347">347</a>
-<a href="#348" id="348">348</a>
-<a href="#349" id="349">349</a>
-<a href="#350" id="350">350</a>
-<a href="#351" id="351">351</a>
-<a href="#352" id="352">352</a>
-<a href="#353" id="353">353</a>
-<a href="#354" id="354">354</a>
-<a href="#355" id="355">355</a>
-<a href="#356" id="356">356</a>
-<a href="#357" id="357">357</a>
-<a href="#358" id="358">358</a>
-<a href="#359" id="359">359</a>
-</pre></div><pre class="rust"><code><span class="kw">mod </span>data_holes;
+<a href="#346" id="346">346</a></pre></div><pre class="rust"><code><span class="kw">mod </span>data_holes;
 <span class="kw">mod </span>id;
 <span class="kw">mod </span>metadata;
 <span class="kw">mod </span>validator;
@@ -390,7 +377,7 @@
 {
 	<span class="doccomment">/// Reads the metadatas region you previously [`stored`] from the provided `spi_flash_memory`
 	/// at the address specified in `regions_config.metadata_block_range` or creates a default one
-	/// if it&#39;s the first time the flash memory is used.
+	/// if it's the first time the flash memory is used.
 	///
 	/// Returns `Ok(Self)` if the region was correctly read or if it was missing and the default
 	/// one was succesfully created and automatically stored in the chip. Otherwise returns
@@ -401,8 +388,6 @@
 		spi_flash_memory: <span class="kw-2">&amp;mut </span>SpiFlashMemory&lt;Chip, Spi&gt;, regions_config: <span class="kw-2">&amp;</span>RegionsConfig,
 	) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, &lt;Spi <span class="kw">as </span>ErrorType&gt;::Error&gt;
 	{
-		<span class="macro">log::info!</span>(<span class="string">&quot;Read the files metadatas region from the flash memory&quot;</span>);
-
 		<span class="kw">let </span><span class="kw-2">mut </span>needs_to_store_in_flash = <span class="bool-val">false</span>;
 
 		<span class="kw">let </span>address_offset = <span class="kw-2">*</span>regions_config.metadata_address_range::&lt;Chip&gt;().start();
@@ -415,8 +400,6 @@
 
 		<span class="kw">let </span>self_ = <span class="kw">if </span>data.next() == <span class="number">0xFF
 		</span>{
-			<span class="macro">log::info!</span>(<span class="string">&quot;Create the files metadatas region for the first time&quot;</span>);
-
 			needs_to_store_in_flash = <span class="bool-val">true</span>;
 
 			<span class="kw">let </span>bad_block_table = BadBlockTable::from_first_powerup(spi_flash_memory)<span class="question-mark">?</span>;
@@ -431,17 +414,12 @@
 		}
 		<span class="kw">else
 		</span>{
-			<span class="macro">log::info!</span>(<span class="string">&quot;Read the files metadatas region from the flash memory&quot;</span>);
-
 			<span class="kw">let </span>bad_blocks_size = core::mem::size_of::&lt;u16&gt;() * (data.next() <span class="kw">as </span>usize);
 			<span class="kw">let </span>bad_block_table = BadBlockTable::from_bytes(data.take(bad_blocks_size));
-			<span class="macro">log::info!</span>(<span class="string">&quot;Number of bad blocks: {}&quot;</span>, bad_blocks_size);
 
 			<span class="kw">let </span>highest_used_file_id = FileId::from_bytes(data.take_as_array());
-			<span class="macro">log::info!</span>(<span class="string">&quot;Highest used FileId: {:#?}&quot;</span>, highest_used_file_id);
 
-			<span class="kw">let </span>files_count_stored_in_flash = u16::from_le_bytes(data.take_as_array());
-			<span class="macro">log::info!</span>(<span class="string">&quot;Number of files: {}&quot;</span>, files_count_stored_in_flash);
+			<span class="kw">let </span>files_count_stored_in_flash = u16::from_be_bytes(data.take_as_array());
 			<span class="kw">let </span><span class="kw-2">mut </span>files_metadatas = Vec::with_capacity(files_count_stored_in_flash <span class="kw">as </span>usize);
 			<span class="kw">let </span><span class="kw-2">mut </span>current_page_index = <span class="number">0</span>;
 			<span class="kw">let </span><span class="kw-2">mut </span>data_reserve = [<span class="number">0_u8</span>; core::mem::size_of::&lt;FileMetadata&gt;()];
@@ -511,8 +489,6 @@
 		<span class="kw-2">&amp;</span><span class="self">self</span>, spi_flash_memory: <span class="kw-2">&amp;mut </span>SpiFlashMemory&lt;Chip, Spi&gt;, regions_config: <span class="kw-2">&amp;</span>RegionsConfig,
 	) -&gt; <span class="prelude-ty">Result</span>&lt;(), &lt;Spi <span class="kw">as </span>ErrorType&gt;::Error&gt;
 	{
-		<span class="macro">log::info!</span>(<span class="string">&quot;Store the files metadatas region in the flash memory&quot;</span>);
-
 		spi_flash_memory.erase_blocks(regions_config.metadata_block_range.clone())<span class="question-mark">?</span>;
 
 		<span class="kw">let </span>self_as_bytes: Vec&lt;u8&gt; = core::iter::once(<span class="number">0_u8</span>)
@@ -531,8 +507,6 @@
 
 		spi_flash_memory.program(<span class="kw-2">&amp;</span>self_as_bytes, <span class="kw-2">*</span>regions_config.metadata_address_range::&lt;Chip&gt;().start())<span class="question-mark">?</span>;
 
-		<span class="macro">log::info!</span>(<span class="string">&quot;Finished storing the files metadatas region in the flash memory&quot;</span>);
-
 		<span class="prelude-val">Ok</span>(())
 	}
 
@@ -542,7 +516,7 @@
 	/// otherwise returns `Err(NotEnoughSpaceAvailable)`
 	///
 	/// # Warning
-	/// This won&#39;t store the metadata of the newly created file in the flash memory, a call
+	/// This won't store the metadata of the newly created file in the flash memory, a call
 	/// to [`Self::finish_writing_file`] is required.
 	</span><span class="kw">pub fn </span>create_file&lt;Chip: FlashMemoryChip&gt;(
 		<span class="kw-2">&amp;mut </span><span class="self">self</span>, bytes_count: u32, regions_config: <span class="kw-2">&amp;</span>RegionsConfig,

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["UnifiedBedLevelingProcedure"],"struct":["Probe","UnifiedBedLeveling"],"trait":["ZAxisProbe"]};
+window.SIDEBAR_ITEMS = {"enum":["UnifiedBedLevelingProcedure"],"struct":["BedLevelingProcedure","Probe","UnifiedBedLeveling"],"trait":["ZAxisProbe"]};
