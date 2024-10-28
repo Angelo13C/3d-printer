@@ -1,0 +1,298 @@
+openapi: 3.0.0
+info:
+  title: 3D Printer API
+  version: 1.0.0
+  contact:
+    name: "Angelo Cipriani"
+  description: |
+    This API allows users to interact with the 3D printer by managing files, controlling print jobs, and retrieving the printer's status. 
+
+    Key features include:
+    - Listing, sending, and deleting files from the printer's file system.
+    - Starting and managing print jobs.
+    - Checking the status of ongoing prints.
+    - Pausing or resuming prints.
+
+components:
+  securitySchemes:
+    Password:
+      type: apiKey
+      in: header
+      name: Password
+      description: The password that you set in the printer's firmware when compiling it.
+security:
+  - Password: []
+paths:
+  /v1/hello:
+    get:
+      summary: Discoverable endpoint to identify the printer
+      security: []
+      responses:
+        "200":
+          description: Successfully discovered the printer.
+  /v1/files:
+    get:
+      summary: List all files
+      responses:
+        "200":
+          description: A list of all the files stored in the printer's flash memory, that can either be printed or deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  {
+                    files:
+                      [
+                        { name: "3D Benchy", sizeInBytes: 432910, fileId: 4 },
+                        { name: "Cube", sizeInBytes: 30210, fileId: 5 },
+                      ],
+                  }
+                properties:
+                  files:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                        sizeInBytes:
+                          type: integer
+                          format: int32
+                        fileId:
+                          type: integer
+                          format: int32
+
+    post:
+      summary: Upload a file to the printer
+      parameters:
+        - name: Content-Length
+          description: "Length in bytes of the file content (the number of bytes in the body of this request)"
+          in: header
+          required: true
+          schema:
+            type: integer
+            format: int32
+          example: 27
+        - name: File-Name
+          description: "Name of the file"
+          in: header
+          required: true
+          schema:
+            type: string
+          example: "Move around"
+      requestBody:
+        description: "File content"
+        required: true
+        content:
+          text/plain:
+            schema:
+              type: string
+            example: "G1 Z150\nG1 X15\nG1 X15 Y15"
+      responses:
+        "201":
+          description: File uploaded successfully
+        "400":
+          description: Bad request
+
+    delete:
+      summary: Delete a specified file
+      parameters:
+        - name: id
+          in: query
+          description: "The unique identifier of the file to delete."
+          required: true
+          schema:
+            type: integer
+            format: int32
+          example: 4
+      responses:
+        "204":
+          description: File deleted successfully
+        "404":
+          description: File not found
+
+  /v1/print:
+    post:
+      summary: Print the specified file
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                fileId:
+                  type: integer
+                  format: int32
+                  example: 4
+      responses:
+        "200":
+          description: Print job started
+        "400":
+          description: Bad request (e.g., file not found)
+
+  /v1/print/status:
+    get:
+      summary: Get the current print status
+      responses:
+        "200":
+          description: Status of the current print job
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  isPrinting:
+                    type: boolean
+                    example: true
+                  fileNameBeingPrinted:
+                    type: string
+                    example: "Move around"
+                  printDurationInSeconds:
+                    type: integer
+                    format: int32
+                    example: 73
+                  timePrintedInSeconds:
+                    type: integer
+                    format: int32
+                    example: 39
+                  isPaused:
+                    type: boolean
+                    example: false
+
+  /v1/print/toggle-pause:
+    post:
+      summary: Toggle between pausing and resuming the current print job
+      responses:
+        "200":
+          description: Print job paused or resumed successfully
+        "404":
+          description: No print job is currently running
+
+  /v1/printer/state:
+    get:
+      summary: Get the current state of the printer
+      responses:
+        "200":
+          description: Successfully retrieved the printer state
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  hotendCurrentTemperature:
+                    type: number
+                    format: float
+                    example: 300.0
+                    nullable: true
+                  hotendTargetTemperature:
+                    type: number
+                    format: float
+                    example: 510.0
+                    nullable: true
+                  bedCurrentTemperature:
+                    type: number
+                    format: float
+                    example: 290.0
+                    nullable: true
+                  bedTargetTemperature:
+                    type: number
+                    format: float
+                    example: 345.0
+                    nullable: true
+
+  /v1/target-temperature:
+    post:
+      summary: Set the target temperature for the hotend and/or bed
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                hotendTargetTemperature:
+                  type: number
+                  format: float
+                  example: 485.15
+                bedTargetTemperature:
+                  type: number
+                  format: float
+                  example: 340.15
+              additionalProperties: false
+      responses:
+        "200":
+          description: Target temperature set successfully
+        "400":
+          description: Bad request (e.g., invalid temperature values)
+        "404":
+          description: Printer not found or not reachable
+
+  /v1/gcode-commands:
+    get:
+      summary: List G-code commands in memory
+      parameters:
+        - name: Starting-Line
+          in: header
+          required: true
+          description: The line number from which to start retrieving G-code commands.
+          schema:
+            type: integer
+            format: int32
+          example: 14
+      responses:
+        "200":
+          description: A list of G-code commands
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  lineOfFirstCommand:
+                    type: integer
+                    format: int32
+                  commands:
+                    type: string
+
+    post:
+      summary: Send G-code commands to the printer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                commands:
+                  type: string
+      responses:
+        "200":
+          description: Commands sent successfully
+        "400":
+          description: Bad request
+
+  /v1/ota-update:
+    post:
+      summary: Perform an OTA update
+      parameters:
+        - name: Content-Length
+          description: "Length in bytes of the content (the number of bytes in the body of this request)"
+          in: header
+          required: true
+          schema:
+            type: integer
+            format: int32
+          example: 3192376
+      requestBody:
+        required: true
+        content:
+          text/plain:
+            schema:
+              type: string
+              format: binary
+      responses:
+        "200":
+          description: Update started
+        "400":
+          description: Bad request
