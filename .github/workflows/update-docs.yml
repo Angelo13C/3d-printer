@@ -20,6 +20,11 @@ jobs:
           toolchain: nightly
 
       - name: Build Documentation
+        env:
+          PRINTER_PASSWORD_PEPPERS: "test"
+          WIFI_SSID: "test"
+          WIFI_PASSWORD: "test"
+          PRINTER_PASSWORD: "test"
         run: |
           cd firmware/crates/core
           cargo +nightly doc --no-deps
