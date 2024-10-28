@@ -1,5 +1,5 @@
 //! # This crate
-//! This is the core part of the firmware for a [3D printer](https://en.wikipedia.org/wiki/3D_printing), and it's still in development.
+//! This is the core part of the firmware for a [3D printer](https://en.wikipedia.org/wiki/3D_printing).
 //!
 //! This crate is an Hardware Abstraction Layer (HAL), meaning it provides an implementation of:
 //! - [Communication] with the external world, through an [HTTP server] (over [WiFi]) for example
