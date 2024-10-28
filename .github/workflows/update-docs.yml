@@ -22,7 +22,7 @@ jobs:
       - name: Build Documentation
         run: |
           cd firmware/crates/core
-          cargo doc --no-deps
+          cargo +nightly doc --no-deps
 
       - name: Clean up old docs
         run: |
